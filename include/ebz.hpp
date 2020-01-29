@@ -10,11 +10,11 @@ public:
   Ebz(void);
   ~Ebz(void);
   void setDebug(void);
-  void runEbz(void) const;
+  void runEbz(void);
   void runSharedMem(void) const;
 
   void openSerialPort(char const* t_device);
-  void readSerialPort(void) const;
+  void readSerialPort(void);
   void writeSharedMem(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
@@ -29,9 +29,7 @@ public:
   static const char* const OBIS_VOLTAGE_L3;   // Voltage L3 [V]
   static const char* const OBIS_STATUS;
   static const char* const OBIS_SECONDS_INDEX;
-
-  static int const D0_MESSAGE_SIZE;
-  static int const SERIAL_BUFFER;
+  static int const D0_DATAGRAM_SIZE;
 
 private:
   bool m_debug;
@@ -50,6 +48,7 @@ private:
   double m_voltagel3;           // voltage phase L3
   char m_status[4];             // status word, 4 byte hex
   char m_secindex[4];           // time of operation, in seconds, 4 byte hex
+  char* m_datagram;             // D0 message datagram
   
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;
