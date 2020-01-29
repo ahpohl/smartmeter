@@ -6,8 +6,6 @@
 
 using namespace std;
 
-int const Ebz::D0_DATAGRAM_SIZE = 368;
-
 Ebz::Ebz(void)
 {
   bool m_debug = false;
@@ -49,7 +47,6 @@ void Ebz::setDebug(void)
 
 void Ebz::runEbz(void)
 {
-  m_datagram = (char*) malloc(Ebz::D0_DATAGRAM_SIZE * sizeof(char));  
   while (true) {
     readSerialPort();
   }

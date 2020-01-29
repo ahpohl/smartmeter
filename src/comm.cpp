@@ -14,6 +14,9 @@
 
 using namespace std;
 
+int const Ebz::D0_DATAGRAM_SIZE = 368;
+int const Ebz::SERIAL_BUFFER_SIZE = 512;
+
 void Ebz::openSerialPort(char const* t_device)
 {
   if (!t_device) {
@@ -75,8 +78,8 @@ void Ebz::readSerialPort()
   char byte = '\0';
   int bytes_received = 0;
   int count = 0;
-  memset(m_datagram, '\0', Ebz::D0_DATAGRAM_SIZE);
-  char *p = m_datagram;
+  char datagram[Ebz::SERIAL_BUFFER_SIZE] = {0};
+  char *p = datagram;
 
   do {
     bytes_received = read(m_serialport, &byte, 1);
@@ -85,7 +88,7 @@ void Ebz::readSerialPort()
         + strerror(errno) + " (" + to_string(errno) + ")");
     }
     ++count;
-    if (count > Ebz::D0_DATAGRAM_SIZE) {
+    if (count == Ebz::SERIAL_BUFFER_SIZE) {
       throw runtime_error("Serial buffer overflow");
     }
     *p = byte;
@@ -99,7 +102,7 @@ void Ebz::readSerialPort()
     return;
   }
   if (m_debug) {
-    cout << m_datagram << endl;
+    cout << datagram << endl;
     cout << "EOM " << endl;
   }
 }
