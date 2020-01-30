@@ -15,7 +15,6 @@
 using namespace std;
 
 int const Ebz::D0_DATAGRAM_SIZE = 368;
-int const Ebz::SERIAL_BUFFER_SIZE = 512;
 
 void Ebz::openSerialPort(char const* t_device)
 {
@@ -78,8 +77,8 @@ void Ebz::readSerialPort()
   char byte = '\0';
   int bytes_received = 0;
   int count = 0;
-  char datagram[Ebz::SERIAL_BUFFER_SIZE] = {0};
-  char *p = datagram;
+  memset(m_datagram, '\0', Ebz::SERIAL_BUFFER_SIZE);
+  char *p = m_datagram;
 
   do {
     bytes_received = read(m_serialport, &byte, 1);
@@ -97,12 +96,17 @@ void Ebz::readSerialPort()
 
   if (count < Ebz::D0_DATAGRAM_SIZE) {
     if (m_debug) {
-      cout << "Incomplete message received (" << count << ")" << endl;
+      cout << "Incomplete datagram (" << count << ")" << endl;
     }
     return;
   }
   if (m_debug) {
-    cout << datagram << endl;
+    cout << m_datagram << endl;
     cout << "EOM " << endl;
   }
+}
+
+void Ebz::readDatagram(void)
+{
+
 }

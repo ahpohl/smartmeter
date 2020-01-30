@@ -15,6 +15,7 @@ public:
 
   void openSerialPort(char const* t_device);
   void readSerialPort(void);
+  void readDatagram(void);
   void writeSharedMem(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
@@ -49,7 +50,8 @@ private:
   double m_voltagel3;           // voltage phase L3
   char m_status[4];             // status word, 4 byte hex
   char m_secindex[4];           // time of operation, in seconds, 4 byte hex
-  
+  char* m_datagram;             // buffer for a d0 datagram 
+ 
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;
 };

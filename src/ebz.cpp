@@ -6,6 +6,8 @@
 
 using namespace std;
 
+int const Ebz::SERIAL_BUFFER_SIZE = 512;
+
 Ebz::Ebz(void)
 {
   bool m_debug = false;
@@ -38,6 +40,8 @@ Ebz::~Ebz(void)
   if (m_debug) {
     cout << "Ebz destructor method called" << endl;
   }
+
+  free(m_datagram);
 }
 
 void Ebz::setDebug(void)
@@ -47,8 +51,10 @@ void Ebz::setDebug(void)
 
 void Ebz::runEbz(void)
 {
+  m_datagram = (char*)malloc(Ebz::SERIAL_BUFFER_SIZE * sizeof(char));
   while (true) {
     readSerialPort();
+    readDatagram();
   }
 }
 
