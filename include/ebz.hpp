@@ -32,14 +32,16 @@ public:
   static const char* const OBIS_SECONDS_INDEX;
   static int const D0_DATAGRAM_SIZE;
   static int const SERIAL_BUFFER_SIZE;
+  static int const OBIS_SERIAL_NUMBER_SIZE;
+  static int const OBIS_DEVICE_ID_SIZE;
 
 private:
   bool m_debug;
   char const* m_sharedmem;      // shared memory device
   int m_serialport;             // serial port
 
-  char const* m_serialnum;      // serial number and software version
-  char const* m_deviceid;       // device id DIN 43863-5
+  char* m_serialnum;      // serial number and software version
+  char* m_deviceid;       // device id DIN 43863-5
   double m_energy;              // energy counter [kWh], resolution 10 µW*h, format %f6.8
   double m_power;               // power output (3-phases), resolution 0.01 W, format %f5.2
   double m_powerl1;             // power phase L1

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iomanip>
 #include <chrono>
+#include <string>
 
 #include <cstring>
 #include <termios.h>    // contains POSIX terminal control definition
@@ -108,5 +109,15 @@ void Ebz::readSerialPort()
 
 void Ebz::readDatagram(void)
 {
+  memset(m_serialnum, '\0', Ebz::OBIS_SERIAL_NUMBER_SIZE);
+  memset(m_deviceid, '\0', Ebz::OBIS_DEVICE_ID_SIZE);
+  char *p = m_datagram;
 
+  strncpy(m_serialnum, p+=3, 18);
+  strncpy(m_deviceid, p+=36, 14);
+
+  if (m_debug) {
+    cout << "Serial number: " << m_serialnum << endl;
+    cout << "Device id: " << m_deviceid << endl;
+  }
 }
