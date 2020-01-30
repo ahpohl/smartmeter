@@ -94,7 +94,7 @@ void Ebz::readSerialPort()
     ++p;
   } while (byte != '!');
 
-  if (count < Ebz::D0_DATAGRAM_SIZE) {
+  if (count != Ebz::D0_DATAGRAM_SIZE) {
     if (m_debug) {
       cout << "Incomplete datagram (" << count << ")" << endl;
     }
