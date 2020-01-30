@@ -73,7 +73,7 @@ void Ebz::configureSerialPort(unsigned char const& t_vmin,
   }
 }
 
-void Ebz::readSerialPort()
+int Ebz::readSerialPort()
 {
   char byte = '\0';
   int bytes_received = 0;
@@ -99,25 +99,65 @@ void Ebz::readSerialPort()
     if (m_debug) {
       cout << "Incomplete datagram (" << count << ")" << endl;
     }
-    return;
+    return EXIT_FAILURE;
   }
   if (m_debug) {
     cout << m_datagram << endl;
     cout << "EOM " << endl;
   }
+
+  return EXIT_SUCCESS;
 }
 
 void Ebz::readDatagram(void)
 {
-  memset(m_serialnum, '\0', Ebz::OBIS_SERIAL_NUMBER_SIZE);
-  memset(m_deviceid, '\0', Ebz::OBIS_DEVICE_ID_SIZE);
+  memset(m_serialnum, '\0', Ebz::OBIS_BUFFER_SIZE);
+  memset(m_deviceid, '\0', Ebz::OBIS_BUFFER_SIZE);
+  char tmp[Ebz::OBIS_BUFFER_SIZE] = {0};
   char *p = m_datagram;
 
-  strncpy(m_serialnum, p+=3, 18);
-  strncpy(m_deviceid, p+=36, 14);
-
+  strncpy(m_serialnum, p+=0x03, 18);
+  strncpy(m_deviceid, p+=0x44, 14);
+  strncpy(tmp, p+=0x1F, 15);
+  m_energy = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x25, 9);
+  m_power = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x1D, 9);
+  m_powerl1 = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x1D, 9);
+  m_powerl2 = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x1D, 9);
+  m_powerl3 = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x1D, 5);
+  m_voltagel1 = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x19, 5);
+  m_voltagel2 = atof(tmp);
+  memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(tmp, p+=0x19, 5);
+  m_voltagel3 = atof(tmp);
+  strncpy(m_status, p+=0x19, 8);
+  m_status[8] = '\0';
+  strncpy(m_sensortime, p+=0x1A, 8);
+  m_sensortime[8] = '\0';
+  
   if (m_debug) {
     cout << "Serial number: " << m_serialnum << endl;
     cout << "Device id: " << m_deviceid << endl;
+    cout << "Energy: " << m_energy << " kWh" << endl;
+    cout << "Total power: " << m_power << " W" << endl;
+    cout << "Power L1: " << m_powerl1 << " W" << endl;
+    cout << "Power L2: " << m_powerl2 << " W" << endl;
+    cout << "Power L3: " << m_powerl3 << " W" << endl;
+    cout << "Voltage L1: " << m_voltagel1 << " V" << endl;
+    cout << "Voltage L2: " << m_voltagel2 << " V" << endl;
+    cout << "Voltage L3: " << m_voltagel3 << " V" << endl;
+    cout << "Status: " << m_status << endl;
+    cout << "Sensor time: " << m_sensortime << endl;
   }
 }

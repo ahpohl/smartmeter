@@ -7,8 +7,7 @@
 using namespace std;
 
 int const Ebz::SERIAL_BUFFER_SIZE = 512;
-int const Ebz::OBIS_SERIAL_NUMBER_SIZE = 32;
-int const Ebz::OBIS_DEVICE_ID_SIZE = 32;
+int const Ebz::OBIS_BUFFER_SIZE = 32;
 
 Ebz::Ebz(void)
 {
@@ -44,6 +43,8 @@ Ebz::~Ebz(void)
   }
 
   free(m_datagram);
+  free(m_deviceid);
+  free(m_serialnum);
 }
 
 void Ebz::setDebug(void)
@@ -54,12 +55,15 @@ void Ebz::setDebug(void)
 void Ebz::runEbz(void)
 {
   m_datagram = (char*)malloc(Ebz::SERIAL_BUFFER_SIZE * sizeof(char));
-  m_serialnum = (char*)malloc(Ebz::OBIS_SERIAL_NUMBER_SIZE * sizeof(char));
-  m_deviceid = (char*)malloc(Ebz::OBIS_DEVICE_ID_SIZE * sizeof(char));
-  
+  m_serialnum = (char*)malloc(Ebz::OBIS_BUFFER_SIZE * sizeof(char));
+  m_deviceid = (char*)malloc(Ebz::OBIS_BUFFER_SIZE * sizeof(char));
+  int ret = 0; 
+ 
   while (true) {
-    readSerialPort();
-    readDatagram();
+    ret = readSerialPort();
+    if (!ret) {
+      readDatagram();
+    }
   }
 }
 

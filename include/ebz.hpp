@@ -14,11 +14,12 @@ public:
   void runSharedMem(void) const;
 
   void openSerialPort(char const* t_device);
-  void readSerialPort(void);
+  int readSerialPort(void);
   void readDatagram(void);
   void writeSharedMem(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
+  static const char* const OBIS_CUSTOM_ID;
   static const char* const OBIS_DEVICE_ID;
   static const char* const OBIS_ENERGY;       // Meter reading Active Energy import( A+ ) [kWh]
   static const char* const OBIS_POWER_TOTAL;  // Active total power [W]
@@ -32,27 +33,26 @@ public:
   static const char* const OBIS_SECONDS_INDEX;
   static int const D0_DATAGRAM_SIZE;
   static int const SERIAL_BUFFER_SIZE;
-  static int const OBIS_SERIAL_NUMBER_SIZE;
-  static int const OBIS_DEVICE_ID_SIZE;
+  static int const OBIS_BUFFER_SIZE;
 
 private:
   bool m_debug;
-  char const* m_sharedmem;      // shared memory device
-  int m_serialport;             // serial port
+  char const* m_sharedmem;  // shared memory device
+  int m_serialport;         // serial port
 
-  char* m_serialnum;      // serial number and software version
-  char* m_deviceid;       // device id DIN 43863-5
-  double m_energy;              // energy counter [kWh], resolution 10 µW*h, format %f6.8
-  double m_power;               // power output (3-phases), resolution 0.01 W, format %f5.2
-  double m_powerl1;             // power phase L1
-  double m_powerl2;             // power phase L2
-  double m_powerl3;             // power phase L3
-  double m_voltagel1;           // voltage phase L1, 0.1 V resolution
-  double m_voltagel2;           // voltage phase L2
-  double m_voltagel3;           // voltage phase L3
-  char m_status[4];             // status word, 4 byte hex
-  char m_secindex[4];           // time of operation, in seconds, 4 byte hex
-  char* m_datagram;             // buffer for a d0 datagram 
+  char* m_serialnum;        // serial number and software version
+  char* m_deviceid;         // device id DIN 43863-5
+  double m_energy;          // energy counter [kWh], resolution 10 µW*h, format %f6.8
+  double m_power;           // power output (3-phases), resolution 0.01 W, format %f5.2
+  double m_powerl1;         // power phase L1
+  double m_powerl2;         // power phase L2
+  double m_powerl3;         // power phase L3
+  double m_voltagel1;       // voltage phase L1, 0.1 V resolution
+  double m_voltagel2;       // voltage phase L2
+  double m_voltagel3;       // voltage phase L3
+  char m_status[9];         // status word, 4 byte hex
+  char m_sensortime[9];     // time of operation, in seconds, 4 byte hex
+  char* m_datagram;         // buffer for a d0 datagram 
  
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;

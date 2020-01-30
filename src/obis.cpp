@@ -1,7 +1,7 @@
 #include <iostream>
 #include "ebz.hpp"
 
-const char* const Ebz::OBIS_SERIAL_NUMBER =   "1-0:0.0.0";
+const char* const Ebz::OBIS_CUSTOM_ID =       "1-0:0.0.0";
 const char* const Ebz::OBIS_DEVICE_ID =       "1-0:96.1.0";
 const char* const Ebz::OBIS_ENERGY =          "1-0:1.8.0";
 const char* const Ebz::OBIS_POWER_TOTAL =     "1-0:16.7.0";
