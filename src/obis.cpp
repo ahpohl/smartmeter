@@ -57,8 +57,9 @@ void Ebz::writeObisCodes() const
   ofs.open(Ebz::OBIS_STATUS, ios::out);
   ofs << m_status;
   ofs.close();
+  unsigned long secindex = strtoul(m_sensortime, 0, 16);
   ofs.open(Ebz::OBIS_SECONDS_INDEX, ios::out);
-  ofs << m_sensortime;
+  ofs << secindex;
   ofs.close();
 
   ofs.open(Ebz::OBIS_ENERGY, ios::out);
