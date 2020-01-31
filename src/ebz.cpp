@@ -11,16 +11,16 @@ int const Ebz::OBIS_BUFFER_SIZE = 32;
 
 Ebz::Ebz(void)
 {
-  bool m_debug = false;
-  int m_serialport = 0;
-  double m_energy = 0;      
-  double m_power = 0;      
-  double m_powerl1 = 0;  
-  double m_powerl2 = 0; 
-  double m_powerl3 = 0;
-  double m_voltagel1 = 0;    
-  double m_voltagel2 = 0; 
-  double m_voltagel3 = 0;
+  m_debug = false;
+  m_serialport = 0;
+  m_energy = 0;      
+  m_power = 0;      
+  m_powerl1 = 0;  
+  m_powerl2 = 0; 
+  m_powerl3 = 0;
+  m_voltagel1 = 0;    
+  m_voltagel2 = 0; 
+  m_voltagel3 = 0;
 }
 
 Ebz::~Ebz(void)
