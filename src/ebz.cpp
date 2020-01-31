@@ -12,10 +12,7 @@ int const Ebz::OBIS_BUFFER_SIZE = 32;
 Ebz::Ebz(void)
 {
   bool m_debug = false;
-  char const* m_sharedmem = nullptr;      
-  int m_serialport = 0;         
-  char const* m_serialnum = nullptr; 
-  char const* m_deviceid = nullptr;
+  int m_serialport = 0;
   double m_energy = 0;      
   double m_power = 0;      
   double m_powerl1 = 0;  
@@ -24,8 +21,6 @@ Ebz::Ebz(void)
   double m_voltagel1 = 0;    
   double m_voltagel2 = 0; 
   double m_voltagel3 = 0;
-  char m_status[4] = "\0";
-  char m_secindex[4] = "\0";  
 }
 
 Ebz::~Ebz(void)
@@ -41,10 +36,11 @@ Ebz::~Ebz(void)
   if (m_debug) {
     cout << "Ebz destructor method called" << endl;
   }
-
-  free(m_datagram);
-  free(m_deviceid);
-  free(m_serialnum);
+  delete[] m_datagram;
+  delete[] m_deviceid;
+  delete[] m_serialnum;
+  delete[] m_status;
+  delete[] m_sensortime;
 }
 
 void Ebz::setDebug(void)
@@ -52,11 +48,13 @@ void Ebz::setDebug(void)
   m_debug = true;
 }
 
-void Ebz::runEbz(void)
+void Ebz::runReadSerial(void)
 {
-  m_datagram = (char*)malloc(Ebz::SERIAL_BUFFER_SIZE * sizeof(char));
-  m_serialnum = (char*)malloc(Ebz::OBIS_BUFFER_SIZE * sizeof(char));
-  m_deviceid = (char*)malloc(Ebz::OBIS_BUFFER_SIZE * sizeof(char));
+  m_datagram = new char[Ebz::SERIAL_BUFFER_SIZE];
+  m_serialnum = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_deviceid = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_status = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_sensortime = new char[Ebz::OBIS_BUFFER_SIZE];
   int ret = 0; 
  
   while (true) {
@@ -67,10 +65,15 @@ void Ebz::runEbz(void)
   }
 }
 
-void Ebz::runSharedMem(void) const
+void Ebz::runWriteObis(void)
 {
   while (true) {
     writeSharedMem();
     this_thread::sleep_for(chrono::seconds(1));
   }
+}
+
+void Ebz::setSharedMemoryDevice(char const* t_ramdisk)
+{
+  m_sharedmem = t_ramdisk;
 }

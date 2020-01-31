@@ -10,13 +10,15 @@ public:
   Ebz(void);
   ~Ebz(void);
   void setDebug(void);
-  void runEbz(void);
-  void runSharedMem(void) const;
-
+  
+  void runReadSerial(void);
   void openSerialPort(char const* t_device);
   int readSerialPort(void);
   void readDatagram(void);
-  void writeSharedMem(void) const;
+  
+  void runWriteObis(void);
+  void setSharedMemoryDevice(char const* t_ramdisk);
+  void writeSharedMem(void);
 
   static const char* const OBIS_SERIAL_NUMBER;
   static const char* const OBIS_CUSTOM_ID;
@@ -50,8 +52,8 @@ private:
   double m_voltagel1;       // voltage phase L1, 0.1 V resolution
   double m_voltagel2;       // voltage phase L2
   double m_voltagel3;       // voltage phase L3
-  char m_status[9];         // status word, 4 byte hex
-  char m_sensortime[9];     // time of operation, in seconds, 4 byte hex
+  char* m_status;           // status word, 4 byte hex
+  char* m_sensortime;       // time of operation, in seconds, 4 byte hex
   char* m_datagram;         // buffer for a d0 datagram 
  
   void configureSerialPort(unsigned char const& t_vmin,

@@ -11,16 +11,18 @@ int main(int argc, char* argv[])
   bool version = false;
   bool help = false;
   char const* serial_device = nullptr;
+  char const* ramdisk = nullptr;
 
   const struct option longOpts[] = {
     { "help", no_argument, nullptr, 'h' },
     { "version", no_argument, nullptr, 'V' },
     { "debug", no_argument, nullptr, 'D' },
-    { "device", required_argument, nullptr, 'd' },
+    { "serial", required_argument, nullptr, 's' },
+    { "ramdisk", required_argument, nullptr, 'r' },
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char * optString = "hVDd:";
+  const char * optString = "hVDs:r:";
   int opt = 0;
   int longIndex = 0;
 
@@ -36,8 +38,11 @@ int main(int argc, char* argv[])
     case 'D':
       debug = true;
       break;
-    case 'd':
+    case 's':
       serial_device = optarg;
+      break;
+    case 'r':
+      ramdisk = optarg;
       break;
     default:
       break;
@@ -53,7 +58,8 @@ int main(int argc, char* argv[])
   -h --help              Show help message\n\
   -V --version           Show build info\n\
   -D --debug             Show debug messages\n\
-  -d --device [dev]      Serial device"
+  -s --serial [dev]      Serial device\n\
+  -r --ramdisk [dev]     Shared memory device"    
     << endl << endl;
     return 0;
   }
@@ -76,24 +82,21 @@ int main(int argc, char* argv[])
     meter->setDebug();
   }
   
-  thread ebz_thread;
+  thread serial_thread;
   meter->openSerialPort(serial_device);
-  ebz_thread = thread(&Ebz::runEbz, meter);
+  serial_thread = thread(&Ebz::runReadSerial, meter);
 
-  /*
-  thread shm_thread;
-  shm_thread = thread(&Ebz::runSharedMem, meter);
-  */
+  thread ramdisk_thread;
+  meter->setSharedMemoryDevice(ramdisk);
+  ramdisk_thread = thread(&Ebz::runWriteObis, meter);
 
-  if (ebz_thread.joinable()) {
-    ebz_thread.join();
+  if (serial_thread.joinable()) {
+    serial_thread.join();
   }
 
-  /*
-  if (shm_thread.joinable()) {
-    shm_thread.join();
+  if (ramdisk_thread.joinable()) {
+    ramdisk_thread.join();
   }
-  */
 
   return 0;
 }

@@ -111,13 +111,12 @@ int Ebz::readSerialPort()
 
 void Ebz::readDatagram(void)
 {
-  memset(m_serialnum, '\0', Ebz::OBIS_BUFFER_SIZE);
-  memset(m_deviceid, '\0', Ebz::OBIS_BUFFER_SIZE);
-  char tmp[Ebz::OBIS_BUFFER_SIZE] = {0};
   char *p = m_datagram;
-
+  memset(m_serialnum, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(m_serialnum, p+=0x03, 18);
+  memset(m_deviceid, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(m_deviceid, p+=0x44, 14);
+  char tmp[Ebz::OBIS_BUFFER_SIZE] = {0};
   strncpy(tmp, p+=0x1F, 15);
   m_energy = atof(tmp);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
@@ -141,10 +140,10 @@ void Ebz::readDatagram(void)
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x19, 5);
   m_voltagel3 = atof(tmp);
+  memset(m_status, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(m_status, p+=0x19, 8);
-  m_status[8] = '\0';
+  memset(m_sensortime, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(m_sensortime, p+=0x1A, 8);
-  m_sensortime[8] = '\0';
   
   if (m_debug) {
     cout << "Serial number: " << m_serialnum << endl;
@@ -158,6 +157,8 @@ void Ebz::readDatagram(void)
     cout << "Voltage L2: " << m_voltagel2 << " V" << endl;
     cout << "Voltage L3: " << m_voltagel3 << " V" << endl;
     cout << "Status: " << m_status << endl;
-    cout << "Sensor time: " << m_sensortime << endl;
+    unsigned long secindex = strtoul(m_sensortime, 0, 16);
+    cout << "Sensor time: " << m_sensortime << " (" << 
+      secindex << " sec)" << endl;
   }
 }
