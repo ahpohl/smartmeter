@@ -77,4 +77,4 @@ endif
 
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin/ 
-	install -m 755 $(MAIN) $(DESTDIR)$(PREFIX)/bin/
+	install -m 755 $(OBJ_DIR)$(MAIN) $(DESTDIR)$(PREFIX)/bin/

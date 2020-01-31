@@ -3,7 +3,7 @@ Description=Smartmeter
 After=syslog.target
 
 [Service]
-ExecStart=/usr/local/bin/smartmeter
+ExecStart=/usr/local/bin/smartmeter --serial /dev/ttyACM0 --ramdisk /dev/shm
 User=http
 Group=http
 
