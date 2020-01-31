@@ -16,9 +16,10 @@ public:
   int readSerialPort(void);
   void readDatagram(void);
   
-  void runWriteObis(void);
+  void runWriteSharedMem(void) const;
   void setSharedMemoryDevice(char const* t_ramdisk);
-  void writeSharedMem(void);
+  void createObisPath(void) const;
+  void writeObisCodes(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
   static const char* const OBIS_CUSTOM_ID;
@@ -43,6 +44,7 @@ private:
   int m_serialport;         // serial port
 
   char* m_serialnum;        // serial number and software version
+  char* m_customid;         // custom id specific to user
   char* m_deviceid;         // device id DIN 43863-5
   double m_energy;          // energy counter [kWh], resolution 10 µW*h, format %f6.8
   double m_power;           // power output (3-phases), resolution 0.01 W, format %f5.2

@@ -1,0 +1,11 @@
+[Unit]
+Description=Smartmeter
+After=syslog.target
+
+[Service]
+ExecStart=/usr/local/bin/smartmeter
+User=http
+Group=http
+
+[Install]
+WantedBy=multi-user.target

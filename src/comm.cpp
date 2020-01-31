@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <chrono>
 #include <string>
+#include <thread>
+#include <mutex>
 
 #include <cstring>
 #include <termios.h>    // contains POSIX terminal control definition
@@ -111,11 +113,16 @@ int Ebz::readSerialPort()
 
 void Ebz::readDatagram(void)
 {
+  std::mutex mutex;
+  std::lock_guard<std::mutex> guard(mutex);
+
   char *p = m_datagram;
   memset(m_serialnum, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(m_serialnum, p+=0x03, 18);
+  memset(m_customid, '\0', Ebz::OBIS_BUFFER_SIZE);
+  strncpy(m_customid, p+=0x24, 14);
   memset(m_deviceid, '\0', Ebz::OBIS_BUFFER_SIZE);
-  strncpy(m_deviceid, p+=0x44, 14);
+  strncpy(m_deviceid, p+=0x20, 14);
   char tmp[Ebz::OBIS_BUFFER_SIZE] = {0};
   strncpy(tmp, p+=0x1F, 15);
   m_energy = atof(tmp);
@@ -147,6 +154,7 @@ void Ebz::readDatagram(void)
   
   if (m_debug) {
     cout << "Serial number: " << m_serialnum << endl;
+    cout << "Custom id: " << m_customid << endl;
     cout << "Device id: " << m_deviceid << endl;
     cout << "Energy: " << m_energy << " kWh" << endl;
     cout << "Total power: " << m_power << " W" << endl;

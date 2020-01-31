@@ -88,7 +88,8 @@ int main(int argc, char* argv[])
 
   thread ramdisk_thread;
   meter->setSharedMemoryDevice(ramdisk);
-  ramdisk_thread = thread(&Ebz::runWriteObis, meter);
+  meter->createObisPath();
+  ramdisk_thread = thread(&Ebz::runWriteSharedMem, meter);
 
   if (serial_thread.joinable()) {
     serial_thread.join();
