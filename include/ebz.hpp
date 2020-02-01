@@ -17,8 +17,7 @@ public:
   void readDatagram(void);
   
   void runWriteSharedMem(void) const;
-  void setSharedMemoryDevice(char const* t_ramdisk);
-  void createObisPath(void) const;
+  void createObisPath(char const* t_ramdisk) const;
   void writeObisCodes(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
@@ -40,9 +39,7 @@ public:
 
 private:
   bool m_debug;
-  char const* m_sharedmem;  // shared memory device
   int m_serialport;         // serial port
-
   char* m_serialnum;        // serial number and software version
   char* m_customid;         // custom id specific to user
   char* m_deviceid;         // device id DIN 43863-5

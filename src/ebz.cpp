@@ -74,8 +74,3 @@ void Ebz::runWriteSharedMem(void) const
     this_thread::sleep_for(chrono::seconds(1));
   }
 }
-
-void Ebz::setSharedMemoryDevice(char const* t_ramdisk)
-{
-  m_sharedmem = t_ramdisk;
-}
