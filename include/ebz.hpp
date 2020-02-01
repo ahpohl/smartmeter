@@ -12,12 +12,12 @@ public:
   void setDebug(void);
   
   void runReadSerial(void);
-  void openSerialPort(char const* t_device);
+  void openSerialPort(const char* const t_device);
   int readSerialPort(void);
   void readDatagram(void);
   
   void runWriteSharedMem(void) const;
-  void createObisPath(char const* t_ramdisk) const;
+  void createObisPath(const char* const t_ramdisk) const;
   void writeObisCodes(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;

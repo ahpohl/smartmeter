@@ -19,7 +19,7 @@ using namespace std;
 
 int const Ebz::D0_DATAGRAM_SIZE = 368;
 
-void Ebz::openSerialPort(char const* t_device)
+void Ebz::openSerialPort(const char* const t_device)
 {
   if (!t_device) {
     throw runtime_error("Serial device argument empty");
@@ -75,7 +75,7 @@ void Ebz::configureSerialPort(unsigned char const& t_vmin,
   }
 }
 
-int Ebz::readSerialPort()
+int Ebz::readSerialPort(void)
 {
   char byte = '\0';
   int bytes_received = 0;

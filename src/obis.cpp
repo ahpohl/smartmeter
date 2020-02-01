@@ -21,7 +21,7 @@ const char* const Ebz::OBIS_VOLTAGE_L3 =      "1-0:72.7.0";
 const char* const Ebz::OBIS_STATUS =          "1-0:96.5.0";
 const char* const Ebz::OBIS_SECONDS_INDEX =   "0-0:96.8.0";
 
-void Ebz::createObisPath(char const* t_ramdisk) const
+void Ebz::createObisPath(const char* const t_ramdisk) const
 {
   fs::path dir(t_ramdisk);
   dir /= "obis";

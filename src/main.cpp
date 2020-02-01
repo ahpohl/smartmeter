@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char * optString = "hVDs:r:";
+  const char* const optString = "hVDs:r:";
   int opt = 0;
   int longIndex = 0;
 
