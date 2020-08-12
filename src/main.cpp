@@ -2,6 +2,7 @@
 #include <thread>
 #include <getopt.h>
 #include "ebz.hpp"
+#include "mqtt.hpp"
 
 using namespace std;
 
@@ -12,6 +13,9 @@ int main(int argc, char* argv[])
   bool help = false;
   char const* serial_device = nullptr;
   char const* ramdisk = nullptr;
+  char const* mqtt_host = nullptr;
+  char const* mqtt_topic = nullptr;
+  int mqtt_port = 0;
 
   const struct option longOpts[] = {
     { "help", no_argument, nullptr, 'h' },
@@ -19,10 +23,13 @@ int main(int argc, char* argv[])
     { "debug", no_argument, nullptr, 'D' },
     { "serial", required_argument, nullptr, 's' },
     { "ramdisk", required_argument, nullptr, 'r' },
+    { "host", required_argument, nullptr, 'H' },
+    { "port", required_argument, nullptr, 'p' },
+    { "topic", required_argument, nullptr, 't' },
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char* const optString = "hVDs:r:";
+  const char* const optString = "hVDs:r:H:p:t:";
   int opt = 0;
   int longIndex = 0;
 
@@ -44,6 +51,15 @@ int main(int argc, char* argv[])
     case 'r':
       ramdisk = optarg;
       break;
+    case 'H':
+      mqtt_host = optarg;
+      break;
+    case 'p':
+      mqtt_port = atoi(optarg);
+      break;
+    case 't':
+      mqtt_topic = optarg;
+      break;
     default:
       break;
     }
@@ -55,11 +71,14 @@ int main(int argc, char* argv[])
     cout << "Energy Pulsemeter " << VERSION_TAG << endl;
     cout << endl << "Usage: " << argv[0] << " [options]" << endl << endl;
     cout << "\
-  -h --help              Show help message\n\
-  -V --version           Show build info\n\
-  -D --debug             Show debug messages\n\
-  -s --serial [dev]      Serial device\n\
-  -r --ramdisk [dev]     Shared memory device"    
+  -h --help         Show help message\n\
+  -V --version      Show build info\n\
+  -D --debug        Show debug messages\n\
+  -s --serial       Serial device\n\
+  -r --ramdisk      Shared memory device\n\
+  -H --host         MQTT broker host or ip\n\
+  -p --port         MQTT broker port\n\
+  -t --topic        MQTT topic to publish"    
     << endl << endl;
     return 0;
   }
@@ -81,13 +100,14 @@ int main(int argc, char* argv[])
   if (debug) {
     meter->setDebug();
   }
-  
+
   thread serial_thread;
   meter->openSerialPort(serial_device);
   serial_thread = thread(&Ebz::runReadSerial, meter);
 
   thread ramdisk_thread;
   meter->createObisPath(ramdisk);
+  meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
   ramdisk_thread = thread(&Ebz::runWriteSharedMem, meter);
 
   if (serial_thread.joinable()) {
@@ -97,6 +117,6 @@ int main(int argc, char* argv[])
   if (ramdisk_thread.joinable()) {
     ramdisk_thread.join();
   }
-
+  
   return 0;
 }

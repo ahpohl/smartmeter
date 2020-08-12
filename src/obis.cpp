@@ -39,7 +39,7 @@ void Ebz::createObisPath(const char* const t_ramdisk) const
   }
 }
 
-void Ebz::writeObisCodes() const
+void Ebz::writeObisCodes(void) const
 {
   std::mutex mutex;
   std::lock_guard<std::mutex> guard(mutex);

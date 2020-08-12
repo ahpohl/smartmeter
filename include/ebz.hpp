@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <chrono>
+#include "mqtt.hpp"
 
 class Ebz
 {
@@ -19,6 +20,8 @@ public:
   void runWriteSharedMem(void) const;
   void createObisPath(const char* const t_ramdisk) const;
   void writeObisCodes(void) const;
+  void initMqtt(char const* t_host, int t_port, char const* t_topic);
+  void publishMqtt(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
   static const char* const OBIS_CUSTOM_ID;
@@ -53,7 +56,8 @@ private:
   double m_voltagel3;       // voltage phase L3
   char* m_status;           // status word, 4 byte hex
   char* m_sensortime;       // time of operation, in seconds, 4 byte hex
-  char* m_datagram;         // buffer for a d0 datagram 
+  char* m_datagram;         // buffer for a d0 datagram
+  Mosq* m_mqtt;             // pointer to mosquitto client object
  
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;
