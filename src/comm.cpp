@@ -170,3 +170,21 @@ void Ebz::readDatagram(void)
       secindex << " sec)" << endl;
   }
 }
+
+void Ebz::runReadSerial(void)
+{
+  m_datagram = new char[Ebz::SERIAL_BUFFER_SIZE];
+  m_serialnum = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_customid = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_deviceid = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_status = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_sensortime = new char[Ebz::OBIS_BUFFER_SIZE];
+  int ret = 0;
+
+  while (true) {
+    ret = readSerialPort();
+    if (!ret) {
+      readDatagram();
+    }
+  }
+}

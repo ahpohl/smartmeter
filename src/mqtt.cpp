@@ -49,7 +49,7 @@ void Ebz::publishMqtt(void) const
 void Ebz::runMqtt(void) const
 {
   while (true) {
-    publishMqtt();
     std::this_thread::sleep_for(std::chrono::seconds(10));
+    publishMqtt();
   }
 }

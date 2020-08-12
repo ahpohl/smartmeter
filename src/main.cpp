@@ -104,9 +104,9 @@ int main(int argc, char* argv[])
   meter->openSerialPort(serial_device);
   serial_thread = thread(&Ebz::runReadSerial, meter);
 
-  thread ramdisk_thread;
+  thread obis_thread;
   meter->createObisPath(ramdisk);
-  ramdisk_thread = thread(&Ebz::runWriteSharedMem, meter);
+  obis_thread = thread(&Ebz::runObis, meter);
 
   thread mqtt_thread;
   meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
@@ -115,8 +115,8 @@ int main(int argc, char* argv[])
   if (serial_thread.joinable()) {
     serial_thread.join();
   }
-  if (ramdisk_thread.joinable()) {
-    ramdisk_thread.join();
+  if (obis_thread.joinable()) {
+    obis_thread.join();
   }
   if (mqtt_thread.joinable()) {
     mqtt_thread.join();

@@ -90,3 +90,11 @@ void Ebz::writeObisCodes(void) const
   ofs << Ebz::OBIS_VOLTAGE_L3 << "(" << m_voltagel3 << "*V)";
   ofs.close();
 }
+
+void Ebz::runObis(void) const
+{
+  while (true) {
+    this_thread::sleep_for(chrono::seconds(1));
+    writeObisCodes();
+  }
+}

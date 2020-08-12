@@ -17,7 +17,7 @@ public:
   int readSerialPort(void);
   void readDatagram(void);
   
-  void runWriteSharedMem(void) const;
+  void runObis(void) const;
   void createObisPath(const char* const t_ramdisk) const;
   void writeObisCodes(void) const;
   
