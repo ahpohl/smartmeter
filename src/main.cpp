@@ -2,7 +2,6 @@
 #include <thread>
 #include <getopt.h>
 #include "ebz.hpp"
-#include "mqtt.hpp"
 
 using namespace std;
 
@@ -107,15 +106,20 @@ int main(int argc, char* argv[])
 
   thread ramdisk_thread;
   meter->createObisPath(ramdisk);
-  meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
   ramdisk_thread = thread(&Ebz::runWriteSharedMem, meter);
+
+  thread mqtt_thread;
+  meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
+  mqtt_thread = thread(&Ebz::runMqtt, meter);
 
   if (serial_thread.joinable()) {
     serial_thread.join();
   }
-
   if (ramdisk_thread.joinable()) {
     ramdisk_thread.join();
+  }
+  if (mqtt_thread.joinable()) {
+    mqtt_thread.join();
   }
   
   return 0;

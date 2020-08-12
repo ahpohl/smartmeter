@@ -3,7 +3,7 @@
 
 #include <ctime>
 #include <chrono>
-#include "mqtt.hpp"
+#include "mosq.hpp"
 
 class Ebz
 {
@@ -20,6 +20,8 @@ public:
   void runWriteSharedMem(void) const;
   void createObisPath(const char* const t_ramdisk) const;
   void writeObisCodes(void) const;
+  
+  void runMqtt(void) const;
   void initMqtt(char const* t_host, int t_port, char const* t_topic);
   void publishMqtt(void) const;
 

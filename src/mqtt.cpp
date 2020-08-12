@@ -1,58 +1,55 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <string>
-#include <mosquitto.h>
+#include <iomanip>
+#include <unistd.h>
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include "ebz.hpp"
+#include "mosq.hpp"
 
-#include "mqtt.hpp"
-
-Mosq::Mosq(char const* t_host, int t_port)
+void Ebz::initMqtt(char const* t_host, int t_port, char const* t_topic)
 {
-  int keepalive = 120;
-  bool clean_session = true;
-  int rc = 0;
-
-  mosquitto_lib_init();
-  m_mosq = mosquitto_new(nullptr, clean_session, nullptr);
-  if (!m_mosq) {
-    std::cout << ">> Mosq - Out of memory!" << std::endl;
+  if (!t_host) {
+    throw std::runtime_error("MQTT broker host argument empty");
   }
-  mosquitto_connect_callback_set(m_mosq, on_connect);
-  rc = mosquitto_connect_async(m_mosq, t_host, t_port, keepalive);
-  if (rc != MOSQ_ERR_SUCCESS) {
-    std::cout << ">> Mosq - Connection with server failed (" << rc << ")"  << std::endl;
+  if (!t_port) {
+    throw std::runtime_error("MQTT broker port argument empty");
   }
-  mosquitto_publish_callback_set(m_mosq, on_publish);
-  if (mosquitto_loop_start(m_mosq) != MOSQ_ERR_SUCCESS) {
-    std::cout << ">> Mosq - loop_start() failed" << std::endl;
+  m_mqtt = new Mosq(t_host, t_port);
+  if (m_debug) {
+    m_mqtt->set_debug();
   }
 }
 
-Mosq::~Mosq()
+void Ebz::publishMqtt(void) const
 {
-  if (mosquitto_disconnect(m_mosq) != MOSQ_ERR_SUCCESS) {
-    std::cout << ">> Mosq - Disconnect from server failed" << std::endl;
-  }
-  if (mosquitto_loop_stop(m_mosq, false) != MOSQ_ERR_SUCCESS) {
-    std::cout << ">> Mosq - loop_stop() failed" << std::endl;
-  }
-  mosquitto_destroy(m_mosq);
-  mosquitto_lib_cleanup();
+  std::stringstream payload;
+  std::mutex mutex;
+  std::lock_guard<std::mutex> guard(mutex);
+
+  payload << "{Serial: " << m_serialnum
+  << ", Custom_ID: " << m_customid
+  << ", Device_ID: " << m_deviceid
+  << ", Status: " << m_status 
+  << ", {Lifetime: " << strtoul(m_sensortime, 0, 16) << ", Unit: s}"
+  << ", {Energy: " << std::fixed << std::setprecision(2) << m_energy << ", Unit: kWh}"
+  << ", {Power_Total: " << m_power << ", Unit: W}"
+  << ", {Power_L1: " << m_powerl1 << ", Unit: W}"
+  << ", {Power_L2: " << m_powerl2 << ", Unit: W}"
+  << ", {Power_L3: " << m_powerl3 << ", Unit: W}"
+  << ", {Voltage_L1: " << std::setprecision(1) << m_voltagel1 << ", Unit: V}"
+  << ", {Voltage_L2: " << m_voltagel2 << ", Unit: V}"
+  << ", {Voltage_L3: " << m_voltagel3 << ", Unit: V}}";
+  m_mqtt->send_message("smartmeter/json/state", payload.str().c_str());
 }
 
-void Mosq::send_message(std::string t_topic, std::string t_message)
+void Ebz::runMqtt(void) const
 {
-  int ret = mosquitto_publish(m_mosq, nullptr, t_topic.c_str(), t_message.size(),
-    t_message.c_str(), 1, false);
-  if (ret != MOSQ_ERR_SUCCESS) {
-    std::cout << ">> Mosq - Sending message failed (" << ret << ")" << std::endl;
+  while (true) {
+    publishMqtt();
+    std::this_thread::sleep_for(std::chrono::seconds(10));
   }
-}
-
-void Mosq::on_publish(struct mosquitto* t_mosq, void* t_obj, int t_mid)
-{
-  std::cout << ">> Mosq - Sending message (" << t_mid << ")" << std::endl;
-}
-
-void Mosq::on_connect(struct mosquitto* t_mosq, void* t_obj, int t_rc)
-{
-  std::cout << ">> Mosq - Connected to server (" << t_rc << ")" << std::endl;
 }
