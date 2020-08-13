@@ -104,13 +104,13 @@ int main(int argc, char* argv[])
   meter->openSerialPort(serial_device);
   serial_thread = thread(&Ebz::runReadSerial, meter);
 
-  thread obis_thread;
-  meter->createObisPath(ramdisk);
-  obis_thread = thread(&Ebz::runObis, meter);
-
   thread mqtt_thread;
   meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
   mqtt_thread = thread(&Ebz::runMqtt, meter);
+
+  thread obis_thread;
+  meter->createObisPath(ramdisk);
+  obis_thread = thread(&Ebz::runObis, meter);
 
   if (serial_thread.joinable()) {
     serial_thread.join();

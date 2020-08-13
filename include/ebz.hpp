@@ -25,6 +25,7 @@ public:
   void runMqtt(void) const;
   void initMqtt(char const* t_host, int t_port, char const* t_topic);
   void publishMqtt(void) const;
+  void publishMqttPower(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
   static const char* const OBIS_CUSTOM_ID;
