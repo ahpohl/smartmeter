@@ -40,6 +40,6 @@ void Ebz::runMqtt(void) const
   std::this_thread::sleep_for(std::chrono::seconds(1));
   while (true) {
     publishMqtt();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::minutes(10));
   }
 }
