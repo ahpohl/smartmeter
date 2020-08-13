@@ -29,7 +29,7 @@ void Ebz::publishMqtt(void) const
   std::lock_guard<std::mutex> guard(mutex);
 
   // send energy in kWh
-  payload << std::fixed << std::setprecision(3) << m_energy * 1000.0;
+  payload << std::fixed << std::setprecision(3) << m_energy;
   topic << m_topic << "/energy/state";
   m_mqtt->send_message(topic.str().c_str(), payload.str().c_str());
   topic=std::stringstream(); payload=std::stringstream();
