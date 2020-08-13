@@ -4,21 +4,22 @@
 
 #include "mosq.hpp"
 
-Mosq::Mosq(char const* t_host, int t_port)
+Mosq::Mosq(char const* t_host, int t_port, bool t_debug)
 {
   int keepalive = 120;
   bool clean_session = true;
   int rc = 0;
-  m_debug = false;
 
   mosquitto_lib_init();
   m_mosq = mosquitto_new(nullptr, clean_session, nullptr);
   if (!m_mosq) {
-    std::cout << ">> Mosq - Out of memory!" << std::endl;
+    throw std::runtime_error(">> Mosq - Out of memory!");
   }
-  mosquitto_connect_callback_set(m_mosq, on_connect);
-  mosquitto_publish_callback_set(m_mosq, on_publish);
-  
+  if (t_debug) {
+    mosquitto_connect_callback_set(m_mosq, on_connect);
+    mosquitto_disconnect_callback_set(m_mosq, on_disconnect);
+    mosquitto_publish_callback_set(m_mosq, on_publish);
+  }
   rc = mosquitto_connect_async(m_mosq, t_host, t_port, keepalive);
   if (rc != MOSQ_ERR_SUCCESS) {
     std::cout << ">> Mosq - Connection with server failed (" << rc << ")"  << std::endl;
@@ -40,11 +41,6 @@ Mosq::~Mosq()
   mosquitto_lib_cleanup();
 }
 
-void Mosq::set_debug(void)
-{
-  m_debug = true;
-}
-
 void Mosq::send_message(std::string t_topic, std::string t_message)
 {
   int ret = mosquitto_publish(m_mosq, nullptr, t_topic.c_str(), t_message.size(),
@@ -62,4 +58,9 @@ void Mosq::on_publish(struct mosquitto* t_mosq, void* t_obj, int t_mid)
 void Mosq::on_connect(struct mosquitto* t_mosq, void* t_obj, int t_rc)
 {
   std::cout << ">> Mosq - Connected to server (" << t_rc << ")" << std::endl;
+}
+
+void Mosq::on_disconnect(struct mosquitto* t_mosq, void* t_obj, int t_rc)
+{
+  std::cout << ">> Mosq - Disconnected from server (" << t_rc << ")" << std::endl;
 }

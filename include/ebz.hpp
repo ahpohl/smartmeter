@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <chrono>
+#include <string>
 #include "mosq.hpp"
 
 class Ebz
@@ -60,6 +61,7 @@ private:
   char* m_sensortime;       // time of operation, in seconds, 4 byte hex
   char* m_datagram;         // buffer for a d0 datagram
   Mosq* m_mqtt;             // pointer to mosquitto client object
+  std::string m_topic;      // MQTT topic to publish to
  
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;
