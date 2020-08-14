@@ -1,0 +1,1 @@
+./build/smartmeter --serial /dev/ttyACM0 --ramdisk /dev/shm --host 192.168.178.40 --port 1883 --topic smartmeter/sensor --debug
