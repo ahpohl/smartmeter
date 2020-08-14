@@ -33,13 +33,6 @@ void Ebz::publishMqtt(void) const
   topic << m_topic << "/energy/state";
   m_mqtt->send_message(topic.str().c_str(), payload.str().c_str());
   topic=std::stringstream(); payload=std::stringstream();
-}
-
-void Ebz::publishMqttPower(void) const
-{
-  std::stringstream payload, topic;
-  std::mutex mutex;
-  std::lock_guard<std::mutex> guard(mutex);
 
   // send power in W
   payload << std::fixed << std::setprecision(2) << m_power;
@@ -95,6 +88,6 @@ void Ebz::runMqtt(void) const
   std::this_thread::sleep_for(std::chrono::seconds(1));
   while (true) {
     publishMqtt();
-    std::this_thread::sleep_for(std::chrono::minutes(10));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 }
