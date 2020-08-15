@@ -82,36 +82,12 @@ CREATE RETENTION POLICY "rp_1year" ON "smartmeter" DURATION 365d REPLICATION 1 D
 ```
 And last the continous queries:
 ```
-CREATE CONTINUOUS QUERY cq_1day ON smartmeter \
-BEGIN \
-  SELECT last(energy) AS energy_daily \ 
-  INTO smartmeter.rp_1year.energy_daily \
-  FROM smartmeter.rp_1year.energy \
-  GROUP BY time(1d) \
-END
-
-CREATE CONTINUOUS QUERY cq_1week ON smartmeter \
-BEGIN \
-  SELECT last(energy_daily) AS energy_weekly \ 
-  INTO smartmeter.rp_1year.energy_weekly \
-  FROM smartmeter.rp_1year.energy_daily \
-  GROUP BY time(7d) \
-END
-
-CREATE CONTINUOUS QUERY cq_1month ON smartmeter \
-BEGIN \
-  SELECT last(energy_weekly) AS energy_monthly \ 
-  INTO smartmeter.rp_1year.energy_monthly \
-  FROM smartmeter.rp_1year.energy_weekly \
-  GROUP BY time(4w) \
-END
-
-CREATE CONTINUOUS QUERY cq_1year ON smartmeter \
-BEGIN \
-  SELECT last(energy_monthly) AS energy_yearly \ 
-  INTO smartmeter.autogen.energy_yearly \
-  FROM smartmeter.rp_1year.energy_monthly \ 
-  GROUP BY time(52w) \
+CREATE CONTINUOUS QUERY cq24h ON smartmeter
+BEGIN
+  SELECT last(energy)-first(energy) AS energy_daily
+  INTO smartmeter.rp365d.energy_daily
+  FROM smartmeter.rp24h.state
+  GROUP BY time(24h)
 END
 ```
 These queries are automatically run every day, every week and every month and take the energy at the end of the day, week and month and insert these into a new measurements `energy_daily`, `energy_weekly` and `energy_monthly`, respectively. These consolidated data are kept for one year. The yearly energy consumption is stored infinetely.

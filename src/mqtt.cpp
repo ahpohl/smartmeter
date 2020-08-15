@@ -27,6 +27,7 @@ void Ebz::publishMqtt(void) const
   std::string topic = m_topic + "/state";
   std::stringstream payload;
 
+  // json string with influxdb fields and tags 
   payload << "[{"
     << "\"lifetime\":\"" << m_sensortime << "\"," 
     << "\"energy\":\"" << std::fixed << std::setprecision(3) << m_energy << "\","
