@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
   if (help)
   {
-    cout << "Energy Pulsemeter " << VERSION_TAG << endl;
+    cout << "Energy Smartmeter " << VERSION_TAG << endl;
     cout << endl << "Usage: " << argv[0] << " [options]" << endl << endl;
     cout << "\
   -h --help         Show help message\n\
