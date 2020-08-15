@@ -93,9 +93,27 @@ These queries are automatically run every day, every week and every month and ta
 
 ### Node Red
 
-The Smartmeter daemon outputs a json formatted string to the MQTT broker:
+The Smartmeter daemon outputs json formatted fields and tags to the MQTT broker:
 ```
-"{"serial":"EBZ5DD3BZ06ETA_107","custom_id":"1EBZ0100507409","device_id":"1EBZ0100507409","energy":"2038.399","power":"2178.81","power_l1":"52.84","power_l2":"80.40","power_l3":"2045.57","voltage_l1":"234.3","voltage_l2":"233.4","voltage_l3":"231.9","status":"001C0104","lifetime":"18229039"}"
+[
+  {
+    "lifetime":18252437,
+    "energy":2041.685,
+    "power":255.81,
+    "power_l1":54.16,
+    "power_l2":93.75,
+    "power_l3":107.90,
+    "voltage_l1":229.9,
+    "voltage_l2":228.9,
+    "voltage_l3":229.5
+  },
+  {
+    "serial":"EBZ5DD3BZ06ETA_107",
+    "custom_id":"1EBZ0100507409",
+    "device_id":"1EBZ0100507409",
+    "status":"001C0104"
+  }
+]
 ```
 [Fig: Node Red flow screenshot]
 
