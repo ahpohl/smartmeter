@@ -27,7 +27,8 @@ void Ebz::publishMqtt(void) const
   std::string topic = m_topic + "/state";
   std::stringstream payload;
 
-  payload << "[{" 
+  payload << "[{"
+    << "\"lifetime\":\"" << m_sensortime << "\"," 
     << "\"energy\":\"" << std::fixed << std::setprecision(3) << m_energy << "\","
     << "\"power\":\"" << std::setprecision(2) << m_power << "\","
     << "\"power_l1\":\"" << m_powerl1 << "\","
@@ -35,8 +36,7 @@ void Ebz::publishMqtt(void) const
     << "\"power_l3\":\"" << m_powerl3 << "\","
     << "\"voltage_l1\":\"" << std::setprecision(1) << m_voltagel1 << "\","
     << "\"voltage_l2\":\"" << m_voltagel2 << "\","
-    << "\"voltage_l3\":\"" << m_voltagel3 << "\","
-    << "\"lifetime\":\"" << m_sensortime << "\""
+    << "\"voltage_l3\":\"" << m_voltagel3 << "\""
     << "},{"
     << "\"serial\":\"" << m_serialnum << "\","
     << "\"custom_id\":\"" << m_customid << "\","
