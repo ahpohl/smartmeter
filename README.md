@@ -61,6 +61,73 @@ Usage: ./build/smartmeter [options]
 For example (test run):
 cat resources/arguments.txt
 
+### InfluxDB
+
+For persistant data storage we use InfluxDB. One big advantages of a time series database like InfluxDB over a traditional SQL database is the automatic handling of data retention. With one datagram sent every second, the SQL database gets filled very quicky and querying a month full of data gets very slow.
+With InfluxDB we have the possiblilty to configure retention policies and continuous queries, which automatically prune the database after 24 hours and keep only the relevant data such as daily, weekly and monthly energy consumption.
+
+First we create the InfluxDB `smartmeter` and a user `mqtt`:
+```
+$ influx
+CREATE DATABASE "smartmeter"
+CREATE USER "mqtt" WITH PASSWORD "mqtt"
+GRANT ALL ON "smartmeter" TO "mqtt"
+
+```
+The we create the retention policies:
+```
+CREATE RETENTION POLICY "rp_1day" ON "smartmeter" DURATION 1d REPLICATION 1 DEFAULT
+CREATE RETENTION POLICY "rp_1year" ON "smartmeter" DURATION 365d REPLICATION 1 DEFAULT
+
+```
+And last the continous queries:
+```
+CREATE CONTINUOUS QUERY cq_1day ON smartmeter \
+BEGIN \
+  SELECT last(energy) AS energy_daily \ 
+  INTO smartmeter.rp_1year.energy_daily \
+  FROM smartmeter.rp_1year.energy \
+  GROUP BY time(1d) \
+END
+
+CREATE CONTINUOUS QUERY cq_1week ON smartmeter \
+BEGIN \
+  SELECT last(energy_daily) AS energy_weekly \ 
+  INTO smartmeter.rp_1year.energy_weekly \
+  FROM smartmeter.rp_1year.energy_daily \
+  GROUP BY time(7d) \
+END
+
+CREATE CONTINUOUS QUERY cq_1month ON smartmeter \
+BEGIN \
+  SELECT last(energy_weekly) AS energy_monthly \ 
+  INTO smartmeter.rp_1year.energy_monthly \
+  FROM smartmeter.rp_1year.energy_weekly \
+  GROUP BY time(4w) \
+END
+
+CREATE CONTINUOUS QUERY cq_1year ON smartmeter \
+BEGIN \
+  SELECT last(energy_monthly) AS energy_yearly \ 
+  INTO smartmeter.autogen.energy_yearly \
+  FROM smartmeter.rp_1year.energy_monthly \ 
+  GROUP BY time(52w) \
+END
+```
+These queries are automatically run every day, every week and every month and take the energy at the end of the day, week and month and insert these into a new measurements `energy_daily`, `energy_weekly` and `energy_monthly`, respectively. These consolidated data are kept for one year. The yearly energy consumption is stored infinetely.
+
+### Node Red
+
+The Smartmeter daemon outputs a json formatted string to the MQTT broker:
+```
+"{"serial":"EBZ5DD3BZ06ETA_107","custom_id":"1EBZ0100507409","device_id":"1EBZ0100507409","energy":"2038.399","power":"2178.81","power_l1":"52.84","power_l2":"80.40","power_l3":"2045.57","voltage_l1":"234.3","voltage_l2":"233.4","voltage_l3":"231.9","status":"001C0104","lifetime":"18229039"}"
+```
+[Fig: Node Red flow screenshot]
+
+### Grafana
+
+[Fig: Grafana smartmeter dashboard screenshot]
+
 ### meterN
 
 The OBIS from the shared memory device are updated every second and this live data can be easily read by meterN. Here is a screenshot how to configure meterN:
@@ -71,11 +138,6 @@ Once setup, the meter looks like this (in my installation the consumption data f
 
 [Fig: meterN screenshot]
 
-### InfluxDB with Grafana
-
-
-
-[Fig: Grafana screenshot]
 
 ## Installation
 
