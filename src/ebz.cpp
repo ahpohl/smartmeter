@@ -1,11 +1,5 @@
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <iomanip>
 #include <unistd.h>
-#include <chrono>
-#include <thread>
-#include <mutex>
 #include "ebz.hpp"
 
 using namespace std;
