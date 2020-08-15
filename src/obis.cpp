@@ -60,11 +60,11 @@ void Ebz::writeObisCodes(void) const
   ofs << m_sensortime;
   ofs.close();
   ofs.open("ebz_lifetime", std::ios::out);
-  ofs << "lifetime" << "(" << std::fixed << std::setprecision(0) << m_sensortime / 86400.0 << "*d)";
+  ofs << "lifetime" << "(" << m_sensortime / 86400.0 << "*d)";
   ofs.close();
 
   ofs.open(Ebz::OBIS_ENERGY, std::ios::out);
-  ofs << Ebz::OBIS_ENERGY << "(" << std::setprecision(2) << m_energy * 1000 << "*Wh)";
+  ofs << Ebz::OBIS_ENERGY << "(" << std::fixed << std::setprecision(2) << m_energy*1000 << "*Wh)";
   ofs.close();
   ofs.open(Ebz::OBIS_POWER_TOTAL, std::ios::out);
   ofs << Ebz::OBIS_POWER_TOTAL << "(" << m_power << "*W)";

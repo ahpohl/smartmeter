@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <mutex>
 #include <cstring>
 #include <termios.h>    // contains POSIX terminal control definition
@@ -121,25 +122,25 @@ void Ebz::readDatagram(void)
   m_energy = atof(tmp);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x25, 9);
-  m_power = atof(tmp);
+  m_power = strtod(tmp, nullptr);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x1D, 9);
-  m_powerl1 = atof(tmp);
+  m_powerl1 = strtod(tmp, nullptr);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x1D, 9);
-  m_powerl2 = atof(tmp);
+  m_powerl2 = strtod(tmp, nullptr);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x1D, 9);
-  m_powerl3 = atof(tmp);
+  m_powerl3 = strtod(tmp, nullptr);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x1D, 5);
-  m_voltagel1 = atof(tmp);
+  m_voltagel1 = strtod(tmp, nullptr);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x19, 5);
-  m_voltagel2 = atof(tmp);
+  m_voltagel2 = strtod(tmp, nullptr);
   memset(tmp, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(tmp, p+=0x19, 5);
-  m_voltagel3 = atof(tmp);
+  m_voltagel3 = strtod(tmp, nullptr);
   memset(m_status, '\0', Ebz::OBIS_BUFFER_SIZE);
   strncpy(m_status, p+=0x19, 8);
   char hextime[Ebz::OBIS_BUFFER_SIZE] = {0};
@@ -150,12 +151,12 @@ void Ebz::readDatagram(void)
     cout << "Serial number: " << m_serialnum << endl;
     cout << "Custom id: " << m_customid << endl;
     cout << "Device id: " << m_deviceid << endl;
-    cout << "Energy: " << m_energy << " kWh" << endl;
-    cout << "Total power: " << m_power << " W" << endl;
+    cout << "Energy: " << fixed << setprecision(3) << m_energy << " kWh" << endl;
+    cout << "Total power: " << setprecision(2) << m_power << " W" << endl;
     cout << "Power L1: " << m_powerl1 << " W" << endl;
     cout << "Power L2: " << m_powerl2 << " W" << endl;
     cout << "Power L3: " << m_powerl3 << " W" << endl;
-    cout << "Voltage L1: " << m_voltagel1 << " V" << endl;
+    cout << "Voltage L1: " << setprecision(1) << m_voltagel1 << " V" << endl;
     cout << "Voltage L2: " << m_voltagel2 << " V" << endl;
     cout << "Voltage L3: " << m_voltagel3 << " V" << endl;
     cout << "Status: " << m_status << endl;
