@@ -3,8 +3,6 @@
 #include <getopt.h>
 #include "ebz.hpp"
 
-using namespace std;
-
 int main(int argc, char* argv[])
 {
   bool debug = false;
@@ -67,9 +65,9 @@ int main(int argc, char* argv[])
 
   if (help)
   {
-    cout << "Energy Smartmeter " << VERSION_TAG << endl;
-    cout << endl << "Usage: " << argv[0] << " [options]" << endl << endl;
-    cout << "\
+    std::cout << "Energy Smartmeter " << VERSION_TAG << std::endl;
+    std::cout << std::endl << "Usage: " << argv[0] << " [options]" << std::endl << std::endl;
+    std::cout << "\
   -h --help         Show help message\n\
   -V --version      Show build info\n\
   -D --debug        Show debug messages\n\
@@ -78,39 +76,39 @@ int main(int argc, char* argv[])
   -H --host         MQTT broker host or ip\n\
   -p --port         MQTT broker port\n\
   -t --topic        MQTT topic to publish"    
-    << endl << endl;
+    << std::endl << std::endl;
     return 0;
   }
 
   if (version)
   {
-      cout << "Version " << VERSION_TAG 
+      std::cout << "Version " << VERSION_TAG 
         << " (" << VERSION_BUILD << ") built " 
         << VERSION_BUILD_DATE 
-        << " by " << VERSION_BUILD_MACHINE << endl;
+        << " by " << VERSION_BUILD_MACHINE << std::endl;
       return 0;
   }
 
-  cout << "Smartmeter " << VERSION_TAG
-    << " (" << VERSION_BUILD << ")" << endl;
+  std::cout << "Smartmeter " << VERSION_TAG
+    << " (" << VERSION_BUILD << ")" << std::endl;
 
-  shared_ptr<Ebz> meter(new Ebz());
+  std::shared_ptr<Ebz> meter(new Ebz());
 
   if (debug) {
     meter->setDebug();
   }
 
-  thread serial_thread;
+  std::thread serial_thread;
   meter->openSerialPort(serial_device);
-  serial_thread = thread(&Ebz::runReadSerial, meter);
+  serial_thread = std::thread(&Ebz::runReadSerial, meter);
 
-  thread mqtt_thread;
+  std::thread mqtt_thread;
   meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
-  mqtt_thread = thread(&Ebz::runMqtt, meter);
+  mqtt_thread = std::thread(&Ebz::runMqtt, meter);
 
-  thread obis_thread;
+  std::thread obis_thread;
   meter->createObisPath(ramdisk);
-  obis_thread = thread(&Ebz::runObis, meter);
+  obis_thread = std::thread(&Ebz::runObis, meter);
 
   if (serial_thread.joinable()) {
     serial_thread.join();

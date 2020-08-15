@@ -158,7 +158,7 @@ void Ebz::readDatagram(void)
     cout << "Voltage L2: " << m_voltagel2 << " V" << endl;
     cout << "Voltage L3: " << m_voltagel3 << " V" << endl;
     cout << "Status: " << m_status << endl;
-    unsigned long secindex = strtoul(m_sensortime, 0, 16);
+    unsigned long secindex = strtoul(m_sensortime, nullptr, 16);
     cout << "Sensor time: " << m_sensortime << " (" << 
       secindex << " sec)" << endl;
   }

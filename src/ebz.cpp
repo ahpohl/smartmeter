@@ -2,8 +2,6 @@
 #include <unistd.h>
 #include "ebz.hpp"
 
-using namespace std;
-
 int const Ebz::SERIAL_BUFFER_SIZE = 512;
 int const Ebz::OBIS_BUFFER_SIZE = 32;
 
@@ -28,12 +26,12 @@ Ebz::~Ebz(void)
     close(m_serialport);
     
     if (m_debug) {
-      cout << "Serial port closed" << endl;
+      std::cout << "Serial port closed" << std::endl;
     }
   }
 
   if (m_debug) {
-    cout << "Ebz destructor method called" << endl;
+    std::cout << "Ebz destructor method called" << std::endl;
   }
   delete[] m_datagram;
   delete[] m_customid;
