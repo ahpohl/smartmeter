@@ -74,11 +74,10 @@ CREATE USER "mqtt" WITH PASSWORD "mqtt"
 GRANT ALL ON "smartmeter" TO "mqtt"
 
 ```
-The we create the retention policies:
+Then we create new retention policies:
 ```
-CREATE RETENTION POLICY "rp_1day" ON "smartmeter" DURATION 1d REPLICATION 1 DEFAULT
-CREATE RETENTION POLICY "rp_1year" ON "smartmeter" DURATION 365d REPLICATION 1 DEFAULT
-
+CREATE RETENTION POLICY "rp24h" ON "smartmeter" DURATION 24h REPLICATION 1 DEFAULT
+CREATE RETENTION POLICY "rp365d" ON "smartmeter" DURATION 365d REPLICATION 1
 ```
 And last the continous queries:
 ```
