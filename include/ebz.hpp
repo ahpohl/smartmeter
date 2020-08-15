@@ -45,23 +45,23 @@ public:
 
 private:
   bool m_debug;
-  int m_serialport;         // serial port
-  char* m_serialnum;        // serial number and software version
-  char* m_customid;         // custom id specific to user
-  char* m_deviceid;         // device id DIN 43863-5
-  double m_energy;          // energy counter [kWh], resolution 10 µW*h, format %f6.8
-  double m_power;           // power output (3-phases), resolution 0.01 W, format %f5.2
-  double m_powerl1;         // power phase L1
-  double m_powerl2;         // power phase L2
-  double m_powerl3;         // power phase L3
-  double m_voltagel1;       // voltage phase L1, 0.1 V resolution
-  double m_voltagel2;       // voltage phase L2
-  double m_voltagel3;       // voltage phase L3
-  char* m_status;           // status word, 4 byte hex
-  char* m_sensortime;       // time of operation, in seconds, 4 byte hex
-  char* m_datagram;         // buffer for a d0 datagram
-  Mosq* m_mqtt;             // pointer to mosquitto client object
-  std::string m_topic;      // MQTT topic to publish to
+  int m_serialport;           // serial port
+  char* m_serialnum;          // serial number and software version
+  char* m_customid;           // custom id specific to user
+  char* m_deviceid;           // device id DIN 43863-5
+  double m_energy;            // energy counter [kWh], resolution 10 µW*h, format %f6.8
+  double m_power;             // power output (3-phases), resolution 0.01 W, format %f5.2
+  double m_powerl1;           // power phase L1
+  double m_powerl2;           // power phase L2
+  double m_powerl3;           // power phase L3
+  double m_voltagel1;         // voltage phase L1, 0.1 V resolution
+  double m_voltagel2;         // voltage phase L2
+  double m_voltagel3;         // voltage phase L3
+  unsigned long m_sensortime; // time of operation, in seconds
+  char* m_status;             // status word, 4 byte hex
+  char* m_datagram;           // buffer for a d0 datagram
+  Mosq* m_mqtt;               // pointer to mosquitto client object
+  std::string m_topic;        // MQTT topic to publish to
  
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;

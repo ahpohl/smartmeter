@@ -17,6 +17,7 @@ Ebz::Ebz(void)
   m_voltagel1 = 0;    
   m_voltagel2 = 0; 
   m_voltagel3 = 0;
+  m_sensortime = 0;
   m_mqtt = nullptr;
 }
 
@@ -38,7 +39,6 @@ Ebz::~Ebz(void)
   delete[] m_deviceid;
   delete[] m_serialnum;
   delete[] m_status;
-  delete[] m_sensortime;
   delete m_mqtt;
 }
 

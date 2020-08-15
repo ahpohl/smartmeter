@@ -40,7 +40,7 @@ void Ebz::publishMqtt(void) const
     << "\"voltage_l2\":\"" << m_voltagel2 << "\","
     << "\"voltage_l3\":\"" << m_voltagel3 << "\","
     << "\"status\":\"" << m_status << "\","
-    << "\"lifetime\":\"" << std::strtoul(m_sensortime, nullptr, 16) << "\""
+    << "\"lifetime\":\"" << m_sensortime << "\""
     << "}";
 
   m_mqtt->send_message(topic.c_str(), payload.str().c_str());
