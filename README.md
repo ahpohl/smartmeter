@@ -87,6 +87,7 @@ BEGIN
   INTO smartmeter.rp365d.energy_daily
   FROM smartmeter.rp24h.state
   GROUP BY time(24h)
+  TZ('Europe/Berlin')
 END
 ```
 These queries are automatically run every day, every week and every month and take the energy at the end of the day, week and month and insert these into a new measurements `energy_daily`, `energy_weekly` and `energy_monthly`, respectively. These consolidated data are kept for one year. The yearly energy consumption is stored infinetely.
