@@ -13,6 +13,8 @@ int main(int argc, char* argv[])
   char const* mqtt_host = nullptr;
   char const* mqtt_topic = nullptr;
   int mqtt_port = 0;
+  double basic_rate = 0;
+  double price_kwh = 0;
 
   const struct option longOpts[] = {
     { "help", no_argument, nullptr, 'h' },
@@ -23,10 +25,12 @@ int main(int argc, char* argv[])
     { "host", required_argument, nullptr, 'H' },
     { "port", required_argument, nullptr, 'p' },
     { "topic", required_argument, nullptr, 't' },
+    { "basic-rate", required_argument, nullptr, 'b' },
+    { "price-kwh", required_argument, nullptr, 'k' },
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char* const optString = "hVDs:r:H:p:t:";
+  const char* const optString = "hVDs:r:H:p:t:b:k:";
   int opt = 0;
   int longIndex = 0;
 
@@ -57,6 +61,12 @@ int main(int argc, char* argv[])
     case 't':
       mqtt_topic = optarg;
       break;
+    case 'b':
+      basic_rate = atof(optarg);
+      break;
+    case 'k':
+      price_kwh = atof(optarg);
+      break;
     default:
       break;
     }
@@ -75,7 +85,11 @@ int main(int argc, char* argv[])
   -r --ramdisk      Shared memory device\n\
   -H --host         MQTT broker host or ip\n\
   -p --port         MQTT broker port\n\
-  -t --topic        MQTT topic to publish"    
+  -t --topic        MQTT topic to publish\n\
+\n\
+Electricity tariff:\n\
+  -b --basic-rate   Optional basic rate per year\n\
+  -k --price-kwh    Optional price per kWh" 
     << std::endl << std::endl;
     return 0;
   }
@@ -104,6 +118,7 @@ int main(int argc, char* argv[])
 
   std::thread mqtt_thread;
   meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
+  meter->setTariff(basic_rate, price_kwh);
   mqtt_thread = std::thread(&Ebz::runMqtt, meter);
 
   std::thread obis_thread;

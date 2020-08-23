@@ -24,6 +24,7 @@ public:
   
   void runMqtt(void) const;
   void initMqtt(char const* t_host, int t_port, char const* t_topic);
+  void setTariff(double const& t_rate, double const& t_price);
   void publishMqtt(void) const;
 
   static const char* const OBIS_SERIAL_NUMBER;
@@ -62,6 +63,8 @@ private:
   char* m_datagram;           // buffer for a d0 datagram
   Mosq* m_mqtt;               // pointer to mosquitto client object
   std::string m_topic;        // MQTT topic to publish to
+  double m_rate;              // electricity tariff basic rate per year
+  double m_price;             // electricity tariff price per kWh
  
   void configureSerialPort(unsigned char const& t_vmin,
     unsigned char const& t_vtime) const;

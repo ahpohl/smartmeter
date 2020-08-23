@@ -42,7 +42,9 @@ void Ebz::publishMqtt(void) const
     << "\"serial\":\"" << m_serialnum << "\","
     << "\"custom_id\":\"" << m_customid << "\","
     << "\"device_id\":\"" << m_deviceid << "\","
-    << "\"status\":\"" << m_status << "\"" 
+    << "\"status\":\"" << m_status << "\","
+    << "\"basic_rate\":" << std::setprecision(2) << m_rate << ","
+    << "\"price_kwh\":" << std::setprecision(4) << m_price
     << "}]";
 
   m_mqtt->send_message(topic.c_str(), payload.str().c_str());

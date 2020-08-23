@@ -19,6 +19,8 @@ Ebz::Ebz(void)
   m_voltagel3 = 0;
   m_sensortime = 0;
   m_mqtt = nullptr;
+  m_rate = 0;
+  m_price = 0;
 }
 
 Ebz::~Ebz(void)
@@ -45,4 +47,16 @@ Ebz::~Ebz(void)
 void Ebz::setDebug(void)
 {
   m_debug = true;
+}
+
+void Ebz::setTariff(double const& t_rate, double const& t_price)
+{
+  if (t_rate < 0) {
+    throw std::runtime_error("Basic rate must be greater than zero");
+  }
+  if (t_price < 0) {
+    throw std::runtime_error("Price per kWh must be greater than zero");
+  } 
+  m_rate = t_rate;
+  m_price = t_price;
 }
