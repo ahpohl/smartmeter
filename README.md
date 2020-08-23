@@ -44,7 +44,7 @@ The smartmeter daemon is responsible for collecting the serial datagrams from th
 Help output:
 
 ```
-Energy Smartmeter v0.2.0
+Energy Smartmeter v0.2.2
 
 Usage: ./build/smartmeter [options]
 
@@ -56,6 +56,10 @@ Usage: ./build/smartmeter [options]
   -H --host         MQTT broker host or ip
   -p --port         MQTT broker port
   -t --topic        MQTT topic to publish
+
+Electricity tariff:
+  -b --rate         Optional basic rate per year
+  -k --price        Optional price per kWh
 ```
 
 For example (test run):
@@ -113,7 +117,9 @@ The Smartmeter daemon outputs json formatted fields and tags to the MQTT broker:
     "serial":"EBZ5DD3BZ06ETA_107",
     "custom_id":"1EBZ0100507409",
     "device_id":"1EBZ0100507409",
-    "status":"001C0104"
+    "status":"001C0104",
+    "rate":162.72,
+    "price":0.2244
   }
 ]
 ```

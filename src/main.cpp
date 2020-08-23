@@ -25,12 +25,12 @@ int main(int argc, char* argv[])
     { "host", required_argument, nullptr, 'H' },
     { "port", required_argument, nullptr, 'p' },
     { "topic", required_argument, nullptr, 't' },
-    { "basic-rate", required_argument, nullptr, 'b' },
-    { "price-kwh", required_argument, nullptr, 'k' },
+    { "rate", required_argument, nullptr, 'R' },
+    { "price", required_argument, nullptr, 'P' },
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char* const optString = "hVDs:r:H:p:t:b:k:";
+  const char* const optString = "hVDs:r:H:p:t:R:P:";
   int opt = 0;
   int longIndex = 0;
 
@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
   -t --topic        MQTT topic to publish\n\
 \n\
 Electricity tariff:\n\
-  -b --basic-rate   Optional basic rate per year\n\
-  -k --price-kwh    Optional price per kWh" 
+  -b --rate         Optional basic rate per year\n\
+  -k --price        Optional price per kWh" 
     << std::endl << std::endl;
     return 0;
   }
