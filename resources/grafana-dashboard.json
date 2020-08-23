@@ -12,12 +12,6 @@
   "__requires": [
     {
       "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
-      "type": "panel",
       "id": "gauge",
       "name": "Gauge",
       "version": ""
@@ -42,8 +36,8 @@
     },
     {
       "type": "panel",
-      "id": "singlestat",
-      "name": "Singlestat",
+      "id": "stat",
+      "name": "Stat",
       "version": ""
     }
   ],
@@ -60,7 +54,7 @@
       }
     ]
   },
-  "description": "Energy data from the CircuitSetup.us Split Single Phase Energy Meter. Data from InfluxDB via MQTT.",
+  "description": "Show data from a smart energy meter",
   "editable": true,
   "gnetId": 12519,
   "graphTooltip": 0,
@@ -69,74 +63,58 @@
   "panels": [
     {
       "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
       "datasource": "${DS_INFLUXDB_SMARTMETER}",
-      "decimals": 3,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "nullValueMode": "connected",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kWh"
         },
         "overrides": []
       },
-      "format": "kWh",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
       "gridPos": {
-        "h": 5,
-        "w": 5,
+        "h": 3,
+        "w": 4,
         "x": 0,
         "y": 0
       },
       "id": 15,
       "interval": "10s",
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "100%",
-      "prefix": "",
-      "prefixFontSize": "100%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "#3274D9",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
+      "pluginVersion": "7.1.0",
       "targets": [
         {
           "alias": "energy",
@@ -156,7 +134,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -169,28 +147,118 @@
               },
               {
                 "params": [],
-                "type": "last"
+                "type": "mean"
               }
             ]
           ],
           "tags": []
         }
       ],
-      "thresholds": "",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Energy",
+      "title": "Total Energy",
       "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "100%",
-      "valueMaps": [
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_INFLUXDB_SMARTMETER}",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "nullValueMode": "connected",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 24,
+      "interval": "10s",
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "diff"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.1.0",
+      "targets": [
         {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
+          "alias": "cost",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "state",
+          "orderByTime": "ASC",
+          "policy": "rp28h",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
-      "valueName": "current"
+      "timeFrom": "24h",
+      "timeShift": null,
+      "title": "Current Energy",
+      "transparent": true,
+      "type": "stat"
     },
     {
       "cacheTimeout": null,
@@ -211,7 +279,6 @@
             }
           ],
           "max": 4500,
-          "min": 0,
           "nullValueMode": "connected",
           "thresholds": {
             "mode": "absolute",
@@ -235,9 +302,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
-        "w": 5,
-        "x": 6,
+        "h": 6,
+        "w": 4,
+        "x": 8,
         "y": 0
       },
       "id": 22,
@@ -274,7 +341,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -375,7 +442,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -412,7 +479,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -449,7 +516,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -514,52 +581,63 @@
       }
     },
     {
+      "cacheTimeout": null,
       "datasource": "${DS_INFLUXDB_SMARTMETER}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
-          "links": [],
-          "mappings": [],
+          "decimals": 2,
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "nullValueMode": "connected",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "currencyEUR"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
+        "h": 3,
+        "w": 4,
         "x": 0,
-        "y": 5
+        "y": 3
       },
-      "id": 2,
+      "id": 25,
       "interval": "10s",
+      "links": [],
+      "maxDataPoints": 100,
       "options": {
-        "displayMode": "gradient",
-        "orientation": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "sum"
           ],
           "fields": "",
           "values": false
         },
-        "showUnfilled": true
+        "textMode": "auto"
       },
       "pluginVersion": "7.1.0",
       "targets": [
         {
-          "alias": "Energy Daily",
+          "alias": "energy",
           "groupBy": [
             {
               "params": [
@@ -574,16 +652,16 @@
               "type": "fill"
             }
           ],
-          "measurement": "state",
+          "measurement": "daily",
           "orderByTime": "ASC",
-          "policy": "rp365d",
+          "policy": "rp370d",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "energy"
                 ],
                 "type": "field"
               },
@@ -596,11 +674,313 @@
           "tags": []
         }
       ],
-      "timeFrom": null,
+      "timeFrom": "30d",
       "timeShift": null,
-      "title": "Energy Last 15 Days",
+      "title": "Current Cost",
       "transparent": true,
-      "type": "bargauge"
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "${DS_INFLUXDB_SMARTMETER}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 2,
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "nullValueMode": "connected",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 3
+      },
+      "id": 26,
+      "interval": "10s",
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.1.0",
+      "targets": [
+        {
+          "alias": "cost",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "hourly",
+          "orderByTime": "ASC",
+          "policy": "rp28h",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "bill"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": "24h",
+      "timeShift": null,
+      "title": "Current Cost",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_INFLUXDB_SMARTMETER}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.15
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 7,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "interval": "10s",
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": false,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "percentage": false,
+      "pluginVersion": "7.1.0",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:5172",
+          "alias": "Energy",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:6867",
+          "alias": "Cost",
+          "bars": false,
+          "lines": true,
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Energy",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "hourly",
+          "orderByTime": "ASC",
+          "policy": "rp28h",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Cost",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "measurement": "hourly",
+          "orderByTime": "ASC",
+          "policy": "rp28h",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "bill"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "24h",
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Energy",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:5245",
+          "format": "kwatth",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:5246",
+          "format": "currencyEUR",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {
@@ -670,7 +1050,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -707,7 +1087,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -744,7 +1124,7 @@
           ],
           "measurement": "state",
           "orderByTime": "ASC",
-          "policy": "rp24h",
+          "policy": "rp28h",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -809,6 +1189,10 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": "${DS_INFLUXDB_SMARTMETER}",
       "fieldConfig": {
         "defaults": {
@@ -831,30 +1215,56 @@
         },
         "overrides": []
       },
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 13
       },
+      "hiddenSeries": false,
+      "hideTimeOverride": false,
       "id": 23,
       "interval": "10s",
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "show": true,
+        "total": true,
+        "values": true
       },
+      "lines": false,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "percentage": false,
       "pluginVersion": "7.1.0",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:935",
+          "alias": "Energy",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:943",
+          "alias": "Cost",
+          "bars": false,
+          "lines": true,
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "alias": "Energy Weekly",
+          "alias": "Energy",
           "groupBy": [
             {
               "params": [
@@ -869,16 +1279,53 @@
               "type": "fill"
             }
           ],
-          "measurement": "state",
+          "measurement": "daily",
           "orderByTime": "ASC",
-          "policy": "rp365d",
+          "policy": "rp370d",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
                 "params": [
-                  "value"
+                  "energy"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Cost",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "none"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "daily",
+          "orderByTime": "ASC",
+          "policy": "rp370d",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "bill"
                 ],
                 "type": "field"
               },
@@ -891,19 +1338,65 @@
           "tags": []
         }
       ],
-      "timeFrom": null,
+      "thresholds": [
+        {
+          "$$hashKey": "object:3780",
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 10,
+          "yaxis": "left"
+        }
+      ],
+      "timeFrom": "15d",
+      "timeRegions": [],
       "timeShift": null,
-      "title": "Energy Last 12 Weeks",
+      "title": "Daily Energy",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
       "transparent": true,
-      "type": "bargauge"
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:703",
+          "format": "kwatth",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:704",
+          "format": "currencyEUR",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
-  "refresh": "10s",
+  "refresh": "5s",
   "schemaVersion": 26,
   "style": "dark",
-  "tags": [
-    "circuitsetup, energy meter"
-  ],
+  "tags": [],
   "templating": {
     "list": []
   },
@@ -913,6 +1406,7 @@
   },
   "timepicker": {
     "refresh_intervals": [
+      "5s",
       "10s",
       "30s",
       "1m",
@@ -927,5 +1421,5 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "-cRvqo0Zz",
-  "version": 39
+  "version": 113
 }

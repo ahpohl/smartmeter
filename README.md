@@ -81,7 +81,7 @@ CREATE RETENTION POLICY "rp370d" ON "smartmeter" DURATION 370d REPLICATION 1
 ```
 And last the continous queries:
 ```
-CREATE CONTINUOUS QUERY "cq1h" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY "cq1h" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy, (last(energy)-first(energy))*0.2244+0.018575342 AS bill INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
 
 CREATE CONTINUOUS QUERY "cq1d" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy, (last(energy)-first(energy))*0.2244+0.4458 AS bill INTO smartmeter.rp370d.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
 
