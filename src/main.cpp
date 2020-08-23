@@ -61,10 +61,10 @@ int main(int argc, char* argv[])
     case 't':
       mqtt_topic = optarg;
       break;
-    case 'b':
+    case 'R':
       basic_rate = atof(optarg);
       break;
-    case 'k':
+    case 'P':
       price_kwh = atof(optarg);
       break;
     default:
