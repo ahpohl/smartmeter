@@ -30,21 +30,21 @@ void Ebz::publishMqtt(void) const
   // json string with influxdb fields and tags 
   payload << "[{"
     << "\"lifetime\":" << m_sensortime << "," 
-    << "\"energy\":" << std::fixed << std::setprecision(3) << m_energy << ","
+    << "\"energy\":" << std::fixed << m_energy << ","
     << "\"power\":" << std::setprecision(2) << m_power << ","
     << "\"power_l1\":" << m_powerl1 << ","
     << "\"power_l2\":" << m_powerl2 << ","
     << "\"power_l3\":" << m_powerl3 << ","
     << "\"voltage_l1\":" << std::setprecision(1) << m_voltagel1 << ","
     << "\"voltage_l2\":" << m_voltagel2 << ","
-    << "\"voltage_l3\":" << m_voltagel3
+    << "\"voltage_l3\":" << m_voltagel3 << ","
+    << "\"rate\":" << std::setprecision(2) << m_rate << ","
+    << "\"price\":" << std::setprecision(4) << m_price
     << "},{"
     << "\"serial\":\"" << m_serialnum << "\","
     << "\"custom_id\":\"" << m_customid << "\","
     << "\"device_id\":\"" << m_deviceid << "\","
-    << "\"status\":\"" << m_status << "\","
-    << "\"rate\":" << std::setprecision(2) << m_rate << ","
-    << "\"price\":" << std::setprecision(4) << m_price
+    << "\"status\":\"" << m_status << "\""
     << "}]";
 
   m_mqtt->send_message(topic.c_str(), payload.str().c_str());
