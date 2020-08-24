@@ -183,6 +183,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 10
               }
             ]
           },
@@ -207,7 +211,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "diff"
+            "sum"
           ],
           "fields": "",
           "values": false
@@ -232,7 +236,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "state",
+          "measurement": "hourly",
           "orderByTime": "ASC",
           "policy": "rp28h",
           "refId": "A",
@@ -603,6 +607,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80.7
               }
             ]
           },
@@ -661,7 +669,7 @@
             [
               {
                 "params": [
-                  "energy"
+                  "bill"
                 ],
                 "type": "field"
               },
@@ -703,6 +711,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 2.69
               }
             ]
           },
@@ -1421,5 +1433,5 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "-cRvqo0Zz",
-  "version": 113
+  "version": 116
 }
