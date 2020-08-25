@@ -76,7 +76,6 @@ $ influx
 CREATE DATABASE "smartmeter"
 CREATE USER "mqtt" WITH PASSWORD "mqtt"
 GRANT ALL ON "smartmeter" TO "mqtt"
-
 ```
 Then we create new retention policies:
 ```
@@ -86,13 +85,9 @@ CREATE RETENTION POLICY "rp370d" ON "smartmeter" DURATION 370d REPLICATION 1
 And last the continous queries:
 ```
 CREATE CONTINUOUS QUERY "cq1h" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy, (last(energy)-first(energy)) * mean(price) + mean(rate) / (365*24) AS bill INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
-
 CREATE CONTINUOUS QUERY "cq1d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.rp370d.daily FROM smartmeter.rp28h.hourly GROUP BY time(1d) TZ('Europe/Berlin') END
-
 CREATE CONTINUOUS QUERY "cq7d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.weekly FROM smartmeter.rp370d.daily GROUP BY time(7d) TZ('Europe/Berlin') END 
-
 CREATE CONTINUOUS QUERY "cq30d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.monthly FROM smartmeter.rp370d.daily GROUP BY time(30d) TZ('Europe/Berlin') END
-
 CREATE CONTINUOUS QUERY "cq365d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.rp370d.daily GROUP BY time(365d) TZ('Europe/Berlin') END
 ```
 The first query consolidates the one second data from the smartmeter into one hour timeslots which are kept, like the raw data, for 28 hours. The cost per hour is determined from the tariff information if given in the smartmeter config file. The second query consolidates the raw `energy` and `bill` values into a daily summary called `daily`. All subsequent queries consolidate the daily `energy` and `bill` values further into new measurements called `weekly`, `monthly` and `yearly` respectively. The daily consolidated data are kept for one year, and the weekly, monthly and yearly energy consumption and cost are stored infinetely.
