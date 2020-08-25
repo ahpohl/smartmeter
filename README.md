@@ -85,9 +85,9 @@ CREATE RETENTION POLICY "rp370d" ON "smartmeter" DURATION 370d REPLICATION 1
 ```
 And last the continous queries:
 ```
-CREATE CONTINUOUS QUERY "cq1h" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy, (last(energy)-first(energy))*0.2244+0.018575342 AS bill INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY "cq1h" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy, (last(energy)-first(energy)) * mean(price) + mean(rate) / (365*24) AS bill INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
 
-CREATE CONTINUOUS QUERY "cq1d" ON "smartmeter" BEGIN SELECT last(energy)-first(energy) AS energy, (last(energy)-first(energy))*0.2244+0.4458 AS bill INTO smartmeter.rp370d.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY "cq1d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.rp370d.daily FROM smartmeter.rp28h.hourly GROUP BY time(1d) TZ('Europe/Berlin') END
 
 CREATE CONTINUOUS QUERY "cq7d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.weekly FROM smartmeter.rp370d.daily GROUP BY time(7d) TZ('Europe/Berlin') END 
 
@@ -95,7 +95,7 @@ CREATE CONTINUOUS QUERY "cq30d" ON "smartmeter" BEGIN SELECT sum(energy) AS ener
 
 CREATE CONTINUOUS QUERY "cq365d" ON "smartmeter" BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.rp370d.daily GROUP BY time(365d) TZ('Europe/Berlin') END
 ```
-The first query consolidates the one second data from the smartmeter into one hour timeslots which are kept, like the raw data, for 28 hours. The second query consolidates the raw energy values into a daily summary called `daily` and additionally calculates the energy cost per day. All subsequent queries consolidate the daily `energy` and `bill` values further into new measurements called `weekly`, `monthly` and `yearly` respectively. The daily consolidated data are kept for one year, and the weekly, monthly and yearly energy consumption and cost are stored infinetely.
+The first query consolidates the one second data from the smartmeter into one hour timeslots which are kept, like the raw data, for 28 hours. The cost per hour is determined from the tariff information if given in the smartmeter config file. The second query consolidates the raw `energy` and `bill` values into a daily summary called `daily`. All subsequent queries consolidate the daily `energy` and `bill` values further into new measurements called `weekly`, `monthly` and `yearly` respectively. The daily consolidated data are kept for one year, and the weekly, monthly and yearly energy consumption and cost are stored infinetely.
 
 ### Node Red
 
@@ -103,23 +103,23 @@ The Smartmeter daemon outputs json formatted fields and tags to the MQTT broker:
 ```
 [
   {
-    "lifetime":18252437,
-    "energy":2041.685,
-    "power":255.81,
-    "power_l1":54.16,
-    "power_l2":93.75,
-    "power_l3":107.90,
-    "voltage_l1":229.9,
-    "voltage_l2":228.9,
-    "voltage_l3":229.5
+    "lifetime":19102823,
+    "energy":2113.672678,
+    "power":225.09,
+    "power_l1":60.70,
+    "power_l2":75.30,
+    "power_l3":89.09,
+    "voltage_l1":232.9,
+    "voltage_l2":232.2,
+    "voltage_l3":232.4,
+    "rate":162.72,
+    "price":0.2244
   },
   {
     "serial":"EBZ5DD3BZ06ETA_107",
     "custom_id":"1EBZ0100507409",
     "device_id":"1EBZ0100507409",
-    "status":"001C0104",
-    "rate":162.72,
-    "price":0.2244
+    "status":"001C0104"
   }
 ]
 ```
