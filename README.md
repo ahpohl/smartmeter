@@ -4,11 +4,13 @@ Read energy utility meter with IR dongle
 
 ## Introduction
 
-In the beginning of this year my analogue ferraris energy counter was replaced by the electricity network operator with a smart energy meter [ref: easy basiszähler]. This made my previous pulsemeter project [ref: pulemeter] obsolete and I had to come up with something new. Luckily the volkszähler.org project [ref: volkszähler] already supports reading many of the smartmeters available on the market and the website turned out be a great source of information. In the end, however, I didn't stick with vzlogger [ref: vzlogger] software, but created my own smartmeter project from scratch.
+In the beginning of this year my analogue ferraris energy counter was replaced with a [smart energy meter][1] by the electricity network operator. This made my previous [pulsemeter][2] project obsolete and I had to come up with something new. Luckily the [volkszähler.org][3] project already supports reading many of the smartmeters available on the market and the wiki turned out be a great source of information. In the end, however, I didn't stick with the [vzlogger][4] software, but created my own smartmeter project from scratch.
 
 ## Hardware
 
-It turns out that the 3-phase Easy Basiszähler energy meter is equipped with an optical interface which sends data every second. The data is read with an IR dongle connected to an Arduino One. The communication protocol is described well in the manual [ref: ebz manual].  This is one of the raw datagrams sent by the smartmeter every second with comments describing the OBIS codes [ref: OBIS code reference]:
+It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped with an optical interface which sends data every second. ![Fig. 1: Easy Basiszähler](resources/eBZ_DD3_image_small.png)
+
+The data is read with an IR dongle connected to an Arduino One. The communication protocol is described well in the [manual](resources/ebz_manual.pdf). This is one of the raw datagrams sent by the smartmeter every second with comments describing the [OBIS codes][5]:
 
 ```
 /EBZ5DD3BZ06ETA_107                # serial number
@@ -29,11 +31,9 @@ It turns out that the 3-phase Easy Basiszähler energy meter is equipped with an
 EOM
 ```
 
-![Fig. 2: photo of electrical switchbox](resources/smartmeter.jpg)
+The IR dongle is based on the design of the [serial TTY model][6] at Volkszähler.org, but slightly modified and directly connected to the Arduino One's UART interface:
 
-The IR dongle is based on the design of the serial TTY model at Volkszähler.org [ref: IR dongle], but slightly modified and directly connected to the Arduino One's UART interface:
-
-![Fig. 1: schematic diagram](resources/schematic.png)
+![Fig. 2: schematic diagram](resources/schematic.png)
 
 ## Software
 
@@ -158,15 +158,18 @@ All notable changes and releases are documented in the [CHANGELOG](CHANGELOG.md)
 
 * *Volkszähler.org* project
 * *Tobias Oetiker* for the Round Robin Database library
-* *The Mosquitto* project team
-* *The PVOutput Team* for providing an excellent website with a simple to use API
-* *Grafana and InfluxDB* software stacks
-* *Easy Basiszähler* hardware
 * *Jean-Marc Louviaux* for meterN and 123Solar projects
 
 ## License
 
 This project is licensed under the MIT license - see the [LICENSE](LICENSE) file for details
+
+[1]: https://www.ebzgmbh.de/ "Elektronischer Basiszähler"
+[2]: https://github.com/ahpohl/pulsemeter "Pulse energy meter with Arduino and simple LED sensor"
+[3]: https://volkszaehler.org/ "volkszähler.org - Das Smartmeter für jeden"
+[4]: https://wiki.volkszaehler.org/software/controller/vzlogger "vzlogger - a tool to read and log measurements"
+[5]: https://www.promotic.eu/en/pmdoc/Subsystems/Comm/PmDrivers/IEC62056_OBIS.htm "Description of OBIS code for IEC 62056 standard protocol"
+[6]: https://wiki.volkszaehler.org/hardware/controllers/ir-schreib-lesekopf-ttl-ausgang "IR-Schreib-Lesekopf, TTL-Interface"
 
 [2]: https://oss.oetiker.ch/rrdtool/ "Round Robin Database"
 [3]: https://pvoutput.org/ "PVOutput is a free service for sharing and comparing PV output data"
