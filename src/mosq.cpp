@@ -45,18 +45,13 @@ Mosq::~Mosq()
 
 void Mosq::send_message(std::string t_topic, std::string t_message)
 {
-  int ret = 0;
-  do {
-    ret = mosquitto_publish(m_mosq, nullptr, t_topic.c_str(), t_message.size(),
+  int ret;
+  ret = mosquitto_publish(m_mosq, nullptr, t_topic.c_str(), t_message.size(),
       t_message.c_str(), 1, false);
-    if (ret != MOSQ_ERR_SUCCESS) {
-      std::cout << ">> Mosq - Sending message failed (" << ret << ")" << std::endl;
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      if (!mosquitto_reconnect(m_mosq)) {
-        std::cout << ">> Mosq - Reconnect successful" << std::endl;
-      }
-    }
-  } while (ret != MOSQ_ERR_SUCCESS);  
+  if (ret != MOSQ_ERR_SUCCESS) {
+    std::cout << ">> Mosq - Sending message failed (" << ret << ")" << std::endl;
+    mosquitto_reconnect_async(m_mosq);
+  }
 }
 
 void Mosq::on_publish(struct mosquitto* t_mosq, void* t_obj, int t_mid)
