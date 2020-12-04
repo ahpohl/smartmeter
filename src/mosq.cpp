@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <mosquitto.h>
+#include <chrono>
+#include <thread>
 
 #include "mosq.hpp"
 
@@ -47,6 +49,12 @@ void Mosq::send_message(std::string t_topic, std::string t_message)
     t_message.c_str(), 1, false);
   if (ret != MOSQ_ERR_SUCCESS) {
     std::cout << ">> Mosq - Sending message failed (" << ret << ")" << std::endl;
+    do {
+      mosquitto_reconnect(m_mosq);
+      ret = mosquitto_publish(m_mosq, nullptr, t_topic.c_str(), t_message.size(),
+    t_message.c_str(), 1, false);
+      std::this_thread::sleep_for(std::chrono::seconds(1));      
+    } while (ret != MOSQ_ERR_SUCCESS);
   }
 }
 
