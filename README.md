@@ -147,7 +147,7 @@ yaourt -S smartmeter
 
 Configuration:
 ```
-Edit /etc/smartmeter.conf
+nano /etc/smartmeter.conf
 systemctl enable smartmeter.service
 systemctl start smartmeter.service
 ```
