@@ -39,12 +39,12 @@ The IR dongle used to collect the raw datagrams is based on the design of the [s
 
 ### Smartmeter daemon program
 
-The smartmeter daemon is responsible for collecting the serial datagrams from the IR dongle and publishing the data to a shared memory ramdisk (so it doesn't wear out SD cards, etc.) and to a MQTT broker on the network such as Mosquitto [ref: mosquitto]. The config paramters are given in a separate config file [ref: to smartmeter.conf] or on the command line. A systemctl service file [ref: smartmeter.service] for continuous operation is provided.
+The smartmeter daemon is responsible for collecting the serial datagrams from the IR dongle and publishing the data to a shared memory ramdisk (so it doesn't wear out SD cards, etc.) and to a MQTT broker on the network such as [Mosquitto][7]. The config paramters are given in a separate [config file](resources/smartmeter.conf) or on the command line. A systemctl [service](resources/smartmeter.service) is also provided.
 
 Help output:
 
 ```
-Energy Smartmeter v0.2.2
+Energy Smartmeter v0.2.6
 
 Usage: ./build/smartmeter [options]
 
@@ -62,37 +62,9 @@ Electricity tariff:
   -k --price        Optional price per kWh
 ```
 
-For example (test run):
-cat resources/arguments.txt
-
-### InfluxDB
-
-For persistant data storage we use InfluxDB. One big advantages of a time series database like InfluxDB over a traditional SQL database is the automatic handling of data retention. With one datagram sent every second, the SQL database gets filled very quicky and querying a month full of data gets very slow.
-With InfluxDB we have the possiblilty to configure retention policies and continuous queries, which automatically prune the database after 24 hours and keep only the relevant data such as daily, weekly and monthly energy consumption.
-
-First we create the InfluxDB `smartmeter` and a user `mqtt`:
-```
-$ influx
-CREATE DATABASE "smartmeter"
-CREATE USER "mqtt" WITH PASSWORD "mqtt"
-GRANT ALL ON "smartmeter" TO "mqtt"
-```
-Then we create a new retention policy:
-```
-CREATE RETENTION POLICY "rp28h" ON "smartmeter" DURATION 28h REPLICATION 1 DEFAULT
-```
-And last the continous queries:
-```
-cq1h   CREATE CONTINUOUS QUERY cq1h ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
-cq1d   CREATE CONTINUOUS QUERY cq1d ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy, (last(energy) - first(energy)) * mean(price) + mean(rate) * 12 / 365 AS bill INTO smartmeter.autogen.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
-cq30d  CREATE CONTINUOUS QUERY cq30d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.monthly FROM smartmeter.rp370d.daily GROUP BY time(30d) TZ('Europe/Berlin') END
-cq365d CREATE CONTINUOUS QUERY cq365d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.rp370d.daily GROUP BY time(365d) TZ('Europe/Berlin') END
-```
-The first query consolidates the one second data from the smartmeter into one hour timeslots which are kept for 28 hours. The second query calculates the daily `energy` and `bill` values. The cost per day is determined from the tariff information if given in the smartmeter config file. The subsequent queries consolidate the daily `energy` and `bill` further into new `monthly` and `yearly` summaries, respectively.
-
 ### Node Red
 
-The Smartmeter daemon outputs json formatted fields and tags to the MQTT broker:
+The Smartmeter daemon outputs json formatted fields and tags and sends them to the MQTT broker. The data 
 ```
 [
   {
@@ -117,6 +89,36 @@ The Smartmeter daemon outputs json formatted fields and tags to the MQTT broker:
 ]
 ```
 [Fig: Node Red flow screenshot]
+
+
+
+### InfluxDB
+
+For persistant data storage the [InfluxDB][9] time series database is used. One big advantages of a time series databases like InfluxDB over a traditional SQL database is the automatic handling of data retention. With one datagram stored every second, a SQL database would get filled very quicky. With InfluxDB we have the possiblilty to configure a retention policy, which automatically prunes the database after a predefined time and keeps only the relevant data such as daily and monthly energy consumption. The magic behind the scenes is handled by continous queries, which are executed automatically in the specified time range.
+
+Configuration of InfluxDB:
+
+1. Create the InfluxDB `smartmeter` and a user `mqtt`:
+```
+$ influx
+CREATE DATABASE "smartmeter"
+CREATE USER "mqtt" WITH PASSWORD "mqtt"
+GRANT ALL ON "smartmeter" TO "mqtt"
+```
+
+2. Create a new default retention policy to keep only 28 hours of primary data points:
+```
+CREATE RETENTION POLICY "rp28h" ON "smartmeter" DURATION 28h REPLICATION 1 DEFAULT
+```
+
+3. Define continous queries to do the data consolidation in the background:
+```
+CREATE CONTINUOUS QUERY cq1h ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY cq1d ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy, (last(energy) - first(energy)) * mean(price) + mean(rate) * 12 / 365 AS bill INTO smartmeter.autogen.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY cq30d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.monthly FROM smartmeter.rp370d.daily GROUP BY time(30d) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY cq365d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.rp370d.daily GROUP BY time(365d) TZ('Europe/Berlin') END
+```
+
 
 ### Grafana
 
@@ -168,6 +170,9 @@ This project is licensed under the MIT license - see the [LICENSE](LICENSE) file
 [4]: https://wiki.volkszaehler.org/software/controller/vzlogger "vzlogger - a tool to read and log measurements"
 [5]: https://www.promotic.eu/en/pmdoc/Subsystems/Comm/PmDrivers/IEC62056_OBIS.htm "Description of OBIS code for IEC 62056 standard protocol"
 [6]: https://wiki.volkszaehler.org/hardware/controllers/ir-schreib-lesekopf-ttl-ausgang "IR-Schreib-Lesekopf, TTL-Interface"
+[7]: https://mosquitto.org/ "Eclipse Mosquitto - An open source MQTT broker"
+[8]: https://nodered.org/ "Node-RED - Low-code programming for event-driven applications"
+[9]: https://www.influxdata.com/ "InfluxDB: Purpose-Built Open Source Time Series Database"
 
 [2]: https://oss.oetiker.ch/rrdtool/ "Round Robin Database"
 [3]: https://pvoutput.org/ "PVOutput is a free service for sharing and comparing PV output data"
