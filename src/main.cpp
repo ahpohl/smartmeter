@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
   -t --topic        MQTT topic to publish\n\
 \n\
 Electricity tariff:\n\
-  -b --rate         Optional basic rate per year\n\
+  -b --rate         Optional basic rate per month\n\
   -k --price        Optional price per kWh" 
     << std::endl << std::endl;
     return 0;
