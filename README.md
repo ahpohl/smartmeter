@@ -37,6 +37,13 @@ The IR dongle used to collect the raw datagrams is based on the design of the [s
 
 ## Software
 
+The software stack consists of the following components:
+- Smartmeter daemon program
+- Mosquitto MQTT broker
+- Node-RED
+- InfluxDB
+- Grafana 
+
 ### Smartmeter daemon program
 
 The smartmeter daemon is responsible for collecting the serial datagrams from the IR dongle and publishing the data to a shared memory ramdisk (so it doesn't wear out SD cards, etc.) and to a MQTT broker on the network such as [Mosquitto][7]. The config paramters are given in a separate [config file](resources/smartmeter.conf) or on the command line. A systemctl [service](resources/smartmeter.service) is also provided.
@@ -62,9 +69,7 @@ Electricity tariff:
   -k --price        Optional price per kWh
 ```
 
-### Node Red
-
-The Smartmeter daemon outputs json formatted fields and tags and sends them to the MQTT broker. The data 
+The Smartmeter daemon creates json formatted fields and sends them to the the MQTT broker: 
 ```
 [
   {
@@ -88,8 +93,11 @@ The Smartmeter daemon outputs json formatted fields and tags and sends them to t
   }
 ]
 ```
-[Fig: Node Red flow screenshot]
+### Node-RED
 
+[Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/smartmeter-node-red.json) is used to connect the MQTT broker to the InfluxDB:
+
+![Fig: Node Red flow screenshot](resources/node-red-flow-chart.png)
 
 
 ### InfluxDB
@@ -98,20 +106,18 @@ For persistant data storage the [InfluxDB][9] time series database is used. One 
 
 Configuration of InfluxDB:
 
-1. Create the InfluxDB `smartmeter` and a user `mqtt`:
+Create the InfluxDB `smartmeter` and a user `mqtt`:
 ```
 $ influx
 CREATE DATABASE "smartmeter"
 CREATE USER "mqtt" WITH PASSWORD "mqtt"
 GRANT ALL ON "smartmeter" TO "mqtt"
 ```
-
-2. Create a new default retention policy to keep only 28 hours of primary data points:
+Create a new default retention policy to keep only 28 hours of primary data points:
 ```
 CREATE RETENTION POLICY "rp28h" ON "smartmeter" DURATION 28h REPLICATION 1 DEFAULT
 ```
-
-3. Define continous queries to do the data consolidation in the background:
+Define continous queries for data consolidation in the background:
 ```
 CREATE CONTINUOUS QUERY cq1h ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
 CREATE CONTINUOUS QUERY cq1d ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy, (last(energy) - first(energy)) * mean(price) + mean(rate) * 12 / 365 AS bill INTO smartmeter.autogen.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
@@ -119,46 +125,36 @@ CREATE CONTINUOUS QUERY cq30d ON smartmeter BEGIN SELECT sum(energy) AS energy, 
 CREATE CONTINUOUS QUERY cq365d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.rp370d.daily GROUP BY time(365d) TZ('Europe/Berlin') END
 ```
 
-
 ### Grafana
 
-[Fig: Grafana smartmeter dashboard screenshot]
+An energy consumption [dashboard](resources/grafana-dashboard.json) has been created using [Grafana][10]. The dashboard shows the current and past energy consumption (and bill info if the tariff data has been provided in the smartmeter config file).
 
-### meterN
-
-The OBIS from the shared memory device are updated every second and this live data can be easily read by meterN. Here is a screenshot how to configure meterN:
-
-[Fig: meterN config]
-
-Once setup, the meter looks like this (in my installation the consumption data from the smartmeter is shown together with production data from 123solar [ref: 123solar]): 
-
-[Fig: meterN screenshot]
+![Fig: Grafana smartmeter dashboard screenshot](resources/grafana-dashboard.png)
 
 
 ## Installation
 
 Via Git:
+```
 git clone https://github.com/ahpohl/smartmeter.git
 make
 sudo make install
-
-or install directly from AUR:
+```
+Or via Arch Linux package ([smartmeter][11]):
+```
 yaourt -S smartmeter
+```
 
-Permanent installation:
+Configuration:
+```
 Edit /etc/smartmeter.conf
 systemctl enable smartmeter.service
 systemctl start smartmeter.service
+```
 
 ## Changelog
 
 All notable changes and releases are documented in the [CHANGELOG](CHANGELOG.md).
-
-## Acknowledgements
-
-* *Volkszähler.org* project
-* *Tobias Oetiker* for the Round Robin Database library
-* *Jean-Marc Louviaux* for meterN and 123Solar projects
 
 ## License
 
@@ -173,10 +169,6 @@ This project is licensed under the MIT license - see the [LICENSE](LICENSE) file
 [7]: https://mosquitto.org/ "Eclipse Mosquitto - An open source MQTT broker"
 [8]: https://nodered.org/ "Node-RED - Low-code programming for event-driven applications"
 [9]: https://www.influxdata.com/ "InfluxDB: Purpose-Built Open Source Time Series Database"
-
-[2]: https://oss.oetiker.ch/rrdtool/ "Round Robin Database"
-[3]: https://pvoutput.org/ "PVOutput is a free service for sharing and comparing PV output data"
-[4]: https://pvoutput.org/list.jsp?userid=74913 "Ilvesheim system on PVOutput"
-[5]: https://123solar.org/ "123Solar Web Solar logger"
-[6]: https://apps.apple.com/au/app/pvoutput-pro/id994297624 "PVOutput Pro mobile app"
+[10]: https://grafana.com/ "Grafana: The open observability platform | Grafana Labs"
 [11]: https://aur.archlinux.org/packages/smartmeter "Smartmeter Arch Linux package"
+
