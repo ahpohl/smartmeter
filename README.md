@@ -6,11 +6,11 @@ Read energy utility meter with a simple IR dongle
 
 In the beginning of this year my analogue ferraris energy counter was replaced with a [smart energy meter][1] by the electricity network operator. This made my previous [pulsemeter][2] project obsolete and I had to come up with something new. Luckily the [volkszähler.org][3] project already supports reading many of the smartmeters available on the market and the wiki turned out be a great source of information. In the end, however, I didn't stick with the [vzlogger][4] software, but created my own smartmeter project from scratch.
 
+![Fig. 1: Easy Basiszähler](resources/eBZ_DD3_image_small.png)
+
 ## Hardware
 
-It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped with an optical interface which sends data every second. ![Fig. 1: Easy Basiszähler](resources/eBZ_DD3_image_small.png)
-
-The data is read with an IR dongle connected to an Arduino One. The communication protocol is described well in the [manual](resources/ebz_manual.pdf). This is one of the raw datagrams sent by the smartmeter every second with comments describing the [OBIS codes][5]:
+It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped with an optical interface which sends data every second. The communication protocol is described well in the [manual](resources/ebz_manual.pdf). This is one of the raw datagrams sent by the smartmeter every second with comments describing the [OBIS codes][5]:
 
 ```
 /EBZ5DD3BZ06ETA_107                # serial number
@@ -31,9 +31,9 @@ The data is read with an IR dongle connected to an Arduino One. The communicatio
 EOM
 ```
 
-The IR dongle is based on the design of the [serial TTY model][6] at Volkszähler.org, but slightly modified and directly connected to the Arduino One's UART interface:
+The IR dongle used to collect the raw datagrams is based on the design of the [serial TTY model][6] at Volkszähler.org, but with an added USB interface:
 
-![Fig. 2: schematic diagram](resources/schematic.png)
+![Fig. 2: schematic diagram](resources/IR-dongle_schematic.png)
 
 ## Software
 
