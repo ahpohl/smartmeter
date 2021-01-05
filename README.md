@@ -38,11 +38,11 @@ The IR dongle used to collect the raw datagrams is based on the design of the [s
 ## Software
 
 The software stack consists of the following components:
-- Smartmeter daemon program
-- Mosquitto MQTT broker
-- Node-RED
-- InfluxDB
-- Grafana 
+- Smartmeter v0.2.6
+- Mosquitto MQTT broker v2.0.4
+- Node-RED v1.2.6
+- InfluxDB v1.8.3
+- Grafana 7.3.4
 
 ### Smartmeter daemon program
 
@@ -127,7 +127,7 @@ CREATE CONTINUOUS QUERY cq365d ON smartmeter BEGIN SELECT sum(energy) AS energy,
 
 ### Grafana
 
-An energy consumption [dashboard](resources/grafana-dashboard.json) has been created using [Grafana][10]. The dashboard shows the current and past energy consumption (and bill info if the tariff data has been provided in the smartmeter config file).
+The following [Grafana][10] dashboard shows the current and past energy consumption, available as a [json](resources/grafana-dashboard.json) file:
 
 ![Fig: Grafana smartmeter dashboard screenshot](resources/grafana-dashboard.png)
 
@@ -142,7 +142,7 @@ sudo make install
 ```
 Or via Arch Linux package ([smartmeter][11]):
 ```
-yaourt -S smartmeter
+yaourt -S smartmeter mosquitto nodejs-node-red influxdb grafana-bin
 ```
 
 Configuration:
@@ -150,6 +150,7 @@ Configuration:
 nano /etc/smartmeter.conf
 systemctl enable smartmeter.service
 systemctl start smartmeter.service
+...
 ```
 
 ## Changelog
