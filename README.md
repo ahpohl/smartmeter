@@ -120,7 +120,7 @@ CREATE RETENTION POLICY "rp28h" ON "smartmeter" DURATION 28h REPLICATION 1 DEFAU
 Define continous queries for data consolidation in the background:
 ```
 CREATE CONTINUOUS QUERY cq1h ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
-CREATE CONTINUOUS QUERY cq1d ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy, (last(energy) - first(energy)) * mean(price) + mean(rate) * 12 / 365 AS bill INTO smartmeter.autogen.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
+CREATE CONTINUOUS QUERY cq1d ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy, (last(energy) - first(energy)) * mean(price) + mean(rate) * 12 / 365 AS bill, last(energy) AS total INTO smartmeter.autogen.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
 CREATE CONTINUOUS QUERY cq30d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.monthly FROM smartmeter.autogen.daily GROUP BY time(30d) TZ('Europe/Berlin') END
 CREATE CONTINUOUS QUERY cq365d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.autogen.daily GROUP BY time(365d) TZ('Europe/Berlin') END
 ```
