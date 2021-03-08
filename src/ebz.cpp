@@ -18,6 +18,7 @@ Ebz::Ebz(void)
   m_voltagel2 = 0; 
   m_voltagel3 = 0;
   m_sensortime = 0;
+  m_now = 0;
   m_mqtt = nullptr;
   m_rate = 0;
   m_price = 0;
