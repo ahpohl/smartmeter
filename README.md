@@ -38,11 +38,11 @@ The IR dongle used to collect the raw datagrams is based on the design of the [s
 ## Software
 
 The software stack consists of the following components:
-- Smartmeter v0.2.6
-- Mosquitto MQTT broker v2.0.4
+- Smartmeter v0.2.7
+- Mosquitto MQTT broker v2.0.7
 - Node-RED v1.2.6
-- InfluxDB v1.8.3
-- Grafana 7.3.4
+- InfluxDB v2.0.4
+- Grafana 7.4.0
 
 ### Smartmeter daemon program
 
@@ -51,7 +51,7 @@ The smartmeter daemon is responsible for collecting the serial datagrams from th
 Help output:
 
 ```
-Energy Smartmeter v0.2.6
+Energy Smartmeter v0.2.7
 
 Usage: ./build/smartmeter [options]
 
@@ -69,7 +69,7 @@ Electricity tariff:
   -k --price        Optional price per kWh
 ```
 
-The Smartmeter daemon creates json formatted fields and sends them to the the MQTT broker: 
+The Smartmeter daemon creates json formatted fields including a unix epoch timestamp with milliseconds precision and sends them to the the MQTT broker: 
 ```
 [
   {
@@ -83,7 +83,8 @@ The Smartmeter daemon creates json formatted fields and sends them to the the MQ
     "voltage_l2":232.2,
     "voltage_l3":232.4,
     "rate":162.72,
-    "price":0.2244
+    "price":0.2244,
+    "time":1615228471351
   },
   {
     "serial":"EBZ5DD3BZ06ETA_107",

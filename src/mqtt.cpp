@@ -26,6 +26,7 @@ void Ebz::publishMqtt(void) const
   std::lock_guard<std::mutex> guard(mutex);
   std::string topic = m_topic + "/state";
   std::stringstream payload;
+  unsigned long long const now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
   // json string with influxdb fields and tags 
   payload << "[{"
@@ -39,7 +40,8 @@ void Ebz::publishMqtt(void) const
     << "\"voltage_l2\":" << m_voltagel2 << ","
     << "\"voltage_l3\":" << m_voltagel3 << ","
     << "\"rate\":" << std::setprecision(2) << m_rate << ","
-    << "\"price\":" << std::setprecision(4) << m_price
+    << "\"price\":" << std::setprecision(4) << m_price << ","
+    << "\"time\":" << now
     << "},{"
     << "\"serial\":\"" << m_serialnum << "\","
     << "\"custom_id\":\"" << m_customid << "\","
