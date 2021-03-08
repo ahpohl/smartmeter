@@ -59,6 +59,7 @@ private:
   double m_voltagel2;         // voltage phase L2
   double m_voltagel3;         // voltage phase L3
   unsigned long m_sensortime; // time of operation, in seconds
+  unsigned long long m_now;   // unix epoch, in ms
   char* m_status;             // status word, 4 byte hex
   char* m_datagram;           // buffer for a d0 datagram
   Mosq* m_mqtt;               // pointer to mosquitto client object

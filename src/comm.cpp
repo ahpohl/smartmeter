@@ -146,6 +146,7 @@ void Ebz::readDatagram(void)
   char hextime[Ebz::OBIS_BUFFER_SIZE] = {0};
   strncpy(hextime, p+=0x1A, 8);
   m_sensortime = strtoul(hextime, nullptr, 16);
+  m_now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   
   if (m_debug) {
     cout << "Serial number: " << m_serialnum << endl;
@@ -162,6 +163,7 @@ void Ebz::readDatagram(void)
     cout << "Status: " << m_status << endl;
     cout << "Sensor time: " << hextime << " (" << 
       m_sensortime << " sec)" << endl;
+    cout << "Timestamp: " << m_now << " ms" << endl;
   }
 }
 
