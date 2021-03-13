@@ -22,6 +22,11 @@ Ebz::Ebz(void)
   m_mqtt = nullptr;
   m_rate = 0;
   m_price = 0;
+  m_datagram = new char[Ebz::SERIAL_BUFFER_SIZE];
+  m_serialnum = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_customid = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_deviceid = new char[Ebz::OBIS_BUFFER_SIZE];
+  m_status = new char[Ebz::OBIS_BUFFER_SIZE];
 }
 
 Ebz::~Ebz(void)

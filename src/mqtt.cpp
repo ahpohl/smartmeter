@@ -3,8 +3,6 @@
 #include <string>
 #include <iomanip>
 #include <chrono>
-#include <thread>
-#include <mutex>
 #include "ebz.hpp"
 #include "mosq.hpp"
 
@@ -22,8 +20,6 @@ void Ebz::initMqtt(char const* t_host, int t_port, char const* t_topic)
 
 void Ebz::publishMqtt(void) const
 {
-  std::mutex mutex;
-  std::lock_guard<std::mutex> guard(mutex);
   std::string topic = m_topic + "/state";
   std::stringstream payload;
 
@@ -51,14 +47,5 @@ void Ebz::publishMqtt(void) const
   m_mqtt->send_message(topic.c_str(), payload.str().c_str());
   if (m_debug) { 
     std::cout << payload.str() << std::endl;
-  }
-}
-
-void Ebz::runMqtt(void) const
-{
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  while (true) {
-    publishMqtt();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 }

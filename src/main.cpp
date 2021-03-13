@@ -1,5 +1,4 @@
 #include <iostream>
-#include <thread>
 #include <getopt.h>
 #include "ebz.hpp"
 
@@ -106,34 +105,26 @@ Electricity tariff:\n\
   std::cout << "Smartmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  std::shared_ptr<Ebz> meter(new Ebz());
+  Ebz* meter = new Ebz();
 
   if (debug) {
     meter->setDebug();
   }
 
-  std::thread serial_thread;
   meter->openSerialPort(serial_device);
-  serial_thread = std::thread(&Ebz::runReadSerial, meter);
-
-  std::thread mqtt_thread;
   meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
   meter->setTariff(basic_rate, price_kwh);
-  mqtt_thread = std::thread(&Ebz::runMqtt, meter);
-
-  std::thread obis_thread;
   meter->createObisPath(ramdisk);
-  obis_thread = std::thread(&Ebz::runObis, meter);
 
-  if (serial_thread.joinable()) {
-    serial_thread.join();
+  int ret = 0;
+  while (true) {
+    ret = meter->readSerialPort();
+    if (!ret) {
+      meter->readDatagram();
+      meter->writeObisCodes();
+      meter->publishMqtt();
+    }
   }
-  if (obis_thread.joinable()) {
-    obis_thread.join();
-  }
-  if (mqtt_thread.joinable()) {
-    mqtt_thread.join();
-  }
-  
+ 
   return 0;
 }

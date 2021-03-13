@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include <thread>
-#include <mutex>
 #include "ebz.hpp"
 
 namespace fs = std::filesystem;
@@ -40,9 +38,6 @@ void Ebz::createObisPath(const char* const t_ramdisk) const
 
 void Ebz::writeObisCodes(void) const
 {
-  std::mutex mutex;
-  std::lock_guard<std::mutex> guard(mutex);
-
   std::ofstream ofs;
   ofs.open("ebz_serial", std::ios::out);
   ofs << m_serialnum;
@@ -86,12 +81,4 @@ void Ebz::writeObisCodes(void) const
   ofs.open("ebz_lifetime", std::ios::out);
   ofs << "lifetime" << "(" << std::fixed << std::setprecision(0) << m_sensortime / 86400.0 << "*d)";
   ofs.close();
-}
-
-void Ebz::runObis(void) const
-{
-  while (true) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    writeObisCodes();
-  }
 }

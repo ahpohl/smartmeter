@@ -1,1 +1,1 @@
-./build/smartmeter --serial /dev/ttyACM0 --ramdisk /dev/shm --host 192.168.178.40 --port 1883 --topic smartmeter --rate 162.72 --price 0.2244 --debug
+./build/smartmeter --serial /dev/ttyACM0 --ramdisk /dev/shm --host 192.168.178.55 --port 1883 --topic smartmeter --rate 14.66 --price 0.2426 --debug

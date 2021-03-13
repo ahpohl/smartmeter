@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <mutex>
 #include <cstring>
 #include <termios.h>    // contains POSIX terminal control definition
 #include <fcntl.h>      // contains file controls like 0_RDWR
@@ -107,9 +106,6 @@ int Ebz::readSerialPort(void)
 
 void Ebz::readDatagram(void)
 {
-  std::mutex mutex;
-  std::lock_guard<std::mutex> guard(mutex);
-
   m_now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
   char *p = m_datagram;
@@ -165,22 +161,5 @@ void Ebz::readDatagram(void)
     cout << "Sensor time: " << hextime << " (" << 
       m_sensortime << " sec)" << endl;
     cout << "Timestamp: " << m_now << " ms" << endl;
-  }
-}
-
-void Ebz::runReadSerial(void)
-{
-  m_datagram = new char[Ebz::SERIAL_BUFFER_SIZE];
-  m_serialnum = new char[Ebz::OBIS_BUFFER_SIZE];
-  m_customid = new char[Ebz::OBIS_BUFFER_SIZE];
-  m_deviceid = new char[Ebz::OBIS_BUFFER_SIZE];
-  m_status = new char[Ebz::OBIS_BUFFER_SIZE];
-  int ret = 0;
-
-  while (true) {
-    ret = readSerialPort();
-    if (!ret) {
-      readDatagram();
-    }
   }
 }
