@@ -1,9 +1,24 @@
 #include <iostream>
 #include <getopt.h>
+#include <csignal>
 #include "ebz.hpp"
+
+volatile sig_atomic_t shutdown = false;
+
+void sig_handler(int)
+{
+  shutdown = true;
+}
 
 int main(int argc, char* argv[])
 {
+  struct sigaction action;
+  action.sa_handler = sig_handler;
+  sigemptyset(&action.sa_mask);
+  action.sa_flags = SA_RESTART;
+  sigaction(SIGINT, &action, NULL);
+  sigaction(SIGTERM, &action, NULL);
+  
   bool debug = false;
   bool version = false;
   bool help = false;
@@ -117,7 +132,7 @@ Electricity tariff:\n\
   meter->createObisPath(ramdisk);
 
   int ret = 0;
-  while (true) {
+  while (shutdown == false) {
     ret = meter->readSerialPort();
     if (!ret) {
       meter->readDatagram();
