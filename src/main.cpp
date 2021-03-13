@@ -125,6 +125,8 @@ Electricity tariff:\n\
       meter->publishMqtt();
     }
   }
+
+  delete meter;
  
   return 0;
 }
