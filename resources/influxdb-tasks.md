@@ -43,25 +43,38 @@ energy = res
 	|> rename(columns: {energy: "_value"})
 	|> set(key: "_measurement", value: "daily")
 	|> set(key: "_field", value: "energy")
-bill = energy
+	|> drop(columns: ["price", "rate"])
+bill = res
+	|> difference(columns: ["energy"])
 	|> map(fn: (r) =>
 		({
 			_start: r._start,
 			_stop: r._stop,
 			_time: r._time,
-			_value: r._value * r.price + r.rate * 12.0 / 365.0,
-			price: r.price,
-			rate: r.rate,
+			_value: r.energy * r.price + r.rate * 12.0 / 365.0,
 		}))
+	|> drop(columns: ["energy", "price", "rate"])
 	|> set(key: "_measurement", value: "daily")
 	|> set(key: "_field", value: "bill")
 total = day_end
 	|> rename(columns: {energy: "_value"})
+	|> drop(columns: ["price", "rate"])
 	|> set(key: "_measurement", value: "daily")
 	|> set(key: "_field", value: "total")
+rate = day_end
+	|> rename(columns: {rate: "_value"})
+	|> drop(columns: ["price", "energy"])
+	|> set(key: "_measurement", value: "daily")
+	|> set(key: "_field", value: "rate")
+price = day_end
+	|> rename(columns: {price: "_value"})
+	|> drop(columns: ["rate", "energy"])
+	|> set(key: "_measurement", value: "daily")
+	|> set(key: "_field", value: "price")
 
-union(tables: [energy, bill, total])
+union(tables: [energy, bill, total, rate, price])
 	|> group(columns: ["_field"], mode: "by")
+	|> to(bucket: "smartmeter")
 ```
 
 Monthly:
