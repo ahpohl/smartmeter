@@ -34,9 +34,9 @@ void Ebz::publishMqtt(void) const
     << "\"voltage_l1\":" << std::setprecision(1) << m_voltagel1 << ","
     << "\"voltage_l2\":" << m_voltagel2 << ","
     << "\"voltage_l3\":" << m_voltagel3 << ","
+    << "\"status\":\"" << m_status << "\"" << ","
     << "\"rate\":" << std::setprecision(2) << m_rate << ","
     << "\"price\":" << std::setprecision(4) << m_price << ","
-    << "\"status\":\"" << m_status << "\"" << ","
     << "\"time\":" << m_now
     << "},{"
     << "\"serial\":\"" << m_serialnum << "\","
