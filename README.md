@@ -6,11 +6,11 @@ Read energy utility meter with a simple IR dongle
 
 In the beginning of this year my analogue ferraris energy counter was replaced with a [smart energy meter][1] by the electricity network operator. This made my previous [pulsemeter][2] project obsolete and I had to come up with something new. Luckily the [volkszähler.org][3] project already supports reading many of the smartmeters available on the market and the wiki turned out be a great source of information. In the end, however, I didn't stick with the [vzlogger][4] software, but created my own smartmeter project from scratch.
 
-![Fig. 1: Easy Basiszähler](resources/eBZ_DD3_image_small.png)
+![Fig. 1: Easy Basiszähler](resources/ebz/eBZ_DD3_image_small.png)
 
 ## Hardware
 
-It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped with an optical interface which sends data every second. The communication protocol is described well in the [manual](resources/ebz_manual.pdf). This is one of the raw datagrams sent by the smartmeter every second with comments describing the [OBIS codes][5]:
+It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped with an optical interface which sends data every second. The communication protocol is described well in the [manual](resources/ebz/ebz_manual.pdf). This is one of the raw datagrams sent by the smartmeter every second with comments describing the [OBIS codes][5]:
 
 ```
 /EBZ5DD3BZ06ETA_107                # serial number
@@ -33,16 +33,16 @@ EOM
 
 The IR dongle used to collect the raw datagrams is based on the design of the [serial TTY model][6] at Volkszähler.org, but with an added USB interface:
 
-![Fig. 2: schematic diagram](resources/IR-dongle_schematic.png)
+![Fig. 2: schematic diagram](resources/ir-dongle/IR-dongle_schematic.png)
 
 ## Software
 
 The software stack consists of the following components:
-- Smartmeter v0.2.7
-- Mosquitto MQTT broker v2.0.7
+- Smartmeter v0.2.8
+- PostgreSQL 13.2 with TimescaleDB 2.1.0 and pg_cron 1.3.1 extenstions
+- Mosquitto MQTT broker v2.0.8
 - Node-RED v1.2.6
-- InfluxDB v2.0.4
-- Grafana 7.4.0
+- Grafana 7.4.5
 
 ### Smartmeter daemon program
 
@@ -51,9 +51,9 @@ The smartmeter daemon is responsible for collecting the serial datagrams from th
 Help output:
 
 ```
-Energy Smartmeter v0.2.7
+Energy Smartmeter v0.2.8
 
-Usage: ./build/smartmeter [options]
+Usage: smartmeter [options]
 
   -h --help         Show help message
   -V --version      Show build info
@@ -73,64 +73,41 @@ The Smartmeter daemon creates json formatted fields including a unix epoch times
 ```
 [
   {
-    "lifetime":19102823,
-    "energy":2113.672678,
-    "power":225.09,
-    "power_l1":60.70,
-    "power_l2":75.30,
-    "power_l3":89.09,
-    "voltage_l1":232.9,
-    "voltage_l2":232.2,
-    "voltage_l3":232.4,
-    "rate":162.72,
-    "price":0.2244,
-    "time":1615228471351
-  },
+    "lifetime":38081875,
+    "energy":4878.744085,
+    "power":2475.63,
+    "power_l1":2276.28,
+    "power_l2":97.53,
+    "power_l3":101.82,
+    "voltage_l1":235.9,
+    "voltage_l2":235.7,
+    "voltage_l3":235.4,
+    "status":"001C0104",
+    "rate":14.66,
+    "price":0.2426,
+    "time":1617348522327},
   {
     "serial":"EBZ5DD3BZ06ETA_107",
     "custom_id":"1EBZ0100507409",
-    "device_id":"1EBZ0100507409",
-    "status":"001C0104"
+    "device_id":"1EBZ0100507409"
   }
 ]
 ```
 ### Node-RED
 
-[Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/smartmeter-node-red.json) is used to connect the MQTT broker to the InfluxDB:
+[Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/nodejs/node-red-flow.json) is used to connect the MQTT broker to the InfluxDB:
 
-![Fig: Node Red flow screenshot](resources/node-red-flow-chart.png)
+![Fig: Node Red flow screenshot](resources/nodejs/node-red-flow.png)
 
+### TimescaleDB
 
-### InfluxDB
-
-For persistant data storage the [InfluxDB][9] time series database is used. One big advantages of a time series databases like InfluxDB over a traditional SQL database is the automatic handling of data retention. With one datagram stored every second, a SQL database would get filled very quicky. With InfluxDB we have the possiblilty to configure a retention policy, which automatically prunes the database after a predefined time and keeps only the relevant data such as daily and monthly energy consumption. The magic behind the scenes is handled by continous queries, which are executed automatically in the specified time range.
-
-Configuration of InfluxDB:
-
-Create the InfluxDB `smartmeter` and a user `mqtt`:
-```
-$ influx
-CREATE DATABASE "smartmeter"
-CREATE USER "mqtt" WITH PASSWORD "mqtt"
-GRANT ALL ON "smartmeter" TO "mqtt"
-```
-Create a new default retention policy to keep only 28 hours of primary data points:
-```
-CREATE RETENTION POLICY "rp28h" ON "smartmeter" DURATION 28h REPLICATION 1 DEFAULT
-```
-Define continous queries for data consolidation in the background:
-```
-CREATE CONTINUOUS QUERY cq1h ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy INTO smartmeter.rp28h.hourly FROM smartmeter.rp28h.state GROUP BY time(1h) TZ('Europe/Berlin') END
-CREATE CONTINUOUS QUERY cq1d ON smartmeter BEGIN SELECT last(energy) - first(energy) AS energy, (last(energy) - first(energy)) * mean(price) + mean(rate) * 12 / 365 AS bill, last(energy) AS total INTO smartmeter.autogen.daily FROM smartmeter.rp28h.state GROUP BY time(1d) TZ('Europe/Berlin') END
-CREATE CONTINUOUS QUERY cq30d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.monthly FROM smartmeter.autogen.daily GROUP BY time(30d) TZ('Europe/Berlin') END
-CREATE CONTINUOUS QUERY cq365d ON smartmeter BEGIN SELECT sum(energy) AS energy, sum(bill) AS bill INTO smartmeter.autogen.yearly FROM smartmeter.autogen.daily GROUP BY time(365d) TZ('Europe/Berlin') END
-```
+Data is stored in a [PostgreSQL](https://www.postgresql.org/) database with [TimescaleDB](https://www.timescale.com/) and [pg_cron](https://github.com/citusdata/pg_cron) extensions to automatically process the live data from the Smartmeter into hourly, daily and monthly aggregates. The database setup is described in detail on a separate [Wiki page](https://github.com/ahpohl/smartmeter/wiki/TimescaleDB).
 
 ### Grafana
 
-The following [Grafana][10] dashboard shows the current and past energy consumption, available as a [json](resources/grafana-dashboard.json) file:
+The following [Grafana][10] dashboard shows the current and past energy consumption, available as a [json](resources/grafana/grafana-dashboard.json) file:
 
-![Fig: Grafana smartmeter dashboard screenshot](resources/grafana-dashboard.png)
+![Fig: Grafana smartmeter dashboard screenshot](resources/grafana/grafana-dashboard.png)
 
 
 ## Installation
