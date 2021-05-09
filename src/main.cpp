@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <getopt.h>
 #include <csignal>
 #include "ebz.hpp"
@@ -120,7 +121,7 @@ Electricity tariff:\n\
   std::cout << "Smartmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  Ebz* meter = new Ebz();
+  std::unique_ptr<Ebz> meter(new Ebz());
 
   if (debug) {
     meter->setDebug();
@@ -140,8 +141,6 @@ Electricity tariff:\n\
       meter->publishMqtt();
     }
   }
-
-  delete meter;
  
   return 0;
 }
