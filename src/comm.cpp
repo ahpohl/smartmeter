@@ -54,7 +54,7 @@ void Ebz::configureSerialPort(unsigned char const& t_vmin,
 
   cfmakeraw(&attr);
   attr.c_cflag &= ~CSIZE;
-  attr.c_cflag |= CS7;
+  attr.c_cflag |= (CS7 | PARENB);
 
   attr.c_cc[VMIN] = t_vmin;
   attr.c_cc[VTIME] = t_vtime;
