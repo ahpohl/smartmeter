@@ -4,7 +4,7 @@ After=syslog.target
 
 [Service]
 EnvironmentFile=/etc/smartmeter.conf 
-ExecStart=/usr/bin/smartmeter --serial ${SERIAL} --host ${HOST} --port ${PORT} --topic ${TOPIC} --user ${USER} --pass ${PASS}--rate ${RATE} --price ${PRICE}
+ExecStart=/usr/bin/smartmeter --serial ${SERIAL} --host ${HOST} --port ${PORT} --topic ${TOPIC} --user ${USER} --pass ${PASS} --rate ${RATE} --price ${PRICE}
 User=http
 Group=http
 
