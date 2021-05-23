@@ -1,1 +1,1 @@
-./build/smartmeter --serial /dev/ttyACM0 --ramdisk /dev/shm --host 192.168.178.55 --port 1883 --topic smartmeter --rate 14.66 --price 0.2426 --debug
+./build/smartmeter --serial /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AB65FI6I-if00-port0 --host 192.168.178.55 --port 1883 --topic smartmeter --rate 14.66 --price 0.2426

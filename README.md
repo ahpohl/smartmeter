@@ -6,7 +6,7 @@ Read energy utility meter with a simple IR dongle
 
 In the beginning of this year my analogue ferraris energy counter was replaced with a [smart energy meter][1] by the electricity network operator. This made my previous [pulsemeter][2] project obsolete and I had to come up with something new. Luckily the [volkszähler.org][3] project already supports reading many of the smartmeters available on the market and the wiki turned out be a great source of information. In the end, however, I didn't stick with the [vzlogger][4] software, but created my own smartmeter project from scratch.
 
-![Fig. 1: Easy Basiszähler](resources/ebz/eBZ_DD3_image_small.png)
+![Fig. 1: Smartmeter with IR dongle](resources/ebz/smartmeter.png)
 
 ## Hardware
 
@@ -28,38 +28,34 @@ It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped w
 1-0:96.5.0*255(001C0104)           # status
 0-0:96.8.0*255(00104443)           # sensor lifetime in secs, 0x
 !
-EOM
 ```
 
-The IR dongle used to collect the raw datagrams is based on the design of the [serial TTY model][6] at Volkszähler.org, but with an added USB interface:
-
-![Fig. 2: schematic diagram](resources/ir-dongle/IR-dongle_schematic.png)
+The IR dongle used to collect the raw datagrams is based on the design of the [serial TTY model][6] at Volkszähler.org, but with an added USB interface. The manufacturing process of the hardware is described on a separate [Wiki page](https://github.com/ahpohl/smartmeter/wiki/IR-dongle).
 
 ## Software
 
 The software stack consists of the following components:
-- Smartmeter v0.2.8
-- PostgreSQL 13.2 with TimescaleDB 2.1.0 and pg_cron 1.3.1 extenstions
-- Mosquitto MQTT broker v2.0.8
-- Node-RED v1.2.6
-- Grafana 7.4.5
+- Smartmeter v0.2.9
+- PostgreSQL 13.2 with TimescaleDB 2.2.1 and pg_cron 1.3.1 extenstions
+- Mosquitto MQTT broker 2.0.10
+- Node-RED 1.3.2
+- Grafana 7.5.3
 
 ### Smartmeter daemon program
 
-The smartmeter daemon is responsible for collecting the serial datagrams from the IR dongle and publishing the data to a shared memory ramdisk (so it doesn't wear out SD cards, etc.) and to a MQTT broker on the network such as [Mosquitto][7]. The config paramters are given in a separate [config file](resources/smartmeter.conf) or on the command line. A systemctl [service](resources/smartmeter.service) is also provided.
+The smartmeter daemon is responsible for collecting the serial datagrams from the IR dongle and publishing the data to a MQTT broker on the network such as [Mosquitto][7]. The config paramters are given in a separate [config file](resources/smartmeter.conf) or on the command line. A systemctl [service](resources/smartmeter.service) is also provided.
 
 Help output:
 
 ```
-Energy Smartmeter v0.2.8
+Energy Smartmeter v0.2.9
 
-Usage: smartmeter [options]
+Usage: ./build/smartmeter [options]
 
   -h --help         Show help message
   -V --version      Show build info
-  -D --debug        Show debug messages
+  -v --verbose      Set verbose output level
   -s --serial       Serial device
-  -r --ramdisk      Shared memory device
   -H --host         MQTT broker host or ip
   -p --port         MQTT broker port
   -t --topic        MQTT topic to publish
@@ -69,7 +65,9 @@ Electricity tariff:
   -k --price        Optional price per kWh
 ```
 
-The Smartmeter daemon creates json formatted fields including a unix epoch timestamp with milliseconds precision and sends them to the the MQTT broker: 
+The Smartmeter daemon creates json formatted fields including a unix epoch timestamp with milliseconds precision and sends them to the the MQTT broker. Verbosity levels: -v formatted json output -vv raw serial output -vvv mosquitto debug log.
+
+For example, json output (-v):
 ```
 [
   {
@@ -95,17 +93,19 @@ The Smartmeter daemon creates json formatted fields including a unix epoch times
 ```
 ### Node-RED
 
-[Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/nodejs/node-red-flow.json) is used to connect the MQTT broker to the InfluxDB:
+[Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/nodejs/node-red-flow.json) is used to connect the MQTT broker:
 
 ![Fig: Node Red flow screenshot](resources/nodejs/node-red-flow.png)
 
+The Node-Red mqtt client subscribes to the `smartmeter/state` and `smartmeter/status` topics and forwards the Smartmeter json string to the PostgresQL client node. The flow is configured to send an email alert when the online/offline status changes.
+
 ### TimescaleDB
 
-Data is stored in a [PostgreSQL](https://www.postgresql.org/) database with [TimescaleDB](https://www.timescale.com/) and [pg_cron](https://github.com/citusdata/pg_cron) extensions to automatically process the live data from the Smartmeter into hourly, daily and monthly aggregates. The database setup is described in detail on a separate [Wiki page](https://github.com/ahpohl/smartmeter/wiki/TimescaleDB).
+Data is stored in a [PostgreSQL][9] database with [TimescaleDB][10] and [pg_cron][11] extensions to automatically process the live data from the Smartmeter into hourly, daily and monthly aggregates. The database setup is described in detail on a separate [Wiki page](https://github.com/ahpohl/smartmeter/wiki/TimescaleDB).
 
 ### Grafana
 
-The following [Grafana][10] dashboard shows the current and past energy consumption, available as a [json](resources/grafana/grafana-dashboard.json) file:
+The following [Grafana][12] dashboard shows the current and past energy consumption, available as a [json](resources/grafana/grafana-dashboard.json) file:
 
 ![Fig: Grafana smartmeter dashboard screenshot](resources/grafana/grafana-dashboard.png)
 
@@ -118,7 +118,7 @@ git clone https://github.com/ahpohl/smartmeter.git
 make
 sudo make install
 ```
-Or via Arch Linux package ([smartmeter][11]):
+Or via Arch Linux package ([smartmeter][13]):
 ```
 yaourt -S smartmeter mosquitto nodejs-node-red influxdb grafana-bin
 ```
@@ -147,7 +147,9 @@ This project is licensed under the MIT license - see the [LICENSE](LICENSE) file
 [6]: https://wiki.volkszaehler.org/hardware/controllers/ir-schreib-lesekopf-ttl-ausgang "IR-Schreib-Lesekopf, TTL-Interface"
 [7]: https://mosquitto.org/ "Eclipse Mosquitto - An open source MQTT broker"
 [8]: https://nodered.org/ "Node-RED - Low-code programming for event-driven applications"
-[9]: https://www.influxdata.com/ "InfluxDB: Purpose-Built Open Source Time Series Database"
-[10]: https://grafana.com/ "Grafana: The open observability platform | Grafana Labs"
-[11]: https://aur.archlinux.org/packages/smartmeter "Smartmeter Arch Linux package"
+[9]: https://www.postgresql.org/ "PostgreSQL: The world's most advanced open source database"
+[10]: https://www.timescale.com "Timescale: Time-series data simplified"
+[11]: https://github.com/citusdata/pg_cron "pg_cron: Run periodic jobs in PostgreSQL"
+[12]: https://grafana.com/ "Grafana: The open observability platform | Grafana Labs"
+[13]: https://aur.archlinux.org/packages/smartmeter "Smartmeter Arch Linux package"
 

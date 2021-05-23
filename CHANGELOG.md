@@ -1,5 +1,11 @@
 # Smartmeter changelog
 
+## v0.2.9 - 2021-05-23
+* send last will testament
+* remove obex codes and ramdisk
+* publish online/offline status
+* send email alert
+
 ## v0.2.8 - 2021-03-12
 * make daemon single threaded
 * handle shutdown with signals

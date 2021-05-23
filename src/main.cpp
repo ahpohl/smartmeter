@@ -1,8 +1,9 @@
+#include <string>
 #include <iostream>
 #include <memory>
 #include <getopt.h>
 #include <csignal>
-#include "ebz.hpp"
+#include <Smartmeter.h>
 
 volatile sig_atomic_t shutdown = false;
 
@@ -20,23 +21,21 @@ int main(int argc, char* argv[])
   sigaction(SIGINT, &action, NULL);
   sigaction(SIGTERM, &action, NULL);
   
-  bool debug = false;
+  int verbose_level = 0;
   bool version = false;
   bool help = false;
-  char const* serial_device = nullptr;
-  char const* ramdisk = nullptr;
-  char const* mqtt_host = nullptr;
-  char const* mqtt_topic = nullptr;
+  std::string serial_device;
+  std::string mqtt_host;
+  std::string mqtt_topic;
   int mqtt_port = 0;
   double basic_rate = 0;
-  double price_kwh = 0;
+  double price_per_kwh = 0;
 
   const struct option longOpts[] = {
     { "help", no_argument, nullptr, 'h' },
     { "version", no_argument, nullptr, 'V' },
-    { "debug", no_argument, nullptr, 'D' },
+    { "verbose", no_argument, nullptr, 'v' },
     { "serial", required_argument, nullptr, 's' },
-    { "ramdisk", required_argument, nullptr, 'r' },
     { "host", required_argument, nullptr, 'H' },
     { "port", required_argument, nullptr, 'p' },
     { "topic", required_argument, nullptr, 't' },
@@ -45,7 +44,7 @@ int main(int argc, char* argv[])
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char* const optString = "hVDs:r:H:p:t:R:P:";
+  const char optString[] = "hVvs:H:p:t:R:P:";
   int opt = 0;
   int longIndex = 0;
 
@@ -58,14 +57,11 @@ int main(int argc, char* argv[])
     case 'V':
       version = true;
       break;
-    case 'D':
-      debug = true;
+    case 'v':
+      ++verbose_level;
       break;
     case 's':
       serial_device = optarg;
-      break;
-    case 'r':
-      ramdisk = optarg;
       break;
     case 'H':
       mqtt_host = optarg;
@@ -80,7 +76,7 @@ int main(int argc, char* argv[])
       basic_rate = atof(optarg);
       break;
     case 'P':
-      price_kwh = atof(optarg);
+      price_per_kwh = atof(optarg);
       break;
     default:
       break;
@@ -95,9 +91,8 @@ int main(int argc, char* argv[])
     std::cout << "\
   -h --help         Show help message\n\
   -V --version      Show build info\n\
-  -D --debug        Show debug messages\n\
+  -v --verbose      Set verbose output level\n\
   -s --serial       Serial device\n\
-  -r --ramdisk      Shared memory device\n\
   -H --host         MQTT broker host or ip\n\
   -p --port         MQTT broker port\n\
   -t --topic        MQTT topic to publish\n\
@@ -106,41 +101,59 @@ Electricity tariff:\n\
   -b --rate         Optional basic rate per month\n\
   -k --price        Optional price per kWh" 
     << std::endl << std::endl;
-    return 0;
+    return EXIT_SUCCESS;
   }
 
   if (version)
   {
-      std::cout << "Version " << VERSION_TAG 
-        << " (" << VERSION_BUILD << ") built " 
-        << VERSION_BUILD_DATE 
-        << " by " << VERSION_BUILD_MACHINE << std::endl;
-      return 0;
+    std::cout << "Version " << VERSION_TAG 
+      << " (" << VERSION_BUILD << ") built " 
+      << VERSION_BUILD_DATE 
+      << " by " << VERSION_BUILD_MACHINE << std::endl;
+    return EXIT_SUCCESS;
   }
 
   std::cout << "Smartmeter " << VERSION_TAG
     << " (" << VERSION_BUILD << ")" << std::endl;
 
-  std::unique_ptr<Ebz> meter(new Ebz());
+  bool log = (verbose_level == 3) ? true : false;
+  std::unique_ptr<Smartmeter> meter(new Smartmeter(mqtt_topic, log));
 
-  if (debug) {
-    meter->setDebug();
+  if (!meter->Setup(serial_device, mqtt_host, mqtt_port))
+  {
+    std::cout << meter->GetErrorMessage() << std::endl;
+    return EXIT_FAILURE;
+  }
+  
+  if (!meter->SetEnergyPlan(basic_rate, price_per_kwh))
+  {
+    std::cout << meter->GetErrorMessage() << std::endl;
+    return EXIT_FAILURE;
   }
 
-  meter->openSerialPort(serial_device);
-  meter->initMqtt(mqtt_host, mqtt_port, mqtt_topic);
-  meter->setTariff(basic_rate, price_kwh);
-  meter->createObisPath(ramdisk);
-
-  int ret = 0;
-  while (shutdown == false) {
-    ret = meter->readSerialPort();
-    if (!ret) {
-      meter->readDatagram();
-      meter->writeObisCodes();
-      meter->publishMqtt();
+  while (shutdown == false)
+  {
+	  if (!meter->Receive())
+	  {
+	    std::cout << meter->GetErrorMessage() << std::endl;
+      return EXIT_FAILURE;
+ 	  }
+    if (!meter->Publish())
+    {
+      std::cout << meter->GetErrorMessage() << std::endl;
+    }
+    switch (verbose_level)
+    {
+      case 2:
+        std::cout << meter->GetReceiveBuffer();
+        break;
+      case 1:
+        std::cout << meter->GetPayload() << std::endl;
+        break;
+      default:
+        break;
     }
   }
  
-  return 0;
+  return EXIT_SUCCESS;
 }
