@@ -33,6 +33,17 @@ bool SmartmeterMqtt::Begin(void)
   return true;
 }
 
+bool SmartmeterMqtt::UserPwAuth(const std::string &user, const std::string &pass)
+{
+  int rc = 0;
+  if ((rc = mosquitto_username_pw_set(Mosq, user.c_str(), pass.c_str())))
+  {
+    ErrorMessage = std::string("Mosquitto unable to set username and password: ") + mosquitto_strerror(rc);
+    return false;
+  }
+  return true;
+}
+
 bool SmartmeterMqtt::Connect(const std::string &host, const int &port, const int &keepalive)
 {  
   int rc = 0;
@@ -46,11 +57,7 @@ bool SmartmeterMqtt::Connect(const std::string &host, const int &port, const int
   while (!IsConnected)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    if ((rc = mosquitto_loop(Mosq, 0, 1)))
-    {
-      //std::cout << "Mosquitto loop failed: " << mosquitto_strerror(rc) << std::endl;
-      //return false;
-    }
+    mosquitto_loop(Mosq, 0, 1);
     if (count > timeout)
     {
       ErrorMessage = "Mosquitto unable to connect: Timeout";
