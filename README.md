@@ -95,7 +95,7 @@ For example, json output (-v):
 ]
 ```
 
-The connection to the Mosquitto MQTT broker needs hostname, port and topic arguments set for the connection to be successful. Optionally password authentication is supported. Warning: Mosquitto TLS is currently not implemented. Hence passwords are sent in clear text.
+The connection to the Mosquitto MQTT broker needs `--host`, `--port` and `--topic` arguments set for the connection to be successful. Optionally password authentication is supported. Warning: As Mosquitto TLS is currently not implemented, passwords are sent in clear text.
 
 ### Node-RED
 
