@@ -5,12 +5,12 @@
 
 class SmartmeterMqtt
 {
-  static void OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj, int reason_code);
+  static void OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj, int connack_code);
   static void LogCallbackWrapper(struct mosquitto *mosq, void *obj, int level, const char *str);
 
 private:
   struct mosquitto *Mosq;
-  void OnConnectCallback(struct mosquitto *mosq, void *obj, int reason_code);
+  void OnConnectCallback(struct mosquitto *mosq, void *obj, int connack_code);
   void LogCallback(struct mosquitto *mosq, void *obj, int level, const char *str);
   std::string ErrorMessage;
   volatile bool IsConnected;

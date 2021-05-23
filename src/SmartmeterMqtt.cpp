@@ -111,23 +111,23 @@ bool SmartmeterMqtt::GetConnectStatus(void) const
   return IsConnected;
 }
 
-void SmartmeterMqtt::OnConnectCallback(struct mosquitto *mosq, void *obj, int reason_code)
+void SmartmeterMqtt::OnConnectCallback(struct mosquitto *mosq, void *obj, int connack_code)
 {
-  if (!reason_code)
+  if (!connack_code)
   {
     IsConnected = true;
   }
   else
   {
-    ErrorMessage = mosquitto_connack_string(reason_code);
+    ErrorMessage = mosquitto_connack_string(connack_code);
     IsConnected = false;
   }
 }
 
-void SmartmeterMqtt::OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj, int reason_code)
+void SmartmeterMqtt::OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj, int connack_code)
 {
   auto *p = reinterpret_cast<SmartmeterMqtt*>(obj);
-  return p->SmartmeterMqtt::OnConnectCallback(mosq, obj, reason_code);
+  return p->SmartmeterMqtt::OnConnectCallback(mosq, obj, connack_code);
 }
 
 void SmartmeterMqtt::LogCallback(struct mosquitto *mosq, void *obj, int level, const char *str)
