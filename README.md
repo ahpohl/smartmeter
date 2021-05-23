@@ -35,7 +35,7 @@ The IR dongle used to collect the raw datagrams is based on the design of the [s
 ## Software
 
 The software stack consists of the following components:
-- Smartmeter v0.2.9
+- Smartmeter v0.3.0
 - PostgreSQL 13.2 with TimescaleDB 2.2.1 and pg_cron 1.3.1 extenstions
 - Mosquitto MQTT broker 2.0.10
 - Node-RED 1.3.2
@@ -48,21 +48,24 @@ The smartmeter daemon is responsible for collecting the serial datagrams from th
 Help output:
 
 ```
-Energy Smartmeter v0.2.9
+Energy Smartmeter v0.3.0
 
 Usage: ./build/smartmeter [options]
-
   -h --help         Show help message
   -V --version      Show build info
   -v --verbose      Set verbose output level
+
+Required:
   -s --serial       Serial device
   -H --host         MQTT broker host or ip
-  -p --port         MQTT broker port
+  -P --port         MQTT broker port
   -t --topic        MQTT topic to publish
+  -R --rate         Basic rate per month
+  -K --price        Price per kWh
 
-Electricity tariff:
-  -b --rate         Optional basic rate per month
-  -k --price        Optional price per kWh
+Optional:
+  -u --user         MQTT username
+  -p --pass         MQTT password
 ```
 
 The Smartmeter daemon creates json formatted fields including a unix epoch timestamp with milliseconds precision and sends them to the the MQTT broker. Verbosity levels: -v formatted json output -vv raw serial output -vvv mosquitto debug log.
@@ -91,6 +94,9 @@ For example, json output (-v):
   }
 ]
 ```
+
+The connection to the Mosquitto MQTT broker needs hostname, port and topic arguments set for the connection to be successful. Optionally password authentication is supported. Warning: Mosquitto TLS is currently not implemented. Hence passwords are sent in clear text.
+
 ### Node-RED
 
 [Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/nodejs/node-red-flow.json) is used to connect the MQTT broker:

@@ -8,8 +8,11 @@
 
 const int Smartmeter::ReceiveBufferSize = 368; 
 
-Smartmeter::Smartmeter(const std::string &topic, const bool &log): Topic(topic), Log(log)
+Smartmeter::Smartmeter(const bool &log): Log(log)
 {
+  ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize] ();
+  Serial = new SmartmeterSerial();
+  Mqtt = new SmartmeterMqtt(Log);
 }
 
 Smartmeter::~Smartmeter(void)
@@ -24,12 +27,37 @@ Smartmeter::~Smartmeter(void)
   if (ReceiveBuffer) { delete[] ReceiveBuffer; }
 }
 
+bool Smartmeter::SetTopic(const std::string &topic)
+{
+  if (topic.empty())
+  {
+    ErrorMessage = "Smartmeter error: Topic argument empty.";
+    return false;
+  }
+  Topic = topic;
+  return true;
+}
+
+bool Smartmeter::SetUserPass(const std::string &user, const std::string &pass)
+{
+  if (!(user.empty()) && pass.empty())
+  {
+    ErrorMessage = "Smartmeter error: Username without a password.";
+    return false;
+  }
+  if (user.empty() && !(pass.empty()))
+  {
+    ErrorMessage = "Smartmeter error: Password without a username.";
+    return false;
+  }
+  Username = user;
+  Password = pass;
+
+  return true;
+}
+
 bool Smartmeter::Setup(const std::string &device, const std::string &host, const int &port)
 {
-  ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize] ();
-  Serial = new SmartmeterSerial();
-  Mqtt = new SmartmeterMqtt(Log);
-
   if (!Serial->Begin(device))
   {
     ErrorMessage = Serial->GetErrorMessage();
@@ -44,6 +72,14 @@ bool Smartmeter::Setup(const std::string &device, const std::string &host, const
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
+  }
+  if (!(Username.empty()) && !(Password.empty()))
+  {
+    if (!Mqtt->SetUserPassAuth(Username, Password))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
   }
   if (!Mqtt->Connect(host, port, 60))
   {
@@ -141,11 +177,11 @@ bool Smartmeter::Publish(void)
 bool Smartmeter::SetEnergyPlan(double const& basic_rate, double const& price_per_kwh)
 {
   if (basic_rate < 0) {
-     ErrorMessage = "Basic rate per month must be greater than zero";
+     ErrorMessage = "Smartmeter error: Basic rate per month < 0";
      return false;
   }
   if (price_per_kwh < 0) {
-     ErrorMessage = "Price per kWh must be greater than zero";
+     ErrorMessage = "Smartmeter error: Price per kWh < 0";
      return false;
   } 
   BasicRate = basic_rate;

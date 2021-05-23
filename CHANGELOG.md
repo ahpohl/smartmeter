@@ -1,5 +1,8 @@
 # Smartmeter changelog
 
+## v0.3.0 - 2021-05-23
+* MQTT username and password support
+
 ## v0.2.9 - 2021-05-23
 * send last will testament
 * remove obex codes and ramdisk

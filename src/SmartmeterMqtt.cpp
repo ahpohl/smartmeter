@@ -25,7 +25,7 @@ bool SmartmeterMqtt::Begin(void)
   bool clean_session = true;
   if (!(Mosq = mosquitto_new(nullptr, clean_session, this)))
   {
-    ErrorMessage = std::string("Mosquitto: Out of memory.");
+    ErrorMessage = std::string("Mosquitto error: Out of memory.");
     return false;
   }
   mosquitto_connect_callback_set(Mosq, OnConnectCallbackWrapper);
@@ -33,7 +33,7 @@ bool SmartmeterMqtt::Begin(void)
   return true;
 }
 
-bool SmartmeterMqtt::UserPwAuth(const std::string &user, const std::string &pass)
+bool SmartmeterMqtt::SetUserPassAuth(const std::string &user, const std::string &pass)
 {
   int rc = 0;
   if ((rc = mosquitto_username_pw_set(Mosq, user.c_str(), pass.c_str())))
@@ -56,6 +56,10 @@ bool SmartmeterMqtt::Connect(const std::string &host, const int &port, const int
   int timeout = 100;
   while (!IsConnected)
   {
+    if (!(ErrorMessage.empty()))
+    {
+      return false;
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     mosquitto_loop(Mosq, 0, 1);
     if (count > timeout)
@@ -112,6 +116,11 @@ void SmartmeterMqtt::OnConnectCallback(struct mosquitto *mosq, void *obj, int re
   if (!reason_code)
   {
     IsConnected = true;
+  }
+  else
+  {
+    ErrorMessage = mosquitto_connack_string(reason_code);
+    IsConnected = false;
   }
 }
 

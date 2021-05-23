@@ -19,29 +19,29 @@ SmartmeterSerial::~SmartmeterSerial(void)
 bool SmartmeterSerial::Begin(const std::string &device)
 {
   if (device.empty()) {
-    ErrorMessage = "Serial device argument empty";
+    ErrorMessage = "Serial error: Device argument empty.";
     return false;
   }
   if ((SerialPort = open(device.c_str(), (O_RDONLY | O_NOCTTY))) < 0)
   {
-    ErrorMessage = std::string("Error opening serial device: ") 
+    ErrorMessage = std::string("Opening serial device failed: ") 
       + strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
   if(!isatty(SerialPort))
   {
-    ErrorMessage = std::string("Error: Device ") + device + " is not a tty.";
+    ErrorMessage = std::string("Serial error: Device ") + device + " is not a tty.";
     return false;
   }
   if (flock(SerialPort, LOCK_EX | LOCK_NB) < 0)
   {
-    ErrorMessage = std::string("Error locking serial device: ")
+    ErrorMessage = std::string("Locking serial device failed: ")
       + strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
   if (ioctl(SerialPort, TIOCEXCL) < 0)
   {
-    ErrorMessage = std::string("Error setting exclusive access: ") 
+    ErrorMessage = std::string("Setting exclusive access faild: ") 
       + strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
@@ -51,7 +51,7 @@ bool SmartmeterSerial::Begin(const std::string &device)
   memset(&serial_port_settings, 0, sizeof(serial_port_settings));
   if (tcgetattr(SerialPort, &serial_port_settings))
   {
-    ErrorMessage = std::string("Error getting serial port attributes: ")
+    ErrorMessage = std::string("Getting serial port attributes failed: ")
       + strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
@@ -73,7 +73,7 @@ bool SmartmeterSerial::Begin(const std::string &device)
 
   if (tcsetattr(SerialPort, TCSANOW, &serial_port_settings))
   {
-    ErrorMessage = std::string("Error setting serial port attributes: ") 
+    ErrorMessage = std::string("Setting serial port attributes failed: ") 
       + strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
@@ -92,7 +92,7 @@ char SmartmeterSerial::GetByte(void)
   {
     if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
     {
-      ErrorMessage = std::string("Read on serial device failed: ")
+      ErrorMessage = std::string("Reading serial device failed: ")
         + strerror(errno) + " (" + std::to_string(errno) + ")";
       return false;
     }
@@ -123,7 +123,7 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
   }
   if (*(p-3) != '!')
   {
-    ErrorMessage = "Serial datagram stream not in sync.";
+    ErrorMessage = "Serial error: Datagram stream not in sync.";
     return false;
   }
   return true;

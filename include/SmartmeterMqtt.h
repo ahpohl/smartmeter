@@ -21,7 +21,7 @@ public:
   ~SmartmeterMqtt(void);
   bool Begin(void);
   bool Connect(const std::string &host, const int &port, const int &keepalive);
-  bool UserPwAuth(const std::string &user, const std::string &pass);
+  bool SetUserPassAuth(const std::string &user, const std::string &pass);
   bool SetLastWillTestament(const std::string &message, const std::string &topic, const int &qos, const bool &retain);
   bool PublishMessage(const std::string &message, const std::string &topic, const int &qos, const bool &retain);
   std::string GetErrorMessage(void) const;

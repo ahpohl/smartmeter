@@ -12,6 +12,8 @@ private:
   SmartmeterMqtt *Mqtt;
   std::stringstream Payload;
   std::string Topic;
+  std::string Username;
+  std::string Password;
   char *ReceiveBuffer;
   std::string ErrorMessage;
   double BasicRate;
@@ -22,12 +24,14 @@ private:
   T_STR RemoveLeading(T_STR const &str, T_CHAR c);
 
 public:
-  Smartmeter(const std::string &topic, const bool &log);
+  Smartmeter(const bool &log);
   ~Smartmeter(void);
   bool Setup(const std::string &device, const std::string &host, const int &port);
   bool Receive(void);
   bool Publish(void);
+  bool SetUserPass(const std::string &user, const std::string &pass);
   bool SetEnergyPlan(double const& basic_rate, double const& price_per_kwh);
+  bool SetTopic(const std::string &topic);
   std::string GetErrorMessage(void) const;
   std::string GetReceiveBuffer(void) const;
   std::string GetPayload(void) const;
