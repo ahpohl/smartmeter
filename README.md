@@ -1,141 +1,19 @@
-# Smartmeter
+# Read energy utility meter with a simple IR dongle
 
-Read energy utility meter with a simple IR dongle
+The Smartmeter project enables the readout of the IR data signal from my [smart energy meter](resources/ebz/datenblatt_dd3.pdf). To get started, an Arduino with an IR phototransistor can be used. Later I have built my own IR dongle with an USB interface for permanent installation on top of the energy meter.
 
-## Introduction
+The Smartmeter daemon outputs a JSON formatted string and sends it to a MQTT broker on the network. From there, the data is forwarded into a time series database for permanent data storage and for visualization. The complete software stack consists of the following components, which need to be installed and configured separately:
+- Smartmeter daemon with IR dongle for data readout
+- Mosquitto MQTT broker
+- Node-RED (MQTT client, PostgreSQL and optional email alerts)
+- PostgreSQL with TimescaleDB and pg_cron extensions
+- Grafana for visualization
 
-In the beginning of this year my analogue ferraris energy counter was replaced with a [smart energy meter][1] by the electricity network operator. This made my previous [pulsemeter][2] project obsolete and I had to come up with something new. Luckily the [volkszähler.org][3] project already supports reading many of the smartmeters available on the market and the wiki turned out be a great source of information. In the end, however, I didn't stick with the [vzlogger][4] software, but created my own smartmeter project from scratch.
+The software stack is light weight in terms of necessary resources and runs on any SBC such as an Odroid C2/C4 or Raspberry Pi 3/4.
 
-![Fig. 1: Smartmeter with IR dongle](resources/ebz/smartmeter.png)
+## Documentation
 
-## Hardware
-
-It turns out that the 3-phase DD3 "Easy Basiszähler" energy meter is equipped with an optical interface which sends data every second. The communication protocol is described well in the [manual](resources/ebz/ebz_manual.pdf). This is one of the raw datagrams sent by the smartmeter every second with comments describing the [OBIS codes][5]:
-
-```
-/EBZ5DD3BZ06ETA_107                # serial number
-
-1-0:0.0.0*255(1EBZ0100507409)      # custom ID
-1-0:96.1.0*255(1EBZ0100507409)     # device ID
-1-0:1.8.0*255(000125.25688570*kWh) # energy meter
-1-0:16.7.0*255(000259.20*W)        # total power 
-1-0:36.7.0*255(000075.18*W)        # L1 phase power
-1-0:56.7.0*255(000092.34*W)        # L2 phase power
-1-0:76.7.0*255(000091.68*W)        # L3 phase power
-1-0:32.7.0*255(232.4*V)            # L1 phase voltage
-1-0:52.7.0*255(231.7*V)            # L2 phase voltage
-1-0:72.7.0*255(233.7*V)            # L3 phase voltage
-1-0:96.5.0*255(001C0104)           # status
-0-0:96.8.0*255(00104443)           # sensor lifetime in secs, 0x
-!
-```
-
-The IR dongle used to collect the raw datagrams is based on the design of the [serial TTY model][6] at Volkszähler.org, but with an added USB interface. The manufacturing process of the hardware is described on a separate [Wiki page](https://github.com/ahpohl/smartmeter/wiki/IR-dongle).
-
-## Software
-
-The software stack consists of the following components:
-- Smartmeter v0.3.0
-- PostgreSQL 13.2 with TimescaleDB 2.2.1 and pg_cron 1.3.1 extenstions
-- Mosquitto MQTT broker 2.0.10
-- Node-RED 1.3.2
-- Grafana 7.5.3
-
-### Smartmeter daemon program
-
-The smartmeter daemon is responsible for collecting the serial datagrams from the IR dongle and publishing the data to a MQTT broker on the network such as [Mosquitto][7]. The config paramters are given in a separate [config file](resources/smartmeter.conf) or on the command line. A systemctl [service](resources/smartmeter.service) is also provided.
-
-Help output:
-
-```
-Energy Smartmeter v0.3.0
-
-Usage: ./build/smartmeter [options]
-  -h --help         Show help message
-  -V --version      Show build info
-  -v --verbose      Set verbose output level
-
-Required:
-  -s --serial       Serial device
-  -H --host         MQTT broker host or ip
-  -P --port         MQTT broker port
-  -t --topic        MQTT topic to publish
-  -R --rate         Basic rate per month
-  -K --price        Price per kWh
-
-Optional:
-  -u --user         MQTT username
-  -p --pass         MQTT password
-```
-
-The Smartmeter daemon creates json formatted fields including a unix epoch timestamp with milliseconds precision and sends them to the the MQTT broker. Verbosity levels: -v formatted json output -vv raw serial output -vvv mosquitto debug log.
-
-For example, json output (-v):
-```
-[
-  {
-    "lifetime":38081875,
-    "energy":4878.744085,
-    "power":2475.63,
-    "power_l1":2276.28,
-    "power_l2":97.53,
-    "power_l3":101.82,
-    "voltage_l1":235.9,
-    "voltage_l2":235.7,
-    "voltage_l3":235.4,
-    "status":"001C0104",
-    "rate":14.66,
-    "price":0.2426,
-    "time":1617348522327},
-  {
-    "serial":"EBZ5DD3BZ06ETA_107",
-    "custom_id":"1EBZ0100507409",
-    "device_id":"1EBZ0100507409"
-  }
-]
-```
-
-The connection to the Mosquitto MQTT broker needs `--host`, `--port` and `--topic` arguments set for the connection to be successful. Optionally password authentication is supported. Warning: As Mosquitto TLS is currently not implemented, passwords are sent in clear text.
-
-### Node-RED
-
-[Node-RED][8] is a programming tool for wiring together hardware devices with an easy to use web interface. The following [flow chart](resources/nodejs/node-red-flow.json) is used to connect the MQTT broker:
-
-![Fig: Node Red flow screenshot](resources/nodejs/node-red-flow.png)
-
-The Node-Red mqtt client subscribes to the `smartmeter/state` and `smartmeter/status` topics and forwards the Smartmeter json string to the PostgresQL client node. The flow is configured to send an email alert when the online/offline status changes.
-
-### TimescaleDB
-
-Data is stored in a [PostgreSQL][9] database with [TimescaleDB][10] and [pg_cron][11] extensions to automatically process the live data from the Smartmeter into hourly, daily and monthly aggregates. The database setup is described in detail on a separate [Wiki page](https://github.com/ahpohl/smartmeter/wiki/TimescaleDB).
-
-### Grafana
-
-The following [Grafana][12] dashboard shows the current and past energy consumption, available as a [json](resources/grafana/grafana-dashboard.json) file:
-
-![Fig: Grafana smartmeter dashboard screenshot](resources/grafana/grafana-dashboard.png)
-
-
-## Installation
-
-Via Git:
-```
-git clone https://github.com/ahpohl/smartmeter.git
-make
-sudo make install
-```
-Or via Arch Linux package ([smartmeter][13]):
-```
-yaourt -S smartmeter mosquitto nodejs-node-red influxdb grafana-bin
-```
-
-Configuration:
-```
-nano /etc/smartmeter.conf
-systemctl enable smartmeter.service
-systemctl start smartmeter.service
-...
-```
+The project documentation covers the IR dongle hardware, software configuration and database setup and is located on separate [Wiki pages](https://github.com/ahpohl/smartmeter/wiki).
 
 ## Changelog
 
@@ -144,18 +22,3 @@ All notable changes and releases are documented in the [CHANGELOG](CHANGELOG.md)
 ## License
 
 This project is licensed under the MIT license - see the [LICENSE](LICENSE) file for details
-
-[1]: https://www.ebzgmbh.de/ "Elektronischer Basiszähler"
-[2]: https://github.com/ahpohl/pulsemeter "Pulse energy meter with Arduino and simple LED sensor"
-[3]: https://volkszaehler.org/ "volkszähler.org - Das Smartmeter für jeden"
-[4]: https://wiki.volkszaehler.org/software/controller/vzlogger "vzlogger - a tool to read and log measurements"
-[5]: https://www.promotic.eu/en/pmdoc/Subsystems/Comm/PmDrivers/IEC62056_OBIS.htm "Description of OBIS code for IEC 62056 standard protocol"
-[6]: https://wiki.volkszaehler.org/hardware/controllers/ir-schreib-lesekopf-ttl-ausgang "IR-Schreib-Lesekopf, TTL-Interface"
-[7]: https://mosquitto.org/ "Eclipse Mosquitto - An open source MQTT broker"
-[8]: https://nodered.org/ "Node-RED - Low-code programming for event-driven applications"
-[9]: https://www.postgresql.org/ "PostgreSQL: The world's most advanced open source database"
-[10]: https://www.timescale.com "Timescale: Time-series data simplified"
-[11]: https://github.com/citusdata/pg_cron "pg_cron: Run periodic jobs in PostgreSQL"
-[12]: https://grafana.com/ "Grafana: The open observability platform | Grafana Labs"
-[13]: https://aur.archlinux.org/packages/smartmeter "Smartmeter Arch Linux package"
-

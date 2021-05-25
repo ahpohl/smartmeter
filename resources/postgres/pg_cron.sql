@@ -1,4 +1,5 @@
 \c pg_cron
+
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 -- regularly purge the log

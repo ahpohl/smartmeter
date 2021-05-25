@@ -1,7 +1,6 @@
 \c smartmeter
---
--- create daily view
---
+
+-- create daily view with data from archive and cagg_daily
 DROP MATERIALIZED VIEW IF EXISTS daily_view CASCADE;
 
 CREATE MATERIALIZED VIEW daily_view
@@ -13,7 +12,19 @@ SELECT
   total,
   price,
   rate
+FROM archive JOIN plan ON archive.plan_id = plan.id
+GROUP BY bucket_1d, energy_1d, total, price, rate
+UNION
+SELECT
+  bucket_1d AS time,
+  energy_1d AS energy,
+  energy_1d * price + rate * 12.0 / 365.0 AS bill,
+  total,
+  price,
+  rate
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
+-- cagg_daily filtered by end date of archive
+WHERE bucket_1d > '2021-03-31T00:00:00Z'
 GROUP BY bucket_1d, energy_1d, total, price, rate
 ORDER BY time;
 

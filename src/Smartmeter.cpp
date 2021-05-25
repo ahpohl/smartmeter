@@ -1,69 +1,66 @@
-#include <cstring>
 #include <iostream>
-#include <sstream>
+#include <cstring>
 #include <charconv>
 #include <chrono>
 #include <thread>
 #include "Smartmeter.h"
 
 const int Smartmeter::ReceiveBufferSize = 368; 
+const std::set<std::string> Smartmeter::ValidKeys {"mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "plan_basic_rate", "plan_price_kwh", "serial_device"};
 
 Smartmeter::Smartmeter(const bool &log): Log(log)
 {
   ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize] ();
   Serial = new SmartmeterSerial();
   Mqtt = new SmartmeterMqtt(Log);
+  Cfg = new SmartmeterConfig();
 }
 
 Smartmeter::~Smartmeter(void)
 {
   if (Mqtt->GetConnectStatus())
   {
-    Mqtt->PublishMessage("offline", Topic + "/status", 1, true);
+    Mqtt->PublishMessage("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   if (Mqtt) { delete Mqtt; }
   if (Serial) { delete Serial; }
   if (ReceiveBuffer) { delete[] ReceiveBuffer; }
+  if (Cfg) { delete Cfg; };
 }
 
-bool Smartmeter::SetTopic(const std::string &topic)
+bool Smartmeter::Setup(const std::string &config)
 {
-  if (topic.empty())
+  if (!Cfg->Begin(config))
   {
-    ErrorMessage = "Smartmeter error: Topic argument empty.";
+    ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  Topic = topic;
-  return true;
-}
-
-bool Smartmeter::SetUserPass(const std::string &user, const std::string &pass)
-{
-  if (!(user.empty()) && pass.empty())
+  if (Log)
   {
-    ErrorMessage = "Smartmeter error: Username without a password.";
+    Cfg->ShowConfig();
+  }
+  if (!Cfg->ValidateKeys(Smartmeter::ValidKeys))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (user.empty() && !(pass.empty()))
+  if (!(Cfg->KeyExists("plan_price_kwh")))
   {
-    ErrorMessage = "Smartmeter error: Password without a username.";
+    ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  Username = user;
-  Password = pass;
-
-  return true;
-}
-
-void Smartmeter::SetCaFile(const std::string &cafile)
-{
-  CaFile = cafile;
-}
-
-bool Smartmeter::Setup(const std::string &device, const std::string &host, const int &port)
-{
-  if (!Serial->Begin(device))
+  if (!(Cfg->KeyExists("plan_basic_rate")))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!(Cfg->KeyExists("serial_device")))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Serial->Begin(Cfg->GetValue("serial_device")))
   {
     ErrorMessage = Serial->GetErrorMessage();
     return false;
@@ -73,28 +70,38 @@ bool Smartmeter::Setup(const std::string &device, const std::string &host, const
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (!Mqtt->SetLastWillTestament("offline", Topic + "/status", 1, true))
+  if (!(Cfg->KeyExists("mqtt_topic")))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (!(Username.empty()) || !(Password.empty()))
+  if ((Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password")))
   {
-    if (!Mqtt->SetUserPassAuth(Username, Password))
+    if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"), Cfg->GetValue("mqtt_password")))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
   }
-  if (!(CaFile.empty()))
+  if (Cfg->KeyExists("mqtt_tls_cafile") || Cfg->KeyExists("mqtt_tls_capath"))
   {
-    if (!Mqtt->SetTls(CaFile))
+    if (!Mqtt->SetTlsConnection(Cfg->GetValue("mqtt_tls_cafile"), Cfg->GetValue("mqtt_tls_capath")))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
   }
-  if (!Mqtt->Connect(host, port, 60))
+  if (!(Cfg->KeyExists("mqtt_broker")) || !(Cfg->KeyExists("mqtt_port")) )
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"), StringTo<double>(Cfg->GetValue("mqtt_port")), 60))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
@@ -104,11 +111,12 @@ bool Smartmeter::Setup(const std::string &device, const std::string &host, const
   {
     std::cout << "Smartmeter is online." << std::endl;
   }
-  if (!Mqtt->PublishMessage("online", Topic + "/status", 1, true))
+  if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
+
   return true;
 }
 
@@ -155,8 +163,8 @@ bool Smartmeter::Publish(void)
     << "\"voltage_l2\":" << RemoveLeading(Datagram.VoltageL2, '0') << ","
     << "\"voltage_l3\":" << RemoveLeading(Datagram.VoltageL3, '0') << ","
     << "\"status\":\"" << Datagram.Status << "\"" << ","
-    << "\"rate\":" << BasicRate << ","
-    << "\"price\":" << PricePerKwh << ","
+    << "\"rate\":"  << Cfg->GetValue("plan_basic_rate") << ","
+    << "\"price\":" << Cfg->GetValue("plan_price_kwh") << ","
     << "\"time\":" << now
     << "},{"
     << "\"serial\":\"" << Datagram.SerialNum << "\","
@@ -167,14 +175,14 @@ bool Smartmeter::Publish(void)
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
-    if (!(Mqtt->PublishMessage(Payload.str(), Topic + "/state", 0, false)))
+    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
     if (!last_connect_status)
     {
-      if (!(Mqtt->PublishMessage("online", Topic + "/status", 1, true)))
+      if (!(Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true)))
       {
         ErrorMessage = Mqtt->GetErrorMessage();
         return false;
@@ -184,22 +192,6 @@ bool Smartmeter::Publish(void)
   }
   last_connect_status = Mqtt->GetConnectStatus();
  
-  return true;
-}
-
-bool Smartmeter::SetEnergyPlan(double const& basic_rate, double const& price_per_kwh)
-{
-  if (basic_rate < 0) {
-     ErrorMessage = "Smartmeter error: Basic rate per month < 0";
-     return false;
-  }
-  if (price_per_kwh < 0) {
-     ErrorMessage = "Smartmeter error: Price per kWh < 0";
-     return false;
-  } 
-  BasicRate = basic_rate;
-  PricePerKwh = price_per_kwh;
-
   return true;
 }
 
@@ -219,7 +211,7 @@ std::string Smartmeter::GetPayload(void) const
 }
 
 template <typename T_STR, typename T_CHAR>
-T_STR Smartmeter::RemoveLeading(T_STR const &str, T_CHAR c)
+T_STR Smartmeter::RemoveLeading(T_STR const &str, T_CHAR c) const
 {
   auto end = str.cend();
   for (auto i = str.cbegin(); i != end; ++i)
@@ -230,4 +222,17 @@ T_STR Smartmeter::RemoveLeading(T_STR const &str, T_CHAR c)
     }
   }
   return T_STR();
+}
+
+template <typename T>
+T Smartmeter::StringTo(const std::string &str) const
+{
+  T value;
+  std::istringstream iss(str);
+  iss >> value;
+  if (iss.fail())
+  {
+    return T();
+  }
+  return value;
 }

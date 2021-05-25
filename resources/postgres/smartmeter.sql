@@ -1,4 +1,5 @@
 \c smartmeter
+
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 DROP TABLE IF EXISTS "live" CASCADE;

@@ -1,6 +1,5 @@
 #ifndef SmartmeterSerial_h
 #define SmartmeterSerial_h
-#include <string>
 
 class SmartmeterSerial
 {
