@@ -95,7 +95,7 @@ For example, json output (-v):
 ]
 ```
 
-The connection to the Mosquitto MQTT broker needs `--host`, `--port` and `--topic` arguments set for the connection to be successful. Optionally password authentication is supported. Warning: As Mosquitto TLS is currently not implemented, passwords are sent in clear text.
+The connection to the Mosquitto MQTT broker needs `--host`, `--port` and `--topic` arguments set for the connection to be successful. Optionally password authentication and TLS connection encryption is supported. To enable TLS, either set the root CA certificate with `--cafile` or provide a path to the system root certificate store with `--capath`. If given both, the CA file takes preference.
 
 ### Node-RED
 
