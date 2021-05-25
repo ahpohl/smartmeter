@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <openssl/ssl.h>
 #include "SmartmeterMqtt.h"
 
 SmartmeterMqtt::SmartmeterMqtt(const bool &log): Log(log) 
@@ -41,6 +42,18 @@ bool SmartmeterMqtt::SetUserPassAuth(const std::string &user, const std::string 
     ErrorMessage = std::string("Mosquitto unable to set username and password: ") + mosquitto_strerror(rc);
     return false;
   }
+  return true;
+}
+
+bool SmartmeterMqtt::SetTls(const std::string &cafile)
+{
+  int rc = 0;
+  if ((rc = mosquitto_tls_set(Mosq, cafile.c_str(), NULL, NULL, NULL, NULL)))
+  {
+    ErrorMessage = std::string("Mosquitto unable to enable TLS: ") + mosquitto_strerror(rc);
+    return false;
+  }
+  mosquitto_tls_opts_set(Mosq, SSL_VERIFY_NONE, NULL, NULL);
   return true;
 }
 

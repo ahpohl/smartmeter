@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
   std::string mqtt_topic;
   std::string mqtt_user;
   std::string mqtt_pass;
+  std::string mqtt_tls_cafile;
   int mqtt_port = 0;
   double basic_rate = 0;
   double price_per_kwh = 0;
@@ -43,12 +44,13 @@ int main(int argc, char* argv[])
     { "topic", required_argument, nullptr, 't' },
     { "user", required_argument, nullptr, 'u' },
     { "pass", required_argument, nullptr, 'p' },
+    { "cafile", required_argument, nullptr, 'c' },
     { "rate", required_argument, nullptr, 'R' },
     { "price", required_argument, nullptr, 'K' },
     { nullptr, 0, nullptr, 0 }
   };
 
-  const char optString[] = "hVvs:H:P:t:u:p:R:K:";
+  const char optString[] = "hVvs:H:P:t:u:p:c:R:K:";
   int opt = 0;
   int longIndex = 0;
 
@@ -82,6 +84,9 @@ int main(int argc, char* argv[])
     case 'p':
       mqtt_pass = optarg;
       break;
+    case 'c':
+      mqtt_tls_cafile = optarg;
+      break;
     case 'R':
       basic_rate = atof(optarg);
       break;
@@ -113,7 +118,8 @@ Required:\n\
 \n\
 Optional:\n\
   -u --user         MQTT username\n\
-  -p --pass         MQTT password" 
+  -p --pass         MQTT password\n\
+  -c --cafile       MQTT TLS CA file"
     << std::endl << std::endl;
     return EXIT_SUCCESS;
   }
@@ -143,6 +149,7 @@ Optional:\n\
     std::cout << meter->GetErrorMessage() << std::endl;
     return EXIT_FAILURE;
   }
+  meter->SetCaFile(mqtt_tls_cafile);
   if (!meter->Setup(serial_device, mqtt_host, mqtt_port))
   {
     std::cout << meter->GetErrorMessage() << std::endl;

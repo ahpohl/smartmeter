@@ -56,6 +56,11 @@ bool Smartmeter::SetUserPass(const std::string &user, const std::string &pass)
   return true;
 }
 
+void Smartmeter::SetCaFile(const std::string &cafile)
+{
+  CaFile = cafile;
+}
+
 bool Smartmeter::Setup(const std::string &device, const std::string &host, const int &port)
 {
   if (!Serial->Begin(device))
@@ -73,9 +78,17 @@ bool Smartmeter::Setup(const std::string &device, const std::string &host, const
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (!(Username.empty()) && !(Password.empty()))
+  if (!(Username.empty()) || !(Password.empty()))
   {
     if (!Mqtt->SetUserPassAuth(Username, Password))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  }
+  if (!(CaFile.empty()))
+  {
+    if (!Mqtt->SetTls(CaFile))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
