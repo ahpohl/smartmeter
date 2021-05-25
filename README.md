@@ -1,4 +1,4 @@
-## Smartmeter
+## Reading a smartmeter with a simple IR dongle 
 
 In the beginning of this year my analogue ferraris energy counter was replaced with a [smart energy meter](https://www.ebzgmbh.de/) by the electricity network operator. This made my previous [Pulsemeter](https://github.com/ahpohl/pulsemeter) project obsolete and I had to come up with something new. Luckily the [volkszähler.org](https://volkszaehler.org/) project already supports reading many of the smartmeters available on the market and the wiki turned out be a great source of information. In the end, however, I didn't stick with the [vzlogger](https://wiki.volkszaehler.org/software/controller/vzlogger) software, but created my own Smartmeter project from scratch.
 
