@@ -45,15 +45,30 @@ bool SmartmeterMqtt::SetUserPassAuth(const std::string &user, const std::string 
   return true;
 }
 
-bool SmartmeterMqtt::SetTls(const std::string &cafile)
+bool SmartmeterMqtt::SetTls(const std::string &cafile, const std::string &capath)
 {
   int rc = 0;
-  if ((rc = mosquitto_tls_set(Mosq, cafile.c_str(), NULL, NULL, NULL, NULL)))
+  if (!(cafile.empty()))
   {
-    ErrorMessage = std::string("Mosquitto unable to enable TLS: ") + mosquitto_strerror(rc);
+    if ((rc = mosquitto_tls_set(Mosq, cafile.c_str(), NULL, NULL, NULL, NULL)))
+    {
+      ErrorMessage = std::string("Mosquitto unable to enable TLS: ") + mosquitto_strerror(rc);
+      return false;
+    }
+  }
+  else if (!(capath.empty()))
+  {
+    if ((rc = mosquitto_tls_set(Mosq, NULL, capath.c_str(), NULL, NULL, NULL)))
+    {
+      ErrorMessage = std::string("Mosquitto unable to enable TLS: ") + mosquitto_strerror(rc);
+      return false;
+    }
+  }
+  else 
+  {
+    ErrorMessage = "Mosquitto unable to enable TLS: Cafile and Capath arguments empty.";
     return false;
   }
-  mosquitto_tls_opts_set(Mosq, SSL_VERIFY_NONE, NULL, NULL);
   return true;
 }
 

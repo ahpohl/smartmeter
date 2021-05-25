@@ -15,6 +15,7 @@ private:
   std::string Username;
   std::string Password;
   std::string CaFile;
+  std::string CaPath;
   char *ReceiveBuffer;
   std::string ErrorMessage;
   double BasicRate;
@@ -33,7 +34,7 @@ public:
   bool SetUserPass(const std::string &user, const std::string &pass);
   bool SetEnergyPlan(double const& basic_rate, double const& price_per_kwh);
   bool SetTopic(const std::string &topic);
-  void SetCaFile(const std::string &cafile);
+  bool SetTlsFilePath(const std::string &cafile, const std::string &capath);
   std::string GetErrorMessage(void) const;
   std::string GetReceiveBuffer(void) const;
   std::string GetPayload(void) const;

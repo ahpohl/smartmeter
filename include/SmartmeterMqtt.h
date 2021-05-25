@@ -23,7 +23,7 @@ public:
   bool Connect(const std::string &host, const int &port, const int &keepalive);
   bool SetUserPassAuth(const std::string &user, const std::string &pass);
   bool SetLastWillTestament(const std::string &message, const std::string &topic, const int &qos, const bool &retain);
-  bool SetTls(const std::string &cafile);
+  bool SetTls(const std::string &cafile, const std::string &capath);
   bool PublishMessage(const std::string &message, const std::string &topic, const int &qos, const bool &retain);
   std::string GetErrorMessage(void) const;
   bool GetConnectStatus(void) const;
