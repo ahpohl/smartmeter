@@ -34,19 +34,24 @@ bool SmartmeterConfig::Begin(const std::string &file)
     {
       line.erase(pos);
     }
-    if (line.find_first_not_of(' ') == std::string::npos)
+    if ((pos = line.find_first_not_of(' ')) == std::string::npos)
     {
 			continue;
     }
     std::string key, val;
     std::istringstream iss(line);
-    while (std::getline(std::getline(iss, key, ' ') >> std::ws, val))
+    std::getline(std::getline(iss >> std::ws, key, ' ') >> std::ws, val, ' ');
+    if ((pos = val.find_first_not_of('\"')) != std::string::npos)
     {
-      KeyValuePair.insert(std::map<std::string, std::string>::value_type(key, val));
+      val.erase(0, pos);
     }
+    if ((pos = val.find('\"')) != std::string::npos)
+    {
+      val.erase(pos);
+    }
+    KeyValuePair.insert(std::map<std::string, std::string>::value_type(key, val));
 	}
 	ifs.close();
-
   for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
   {
     std::cout << '{' << p->first << " => " << p->second << '}' << std::endl;

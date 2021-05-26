@@ -8,6 +8,7 @@ class SmartmeterConfig
 private:
   std::map<std::string, std::string> KeyValuePair;
   std::string ErrorMessage;
+  void TruncateString(std::string &str, const char &delim);
 
   template <typename T_VAL>
   T_VAL StringToVal(const std::string &val);
