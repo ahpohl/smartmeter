@@ -7,18 +7,9 @@
 class SmartmeterConfig
 {
 private:
-  std::map<std::string, std::string> Contents;
+  std::map<std::string, std::string> KeyValuePairs;
   std::string FileName;
   std::string ErrorMessage;
-
-  template <typename T_VAL>
-  std::string T_to_String(const T_VAL &val)
-  {
-    std::ostringstream ss;
-    ss << val;
-
-    return ss.str();
-  }
 
   template <typename T_VAL>
   T_VAL string_to_T(const std::string &val)
@@ -87,12 +78,12 @@ private:
   {
 	  if (line.find('=') == line.npos)
     {
-		  ErrorMessage = "Smartmeter config: Couldn't find separator on line: " + T_to_String(line_no);
+		  ErrorMessage = "Smartmeter config: Couldn't find separator on line: " + std::to_string(line_no);
       return false;
     }
 	  if (!ValidLine(line))
     {
-	    ErrorMessage = "Smartmeter config: Bad format for line: " + T_to_String(line_no);
+	    ErrorMessage = "Smartmeter config: Bad format for line: " + std::to_string(line_no);
       return false;
     }
 
@@ -112,7 +103,7 @@ private:
 
     if (!KeyExists(key))
     {
-      Contents.insert(std::pair<std::string, std::string>(key, value));
+      KeyValuePairs.insert(std::pair<std::string, std::string>(key, value));
     }
     else
     {
@@ -131,7 +122,7 @@ public:
 
   bool KeyExists(const std::string &key)
   {
-    return Contents.find(key) != Contents.end();
+    return KeyValuePairs.find(key) != KeyValuePairs.end();
   }
 
   template <typename T_VAL>
@@ -140,6 +131,6 @@ public:
 	  if (!KeyExists(key))
 		  return default_value;
 
-	  return string_to_T<T_VAL>(Contents.find(key)->second);
+	  return string_to_T<T_VAL>(KeyValuePairs.find(key)->second);
   }
 };
