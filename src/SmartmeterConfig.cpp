@@ -21,7 +21,7 @@ private:
   }
 
   template <typename T_VAL>
-  T_VAL string_to_T(std::string const &val)
+  T_VAL string_to_T(const std::string &val)
   {
     std::istringstream ss(val);
     T_VAL result;
@@ -38,7 +38,7 @@ private:
 	  file.open(FileName.c_str());
 	  if (!file)
     {
-		  ErrorMessage = "CFG: File " + FileName + " couldn't be found!\n";
+		  ErrorMessage = "Smartmeter config: File " + FileName + " couldn't be found!\n";
       return false;
     }
 	  std::string line;
@@ -46,35 +46,26 @@ private:
 	  while (std::getline(file, line))
 	  {
 		  ++line_no;
-		  std::string temp = line;
-		  if (temp.empty())
+		  std::string line_copy = line;
+		  if (line_copy.empty())
       {
 			  continue;
       }
-		  RemoveComment(temp);
-		  if (OnlyWhitespace(temp))
+		  if (line_copy.find('#') != line_copy.npos)
+      {
+        line_copy.erase(line_copy.find('#'));
+      }
+      if (line_copy.find_first_not_of(' ') == line_copy.npos)
       {
 			  continue;
       }
-		  ParseLine(temp, line_no);
+		  ParseLine(line_copy, line_no);
 	  }
 	  file.close();
+    return true;
   }
 
-  void RemoveComment(std::string &line) const
-  {
-    if (line.find(';') != line.npos)
-    {
-	    line.erase(line.find(';'));
-    }
-  }
-
-  bool OnlyWhitespace(const std::string &line) const
-  {
-    return (line.find_first_not_of(' ') == line.npos);
-  }
-
-  bool ValidLine(const std::string &line) const
+  bool ValidLine(const std::string &line)
   {
 	  std::string temp = line;
 	  temp.erase(0, temp.find_first_not_of("\t "));
@@ -92,44 +83,6 @@ private:
 	  return false;
   }
 
-  void ExtractKey(std::string &key, size_t const &sep_pos, const std::string &line) const
-  {
-    key = line.substr(0, sep_pos);
-    if (key.find('\t') != line.npos || key.find(' ') != line.npos)
-    {
-	    key.erase(key.find_first_of("\t "));
-    }
-  }
-
-  void ExtractValue(std::string &value, size_t const &sep_pos, const std::string &line) const
-  {
-	  value = line.substr(sep_pos + 1);
-	  value.erase(0, value.find_first_not_of("\t "));
-	  value.erase(value.find_last_not_of("\t ") + 1);
-  }
-
-  bool ExtractContents(const std::string &line) 
-  {
-	  std::string temp = line;
-	  temp.erase(0, temp.find_first_not_of("\t "));
-	  size_t sep_pos = temp.find('=');
-
-	  std::string key, value;
-	  ExtractKey(key, sep_pos, temp);
-	  ExtractValue(value, sep_pos, temp);
-
-	  if (!KeyExists(key))
-    {
-		  Contents.insert(std::pair<std::string, std::string>(key, value));
-    }
-	  else
-    {
-		  ErrorMessage = "Smartmeter config: Can only have unique key names.";
-      return false;
-    }
-    return true;
-  }
-
   bool ParseLine(const std::string &line, size_t const line_no)
   {
 	  if (line.find('=') == line.npos)
@@ -142,7 +95,30 @@ private:
 	    ErrorMessage = "Smartmeter config: Bad format for line: " + T_to_String(line_no);
       return false;
     }
-	  ExtractContents(line);
+
+    std::string temp = line;
+    temp.erase(0, temp.find_first_not_of("\t "));
+    size_t sep_pos = temp.find('=');
+
+    std::string key, value;
+    key = temp.substr(0, sep_pos);
+    if (key.find('\t') != temp.npos || key.find(' ') != temp.npos)
+    {
+      key.erase(key.find_first_of("\t "));
+    }
+    value = temp.substr(sep_pos + 1);
+    value.erase(0, value.find_first_not_of("\t "));
+    value.erase(value.find_last_not_of("\t ") + 1);
+
+    if (!KeyExists(key))
+    {
+      Contents.insert(std::pair<std::string, std::string>(key, value));
+    }
+    else
+    {
+      ErrorMessage = "Smartmeter config: Can only have unique key names.";
+      return false;
+    }
     return true;
   }  
 
@@ -153,13 +129,13 @@ public:
 	  ExtractKeys();
   }
 
-  bool KeyExists(const std::string &key) const
+  bool KeyExists(const std::string &key)
   {
     return Contents.find(key) != Contents.end();
   }
 
   template <typename T_VAL>
-  T_VAL GetValueOfKey(const std::string &key, const T_VAL &default_value = T_VAL()) const
+  T_VAL GetValueOfKey(const std::string &key, const T_VAL &default_value = T_VAL())
   {
 	  if (!KeyExists(key))
 		  return default_value;
@@ -167,4 +143,3 @@ public:
 	  return string_to_T<T_VAL>(Contents.find(key)->second);
   }
 };
-
