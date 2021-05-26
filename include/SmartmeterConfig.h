@@ -7,12 +7,15 @@ class SmartmeterConfig
 {
 private:
   std::map<std::string, std::string> KeyValuePairs;
-  std::string File;
   std::string ErrorMessage;
 
 public:
-  SmartmeterConfig(const std::string &file);
-  bool Begin(void);
+  bool Begin(const std::string &file);
+  bool IsKeyDefined(const std::string &key);
+  std::string GetErrorMessage(void);
+
+  template <typename T_VAL>
+  T_VAL GetValue(const std::string &key);
 };
 
 #endif

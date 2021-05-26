@@ -3,23 +3,21 @@
 #include <sstream>
 #include <map>
 #include <fstream>
+#include <cstring>
 #include "SmartmeterConfig.h"
 
-SmartmeterConfig::SmartmeterConfig(const std::string &file) : File(file)
+bool SmartmeterConfig::Begin(const std::string &file)
 {
-} 
-
-bool SmartmeterConfig::Begin(void)
-{
-  if (File.empty())
+  if (file.empty())
   {
     ErrorMessage = "Smartmeter config: Config argument empty.";
     return false;
   }
-  std::ifstream ifs(File);
+  std::ifstream ifs(file);
   if (!ifs)
   {
-    ErrorMessage = "Smartmeter config: Opening config file failed.";
+    ErrorMessage = std::string("Opening config file failed: ")
+      + strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
 	std::string line;
@@ -43,4 +41,9 @@ bool SmartmeterConfig::Begin(void)
 	ifs.close();
 
   return true;
+}
+
+std::string SmartmeterConfig::GetErrorMessage(void)
+{
+  return ErrorMessage;
 }
