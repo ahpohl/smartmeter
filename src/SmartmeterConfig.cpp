@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstring>
 #include <typeinfo>
+#include <iterator>
 #include "SmartmeterConfig.h"
 
 bool SmartmeterConfig::Begin(const std::string &file)
@@ -37,19 +38,19 @@ bool SmartmeterConfig::Begin(const std::string &file)
     {
 			continue;
     }
-    ExtractKeyValue(line);
+    std::string key, val;
+    std::istringstream iss(line);
+    while (std::getline(std::getline(iss, key, ' ') >> std::ws, val))
+    {
+      KeyValuePair.insert(std::map<std::string, std::string>::value_type(key, val));
+    }
 	}
 	ifs.close();
 
-  std::string str("");
-  double num = 1;
-  double pi = StringToVal<double>(str);
-
-  if (!pi)
+  for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
   {
-    return false; 
+    std::cout << '{' << p->first << " => " << p->second << '}' << std::endl;
   }
-  std::cout << "Result: " << std::to_string(num + pi) << std::endl;
 
   return true;
 }
@@ -57,11 +58,6 @@ bool SmartmeterConfig::Begin(const std::string &file)
 std::string SmartmeterConfig::GetErrorMessage(void)
 {
   return ErrorMessage;
-}
-
-void SmartmeterConfig::ExtractKeyValue(const std::string &line)
-{
-  std::cout << line << std::endl;
 }
 
 template <typename T>

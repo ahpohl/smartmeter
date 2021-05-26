@@ -6,9 +6,8 @@
 class SmartmeterConfig
 {
 private:
-  std::map<std::string, std::string> KeyValuePairs;
+  std::map<std::string, std::string> KeyValuePair;
   std::string ErrorMessage;
-  void ExtractKeyValue(const std::string &line);
 
   template <typename T_VAL>
   T_VAL StringToVal(const std::string &val);
