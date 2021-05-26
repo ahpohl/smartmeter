@@ -4,6 +4,7 @@
 #include <map>
 #include <fstream>
 #include <cstring>
+#include <typeinfo>
 #include "SmartmeterConfig.h"
 
 bool SmartmeterConfig::Begin(const std::string &file)
@@ -36,9 +37,19 @@ bool SmartmeterConfig::Begin(const std::string &file)
     {
 			continue;
     }
-    std::cout << line << std::endl;
+    ExtractKeyValue(line);
 	}
 	ifs.close();
+
+  std::string str("");
+  double num = 1;
+  double pi = StringToVal<double>(str);
+
+  if (!pi)
+  {
+    return false; 
+  }
+  std::cout << "Result: " << std::to_string(num + pi) << std::endl;
 
   return true;
 }
@@ -46,4 +57,23 @@ bool SmartmeterConfig::Begin(const std::string &file)
 std::string SmartmeterConfig::GetErrorMessage(void)
 {
   return ErrorMessage;
+}
+
+void SmartmeterConfig::ExtractKeyValue(const std::string &line)
+{
+  std::cout << line << std::endl;
+}
+
+template <typename T>
+T SmartmeterConfig::StringToVal(const std::string &str)
+{
+  std::istringstream iss(str);
+  T result; 
+  iss >> result;
+  if (iss.fail())
+  {
+    ErrorMessage = std::string("Unable to convert string to ") + typeid(T).name();
+    return T();
+  }
+  return result;
 }
