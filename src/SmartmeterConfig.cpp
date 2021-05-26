@@ -52,10 +52,6 @@ bool SmartmeterConfig::Begin(const std::string &file)
     KeyValuePair.insert(std::map<std::string, std::string>::value_type(key, val));
 	}
 	ifs.close();
-  for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
-  {
-    std::cout << '{' << p->first << " => " << p->second << '}' << std::endl;
-  }
 
   return true;
 }
@@ -63,6 +59,14 @@ bool SmartmeterConfig::Begin(const std::string &file)
 std::string SmartmeterConfig::GetErrorMessage(void)
 {
   return ErrorMessage;
+}
+
+void SmartmeterConfig::Display(void)
+{
+  for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
+  {
+    std::cout << '{' << p->first << " => " << p->second << '}' << std::endl;
+  }
 }
 
 template <typename T>

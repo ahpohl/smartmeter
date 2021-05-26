@@ -11,6 +11,8 @@ int main(int argc, char *argv[])
     std::cout << cfg->GetErrorMessage() << std::endl;
     exit(EXIT_FAILURE);  
   }
+  
+  cfg->Display();
 
   return EXIT_SUCCESS;
 }
