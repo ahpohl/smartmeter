@@ -1,7 +1,5 @@
 #ifndef Smartmeter_h
 #define Smartmeter_h
-#include <sstream>
-#include <set>
 #include "SmartmeterSerial.h"
 #include "SmartmeterMqtt.h"
 #include "SmartmeterConfig.h"

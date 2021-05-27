@@ -1,11 +1,6 @@
 #include <iostream>
-#include <string>
-#include <sstream>
-#include <map>
 #include <fstream>
 #include <cstring>
-#include <typeinfo>
-#include <iterator>
 #include "SmartmeterConfig.h"
 
 bool SmartmeterConfig::Begin(const std::string &file)
@@ -84,13 +79,18 @@ std::string SmartmeterConfig::GetValue(const std::string &key) const
   return KeyValuePair.find(key)->second;
 }
 
-bool SmartmeterConfig::VerifyKeys(std::set<std::string> valid_keys)
+bool SmartmeterConfig::ValidateKeys(std::set<std::string> valid_keys)
 {
   for(auto it = KeyValuePair.cbegin(); it != KeyValuePair.cend(); ++it)
   {
     if ((valid_keys.find(it->first) == valid_keys.cend()))
     {
       ErrorMessage = std::string("Smartmeter config: Invalid key \"") + it->first + "\""; 
+      return false;
+    }
+    if ((it->second).empty())
+    {
+      ErrorMessage = std::string("Smartmeter config: Key \"") + it->first + "\" has no value.";
       return false;
     }
   }

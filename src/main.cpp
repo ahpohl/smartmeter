@@ -1,4 +1,3 @@
-#include <string>
 #include <iostream>
 #include <memory>
 #include <getopt.h>

@@ -1,10 +1,8 @@
-#include <cstring>
 #include <iostream>
-#include <sstream>
+#include <cstring>
 #include <charconv>
 #include <chrono>
 #include <thread>
-#include <set>
 #include "Smartmeter.h"
 
 const int Smartmeter::ReceiveBufferSize = 368; 
@@ -42,7 +40,7 @@ bool Smartmeter::Setup(const std::string &config)
   {
     Cfg->ShowConfig();
   }
-  if (!Cfg->VerifyKeys(Smartmeter::ValidKeys))
+  if (!Cfg->ValidateKeys(Smartmeter::ValidKeys))
   {
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
@@ -75,11 +73,6 @@ bool Smartmeter::Setup(const std::string &config)
   if (!(Cfg->KeyExists("mqtt_topic")))
   {
     ErrorMessage = Cfg->GetErrorMessage();
-    return false;
-  }
-  if (Cfg->GetValue("mqtt_topic").empty())
-  {
-    ErrorMessage = std::string("Smartmeter config: Topic argument empty.");
     return false;
   }
   if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))

@@ -1,6 +1,5 @@
 #ifndef SmartmeterConfig_h
 #define SmartmeterConfig_h
-#include <string>
 #include <map>
 #include <set>
 #include <sstream>
@@ -17,7 +16,7 @@ public:
   std::string GetErrorMessage(void) const;
 
   bool KeyExists(const std::string &key);
-  bool VerifyKeys(std::set<std::string> valid_keys);
+  bool ValidateKeys(std::set<std::string> valid_keys);
   std::string GetValue(const std::string &key) const; 
 };
 

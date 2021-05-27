@@ -1,6 +1,5 @@
 #ifndef SmartmeterMqtt_h
 #define SmartmeterMqtt_h
-#include <string>
 #include <mosquitto.h>
 
 class SmartmeterMqtt
