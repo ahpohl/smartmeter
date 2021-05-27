@@ -11,15 +11,12 @@ private:
   std::map<std::string, std::string> KeyValuePair;
   std::string ErrorMessage;
 
-  template <typename T_VAL>
-  T_VAL StringToVal(const std::string &val);
-
 public:
   bool Begin(const std::string &file);
-  std::string GetErrorMessage(void);
-  void ShowConfig(void);
-  std::vector<std::string> GetKeys(void);
-  std::map<std::string, std::string> GetKeyValuePairs(void);
+  std::string GetErrorMessage(void) const;
+  void ShowConfig(void) const;
+  std::vector<std::string> GetKeys(void) const;
+  std::map<std::string, std::string> GetKeyValuePairs(void) const;
   bool KeyExists(const std::string &key);
   
   template <typename T>

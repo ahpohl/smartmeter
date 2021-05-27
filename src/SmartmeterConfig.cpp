@@ -56,12 +56,12 @@ bool SmartmeterConfig::Begin(const std::string &file)
   return true;
 }
 
-std::string SmartmeterConfig::GetErrorMessage(void)
+std::string SmartmeterConfig::GetErrorMessage(void) const
 {
   return ErrorMessage;
 }
 
-void SmartmeterConfig::ShowConfig(void)
+void SmartmeterConfig::ShowConfig(void) const
 {
   for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
   {
@@ -71,30 +71,10 @@ void SmartmeterConfig::ShowConfig(void)
 
 bool SmartmeterConfig::KeyExists(const std::string &key)
 {
-  if (KeyValuePair.find(key) == KeyValuePair.end())
+  if (KeyValuePair.find(key) == KeyValuePair.cend())
   {
     ErrorMessage = std::string("Smartmeter config: Key \"") + key + "\" not found.";
     return false;
   }
   return true;
 }
-/*
-template <typename T>
-T SmartmeterConfig::GetValue(const std::string &key)
-{
-  auto p = KeyValuePair.find(key); 
-  if (p == KeyValuePair.end())
-  {
-    return T();
-  }
-  std::istringstream iss(p->second);
-  T result;
-  iss >> result;
-  if (iss.fail())
-  {
-    ErrorMessage = std::string("Unable to convert string to ") + typeid(T).name();
-    return T();
-  }
-  return result;
-}
-*/
