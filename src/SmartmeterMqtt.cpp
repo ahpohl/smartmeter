@@ -36,16 +36,26 @@ bool SmartmeterMqtt::Begin(void)
 
 bool SmartmeterMqtt::SetUserPassAuth(const std::string &user, const std::string &pass)
 {
+  if (user.empty()) 
+  {
+    ErrorMessage = std::string("Mosquitto unable to enable password authentication: User argument empty.");
+    return false;
+  }
+  if (pass.empty())
+  {
+    ErrorMessage = std::string("Mosquitto unable to enable password authentication: Password argument empty.");
+    return false;
+  }
   int rc = 0;
   if ((rc = mosquitto_username_pw_set(Mosq, user.c_str(), pass.c_str())))
   {
-    ErrorMessage = std::string("Mosquitto unable to set username and password: ") + mosquitto_strerror(rc);
+    ErrorMessage = std::string("Mosquitto unable to enable password authentication: ") + mosquitto_strerror(rc);
     return false;
   }
   return true;
 }
 
-bool SmartmeterMqtt::SetTls(const std::string &cafile, const std::string &capath)
+bool SmartmeterMqtt::SetTlsConnection(const std::string &cafile, const std::string &capath)
 {
   int rc = 0;
   if (!(cafile.empty()))
@@ -66,7 +76,7 @@ bool SmartmeterMqtt::SetTls(const std::string &cafile, const std::string &capath
   }
   else
   {
-    ErrorMessage = std::string("Mosquitto unable to enable TLS: Both cafile and capath arguments empty.");
+    ErrorMessage = std::string("Mosquitto unable to enable TLS: Need either cafile or capath argument.");
     return false;
   }
   
@@ -122,7 +132,7 @@ bool SmartmeterMqtt::SetLastWillTestament(const std::string &message, const std:
   int rc = 0;
   if ((rc = mosquitto_will_set(Mosq, topic.c_str(), message.size(), message.c_str(), qos, retain)))
   {
-    ErrorMessage = std::string("Mosquitto unable to set last will testament: ") + mosquitto_strerror(rc);
+    ErrorMessage = std::string("Mosquitto unable to set last will: ") + mosquitto_strerror(rc);
     return false;
   }
   return true;

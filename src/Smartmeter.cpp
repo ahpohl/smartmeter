@@ -77,12 +77,17 @@ bool Smartmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
+  if (Cfg->GetValue("mqtt_topic").empty())
+  {
+    ErrorMessage = std::string("Smartmeter config: Topic argument empty.");
+    return false;
+  }
   if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password"))
+  if ((Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password")))
   {
     if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"), Cfg->GetValue("mqtt_password")))
     {
@@ -92,7 +97,7 @@ bool Smartmeter::Setup(const std::string &config)
   }
   if (Cfg->KeyExists("mqtt_tls_cafile") || Cfg->KeyExists("mqtt_tls_capath"))
   {
-    if (!Mqtt->SetTls(Cfg->GetValue("mqtt_tls_cafile"), Cfg->GetValue("mqtt_tls_capath")))
+    if (!Mqtt->SetTlsConnection(Cfg->GetValue("mqtt_tls_cafile"), Cfg->GetValue("mqtt_tls_capath")))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;

@@ -2,6 +2,7 @@
 
 ## v0.3.1 - 2021-05-xx
 * MQTT TLS support (without client certificates)
+* Smartmeter config file
 
 ## v0.3.0 - 2021-05-23
 * MQTT username and password support
