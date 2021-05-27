@@ -36,6 +36,16 @@ bool SmartmeterMqtt::Begin(void)
 
 bool SmartmeterMqtt::SetUserPassAuth(const std::string &user, const std::string &pass)
 {
+  if (!(user.empty()) && pass.empty())
+  {
+    ErrorMessage = "Mosquitto error: Username without a password.";
+    return false;
+  }
+  if (user.empty() && !(pass.empty()))
+  {
+    ErrorMessage = "Mosquitto error: Password without a username.";
+    return false;
+  }
   int rc = 0;
   if ((rc = mosquitto_username_pw_set(Mosq, user.c_str(), pass.c_str())))
   {

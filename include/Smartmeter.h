@@ -19,12 +19,13 @@ private:
   std::string Config;
   char *ReceiveBuffer;
   std::string ErrorMessage;
-  double BasicRate;
-  double PricePerKwh;
   bool Log;
  
   template <typename T_STR, typename T_CHAR>
-  T_STR RemoveLeading(T_STR const &str, T_CHAR c);
+  T_STR RemoveLeading(T_STR const &str, T_CHAR c) const;
+
+  template <typename T>
+  T StringTo(const std::string &str) const;
 
 public:
   Smartmeter(const bool &log);
@@ -32,10 +33,6 @@ public:
   bool Setup(const std::string &config);
   bool Receive(void);
   bool Publish(void);
-  bool SetUserPass(const std::string &user, const std::string &pass);
-  bool SetEnergyPlan(double const& basic_rate, double const& price_per_kwh);
-  bool SetTopic(const std::string &topic);
-  bool SetTlsFilePath(const std::string &cafile, const std::string &capath);
   std::string GetErrorMessage(void) const;
   std::string GetReceiveBuffer(void) const;
   std::string GetPayload(void) const;
