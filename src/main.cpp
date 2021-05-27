@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   if (help)
   {
     std::cout << "Energy Smartmeter " << VERSION_TAG << std::endl;
-    std::cout << std::endl << "Usage: " << argv[0] << " [options]" << std::endl;
+    std::cout << std::endl << "Usage: " << argv[0] << " [-vvv] -c [file]" << std::endl;
     std::cout << "\n\
   -h --help         Show help message\n\
   -V --version      Show build info\n\

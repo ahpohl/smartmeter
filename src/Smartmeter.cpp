@@ -92,18 +92,18 @@ bool Smartmeter::Setup(const std::string &config)
   }
   if (Cfg->KeyExists("mqtt_tls_cafile") || Cfg->KeyExists("mqtt_tls_capath"))
   {
-    if (!Mqtt->SetTls(Cfg->GetValue("mqtt_tls_cafile"), Cfg->GetValue("mqtt_tls_cafile")))
+    if (!Mqtt->SetTls(Cfg->GetValue("mqtt_tls_cafile"), Cfg->GetValue("mqtt_tls_capath")))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
   }
-  if (!(Cfg->KeyExists("mqtt_host")) || !(Cfg->KeyExists("mqtt_port")) )
+  if (!(Cfg->KeyExists("mqtt_broker")) || !(Cfg->KeyExists("mqtt_port")) )
   {
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (!Mqtt->Connect(Cfg->GetValue("mqtt_host"), StringTo<double>(Cfg->GetValue("mqtt_port")), 60))
+  if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"), StringTo<double>(Cfg->GetValue("mqtt_port")), 60))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
@@ -230,7 +230,7 @@ template <typename T>
 T Smartmeter::StringTo(const std::string &str) const
 {
   T value;
-  std::istringstream iss;
+  std::istringstream iss(str);
   iss >> value;
   if (iss.fail())
   {
