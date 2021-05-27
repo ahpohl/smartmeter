@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
   }
   double price = cfg->GetValue<double>("plan_price_kwh");
   std::cout << "Price per kWh: " << std::to_string(price+1) << std::endl;
-  
+ 
+  std::cout << "MQTT username: " << cfg->GetValue("mqtt_user") << std::endl;
+ 
   return EXIT_SUCCESS;
 }

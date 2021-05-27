@@ -19,7 +19,7 @@ public:
   std::map<std::string, std::string> GetKeyValuePairs(void) const;
   bool KeyExists(const std::string &key);
   
-  template <typename T>
+  template <typename T = std::string>
   inline T GetValue(const std::string &key)
   {
     auto p = KeyValuePair.find(key);
