@@ -2,6 +2,8 @@
 #define SmartmeterConfig_h
 #include <string>
 #include <map>
+#include <vector>
+#include <sstream>
 
 class SmartmeterConfig
 {
@@ -14,12 +16,30 @@ private:
 
 public:
   bool Begin(const std::string &file);
-  bool IsKeyDefined(const std::string &key);
   std::string GetErrorMessage(void);
-  void Display(void);
-
-  template <typename T_VAL>
-  T_VAL GetValue(const std::string &key);
+  void ShowConfig(void);
+  std::vector<std::string> GetKeys(void);
+  std::map<std::string, std::string> GetKeyValuePairs(void);
+  bool KeyExists(const std::string &key);
+  
+  template <typename T>
+  inline T GetValue(const std::string &key)
+  {
+    auto p = KeyValuePair.find(key);
+    if (p == KeyValuePair.end())
+    {
+      return T();
+    }
+    std::istringstream iss(p->second);
+    T result;
+    iss >> result;
+    if (iss.fail())
+    {
+      ErrorMessage = std::string("Unable to convert string to ") + typeid(T).name();
+      return T();
+    }
+    return result;
+  }
 };
 
 #endif

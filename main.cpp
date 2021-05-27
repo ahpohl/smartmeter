@@ -1,6 +1,8 @@
 #include <iostream>
+#include <string>
 #include <memory>
 #include "SmartmeterConfig.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -12,7 +14,13 @@ int main(int argc, char *argv[])
     exit(EXIT_FAILURE);  
   }
   
-  cfg->Display();
-
+  cfg->ShowConfig();
+  if (!(cfg->KeyExists("plan_price_kwh")))
+  {
+    std::cout << cfg->GetErrorMessage() << std::endl;
+  }
+  double price = cfg->GetValue<double>("plan_price_kwh");
+  std::cout << "Price per kWh: " << std::to_string(price+1) << std::endl;
+  
   return EXIT_SUCCESS;
 }

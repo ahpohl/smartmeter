@@ -61,7 +61,7 @@ std::string SmartmeterConfig::GetErrorMessage(void)
   return ErrorMessage;
 }
 
-void SmartmeterConfig::Display(void)
+void SmartmeterConfig::ShowConfig(void)
 {
   for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
   {
@@ -69,11 +69,26 @@ void SmartmeterConfig::Display(void)
   }
 }
 
-template <typename T>
-T SmartmeterConfig::StringToVal(const std::string &str)
+bool SmartmeterConfig::KeyExists(const std::string &key)
 {
-  std::istringstream iss(str);
-  T result; 
+  if (KeyValuePair.find(key) == KeyValuePair.end())
+  {
+    ErrorMessage = std::string("Smartmeter config: Key \"") + key + "\" not found.";
+    return false;
+  }
+  return true;
+}
+/*
+template <typename T>
+T SmartmeterConfig::GetValue(const std::string &key)
+{
+  auto p = KeyValuePair.find(key); 
+  if (p == KeyValuePair.end())
+  {
+    return T();
+  }
+  std::istringstream iss(p->second);
+  T result;
   iss >> result;
   if (iss.fail())
   {
@@ -82,3 +97,4 @@ T SmartmeterConfig::StringToVal(const std::string &str)
   }
   return result;
 }
+*/
