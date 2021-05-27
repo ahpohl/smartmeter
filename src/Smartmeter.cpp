@@ -4,27 +4,31 @@
 #include <charconv>
 #include <chrono>
 #include <thread>
+#include <set>
 #include "Smartmeter.h"
 
 const int Smartmeter::ReceiveBufferSize = 368; 
+const std::set<std::string> Smartmeter::ValidKeys {"mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "plan_basic_rate", "plan_price_kwh", "serial_device"};
 
 Smartmeter::Smartmeter(const bool &log): Log(log)
 {
   ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize] ();
   Serial = new SmartmeterSerial();
   Mqtt = new SmartmeterMqtt(Log);
+  Cfg = new SmartmeterConfig();
 }
 
 Smartmeter::~Smartmeter(void)
 {
   if (Mqtt->GetConnectStatus())
   {
-    Mqtt->PublishMessage("offline", Topic + "/status", 1, true);
+    Mqtt->PublishMessage("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   if (Mqtt) { delete Mqtt; }
   if (Serial) { delete Serial; }
   if (ReceiveBuffer) { delete[] ReceiveBuffer; }
+  if (Cfg) { delete Cfg; };
 }
 
 bool Smartmeter::SetTopic(const std::string &topic)
@@ -34,7 +38,7 @@ bool Smartmeter::SetTopic(const std::string &topic)
     ErrorMessage = "Smartmeter error: Topic argument empty.";
     return false;
   }
-  Topic = topic;
+  //Topic = topic;
   return true;
 }
 
@@ -50,67 +54,99 @@ bool Smartmeter::SetUserPass(const std::string &user, const std::string &pass)
     ErrorMessage = "Smartmeter error: Password without a username.";
     return false;
   }
-  Username = user;
-  Password = pass;
+  //Username = user;
+  //Password = pass;
 
   return true;
 }
 
 bool Smartmeter::SetTlsFilePath(const std::string &cafile, const std::string &capath)
 {
-  CaFile = cafile;
-  CaPath = capath;
+  //CaFile = cafile;
+  //CaPath = capath;
   return true;
 }
 
-bool Smartmeter::Setup(const std::string &device, const std::string &host, const int &port)
+bool Smartmeter::Setup(const std::string &config)
 {
-  if (!Serial->Begin(device))
+  if (!Cfg->Begin(config))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Cfg->VerifyKeys(Smartmeter::ValidKeys))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+
+  if (!(Cfg->KeyExists("serial_device")))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Serial->Begin(Cfg->GetValue("serial_device")))
   {
     ErrorMessage = Serial->GetErrorMessage();
     return false;
   }
+
   if (!Mqtt->Begin())
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (!Mqtt->SetLastWillTestament("offline", Topic + "/status", 1, true))
+  if (!(Cfg->KeyExists("mqtt_topic")))
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (!(Username.empty()) || !(Password.empty()))
+
+  if (Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password"))
   {
-    if (!Mqtt->SetUserPassAuth(Username, Password))
+    if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"), Cfg->GetValue("mqtt_password")))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
   }
-  if (!(CaFile.empty()) || !(CaPath.empty()))
+
+  if (Cfg->KeyExists("mqtt_tls_cafile") || Cfg->KeyExists("mqtt_tls_capath"))
   {
-    if (!Mqtt->SetTls(CaFile, CaPath))
+    if (!Mqtt->SetTls(Cfg->GetValue("mqtt_tls_cafile"), Cfg->GetValue("mqtt_tls_cafile")))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
   }
-  if (!Mqtt->Connect(host, port, 60))
+
+  if (!(Cfg->KeyExists("mqtt_host")) || !(Cfg->KeyExists("mqtt_port")) )
+  {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!Mqtt->Connect(Cfg->GetValue("mqtt_host"), Cfg->GetValue("mqtt_port"), 60))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
+
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
   if (Mqtt->GetConnectStatus())
   {
     std::cout << "Smartmeter is online." << std::endl;
   }
-  if (!Mqtt->PublishMessage("online", Topic + "/status", 1, true))
+  if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
+
   return true;
 }
 
@@ -169,14 +205,14 @@ bool Smartmeter::Publish(void)
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
-    if (!(Mqtt->PublishMessage(Payload.str(), Topic + "/state", 0, false)))
+    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
     if (!last_connect_status)
     {
-      if (!(Mqtt->PublishMessage("online", Topic + "/status", 1, true)))
+      if (!(Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true)))
       {
         ErrorMessage = Mqtt->GetErrorMessage();
         return false;

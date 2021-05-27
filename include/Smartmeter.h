@@ -1,21 +1,22 @@
 #ifndef Smartmeter_h
 #define Smartmeter_h
 #include <sstream>
+#include <set>
 #include "SmartmeterSerial.h"
 #include "SmartmeterMqtt.h"
+#include "SmartmeterConfig.h"
 
 class Smartmeter
 {
+  static const int ReceiveBufferSize;
+  static const std::set<std::string> ValidKeys;
+
 private:
-  static const int ReceiveBufferSize; 
   SmartmeterSerial *Serial;
   SmartmeterMqtt *Mqtt;
+  SmartmeterConfig *Cfg;
   std::stringstream Payload;
-  std::string Topic;
-  std::string Username;
-  std::string Password;
-  std::string CaFile;
-  std::string CaPath;
+  std::string Config;
   char *ReceiveBuffer;
   std::string ErrorMessage;
   double BasicRate;
@@ -28,7 +29,7 @@ private:
 public:
   Smartmeter(const bool &log);
   ~Smartmeter(void);
-  bool Setup(const std::string &device, const std::string &host, const int &port);
+  bool Setup(const std::string &config);
   bool Receive(void);
   bool Publish(void);
   bool SetUserPass(const std::string &user, const std::string &pass);
