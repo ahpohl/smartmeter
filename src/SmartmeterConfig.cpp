@@ -84,17 +84,15 @@ std::string SmartmeterConfig::GetValue(const std::string &key) const
   return KeyValuePair.find(key)->second;
 }
 
-std::map <std::string, std::string> SmartmeterConfig::GetKeyValuePair(void) const
+bool SmartmeterConfig::VerifyKeys(std::set<std::string> valid_keys)
 {
-  return KeyValuePair;
-}
-
-std::vector<std::string> SmartmeterConfig::GetKeys(void) const
-{
-  std::vector<std::string> keys;
   for(auto it = KeyValuePair.cbegin(); it != KeyValuePair.cend(); ++it)
   {
-    keys.push_back(it->first);
+    if ((valid_keys.find(it->first) == valid_keys.cend()))
+    {
+      ErrorMessage = std::string("Smartmeter config: Invalid key \"") + it->first + "\""; 
+      return false;
+    }
   }
-  return keys;
+  return true;
 }
