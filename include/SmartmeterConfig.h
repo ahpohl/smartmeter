@@ -16,9 +16,10 @@ public:
   std::string GetErrorMessage(void) const;
   void ShowConfig(void) const;
   std::vector<std::string> GetKeys(void) const;
-  std::map<std::string, std::string> GetKeyValuePairs(void) const;
+  std::map<std::string, std::string> GetKeyValuePair(void) const;
   bool KeyExists(const std::string &key);
-  
+  std::string GetValue(const std::string &key) const; 
+ 
   template <typename T = std::string>
   inline T GetValue(const std::string &key)
   {

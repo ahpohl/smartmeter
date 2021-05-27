@@ -63,9 +63,9 @@ std::string SmartmeterConfig::GetErrorMessage(void) const
 
 void SmartmeterConfig::ShowConfig(void) const
 {
-  for(auto p = KeyValuePair.cbegin(); p != KeyValuePair.cend(); ++p)
+  for(auto it = KeyValuePair.cbegin(); it != KeyValuePair.cend(); ++it)
   {
-    std::cout << '{' << p->first << " => " << p->second << '}' << std::endl;
+    std::cout << '{' << it->first << " => " << it->second << '}' << std::endl;
   }
 }
 
@@ -77,4 +77,24 @@ bool SmartmeterConfig::KeyExists(const std::string &key)
     return false;
   }
   return true;
+}
+
+std::string SmartmeterConfig::GetValue(const std::string &key) const
+{
+  return KeyValuePair.find(key)->second;
+}
+
+std::map <std::string, std::string> SmartmeterConfig::GetKeyValuePair(void) const
+{
+  return KeyValuePair;
+}
+
+std::vector<std::string> SmartmeterConfig::GetKeys(void) const
+{
+  std::vector<std::string> keys;
+  for(auto it = KeyValuePair.cbegin(); it != KeyValuePair.cend(); ++it)
+  {
+    keys.push_back(it->first);
+  }
+  return keys;
 }
