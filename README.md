@@ -15,26 +15,6 @@ The complete software stack consists of the following components, which need to 
 
 The project documentation covers the IR dongle hardware, software configuration and database setup and is located on separate [Wiki pages](https://github.com/ahpohl/smartmeter/wiki).
 
-## Installation
-
-Via Git:
-```
-git clone https://github.com/ahpohl/smartmeter.git
-make
-sudo make install
-```
-Or via Arch Linux package ([smartmeter](https://aur.archlinux.org/packages/smartmeter)):
-```
-yaourt -S smartmeter
-```
-
-Configuration and startup:
-```
-nano /etc/smartmeter.conf
-systemctl enable smartmeter.service
-systemctl start smartmeter.service
-```
-
 ## Changelog
 
 All notable changes and releases are documented in the [CHANGELOG](CHANGELOG.md).
