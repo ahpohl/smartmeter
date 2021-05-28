@@ -1,8 +1,9 @@
 # Smartmeter changelog
 
-## v0.3.1 - 2021-05-xx
+## v0.3.1 - 2021-05-28
 * MQTT TLS support (without client certificates)
-* Smartmeter config file
+* added config file
+* removed most command line arguments
 
 ## v0.3.0 - 2021-05-23
 * MQTT username and password support
