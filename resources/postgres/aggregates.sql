@@ -34,7 +34,10 @@ WITH (timescaledb.continuous, timescaledb.materialized_only=true)
 AS
 SELECT
   time_bucket('5 minutes', time) as bucket_5m,
-  avg(power) as power_5m
+  avg(power) as power_5m,
+  avg(power_l1) as power_l1_5m,
+  avg(power_l2) as power_l2_5m,
+  avg(power_l3) as power_l3_5m
 FROM live
 GROUP BY bucket_5m           
 WITH NO DATA;
