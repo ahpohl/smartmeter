@@ -23,8 +23,6 @@ SELECT
   price,
   rate
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
--- cagg_daily filtered by end date of archive
-WHERE bucket_1d > '2021-03-31T00:00:00Z'
 GROUP BY bucket_1d, energy_1d, total, price, rate
 ORDER BY time;
 
@@ -97,8 +95,6 @@ SECURITY INVOKER;
 --
 -- create monthly view
 --
-DROP MATERIALIZED VIEW IF EXISTS monthly_view;
-
 CREATE MATERIALIZED VIEW monthly_view
 AS
 SELECT
@@ -107,7 +103,6 @@ SELECT
   sum(bill) AS bill,
   first(total, time) AS total
 FROM daily_view
-WHERE time > '2021-01-01'
 GROUP BY _time_bucket('1 month', time)
 ORDER BY time;
 

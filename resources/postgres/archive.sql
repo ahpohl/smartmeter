@@ -1,6 +1,6 @@
 \c smartmeter
 
-DROP TABLE IF EXISTS "archive";
+DROP TABLE IF EXISTS "archive" CASCADE;
 
 CREATE TABLE "archive" (
   bucket_1d TIMESTAMPTZ NOT NULL,
@@ -14,6 +14,6 @@ CREATE TABLE "archive" (
 
 SELECT create_hypertable('archive', 'bucket_1d');
 
-\copy "archive" FROM 'archive.csv' DELIMITER ',' CSV HEADER
+---\copy "archive" FROM 'archive.csv' DELIMITER ',' CSV HEADER
 
 GRANT SELECT ON "archive" TO grafana;

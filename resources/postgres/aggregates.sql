@@ -3,7 +3,7 @@
 --
 -- hourly continuous aggregate
 --
-DROP MATERIALIZED VIEW IF EXISTS cagg_hourly;
+DROP MATERIALIZED VIEW IF EXISTS cagg_hourly CASCADE;
 
 -- hourly aggregate
 CREATE MATERIALIZED VIEW cagg_hourly
@@ -32,7 +32,7 @@ GRANT SELECT ON TABLE cagg_hourly TO grafana;
 --
 -- daily continuous aggregate
 --
-DROP MATERIALIZED VIEW IF EXISTS cagg_daily;
+DROP MATERIALIZED VIEW IF EXISTS cagg_daily CASCADE;
 
 CREATE MATERIALIZED VIEW cagg_daily
 WITH (timescaledb.continuous, timescaledb.materialized_only=true) 
