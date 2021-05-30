@@ -1,35 +1,6 @@
 \c smartmeter
 
 --
--- hourly continuous aggregate
---
-DROP MATERIALIZED VIEW IF EXISTS cagg_hourly CASCADE;
-
--- hourly aggregate
-CREATE MATERIALIZED VIEW cagg_hourly
-WITH (timescaledb.continuous, timescaledb.materialized_only=true)
-AS
-SELECT
-  time_bucket('1 hour', time) as bucket_1h,
-  last(energy, time) - first(energy, time) as energy_1h,
-  first(energy, time) as total
-FROM live
-GROUP BY bucket_1h           
-WITH NO DATA;
-
--- hourly refresh policy
-SELECT add_continuous_aggregate_policy('cagg_hourly',
-  start_offset => INTERVAL '1 day',
-  end_offset => INTERVAL '1 minute',
-  schedule_interval => '1 hour');
-
--- retention policy
-SELECT add_retention_policy('cagg_hourly', INTERVAL '7 days');
-
--- grant
-GRANT SELECT ON TABLE cagg_hourly TO grafana;
-
---
 -- daily continuous aggregate
 --
 DROP MATERIALIZED VIEW IF EXISTS cagg_daily CASCADE;
@@ -52,3 +23,31 @@ SELECT add_continuous_aggregate_policy('cagg_daily',
   start_offset => INTERVAL '3 days',
   end_offset => INTERVAL '1 hour',
   schedule_interval => '1 hour');
+
+--
+-- average power
+--
+DROP MATERIALIZED VIEW IF EXISTS cagg_power CASCADE;
+
+-- hourly aggregate
+CREATE MATERIALIZED VIEW cagg_power
+WITH (timescaledb.continuous, timescaledb.materialized_only=true)
+AS
+SELECT
+  time_bucket('5 minutes', time) as bucket_5m,
+  avg(power) as power_5m
+FROM live
+GROUP BY bucket_5m           
+WITH NO DATA;
+
+-- hourly refresh policy
+SELECT add_continuous_aggregate_policy('cagg_power',
+  start_offset => INTERVAL '3 day',
+  end_offset => INTERVAL '1 minute',
+  schedule_interval => '5 minutes');
+
+-- retention policy
+SELECT add_retention_policy('cagg_power', INTERVAL '7 days');
+
+-- grant
+GRANT SELECT ON TABLE cagg_power TO grafana;
