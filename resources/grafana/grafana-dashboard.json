@@ -27,7 +27,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [
             {
               "id": 0,
@@ -76,7 +75,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
           "format": "time_series",
@@ -122,7 +121,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [
             {
               "id": 0,
@@ -175,7 +173,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
           "format": "time_series",
@@ -220,7 +218,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [
             {
               "id": 0,
@@ -276,7 +273,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "7.5.6",
       "targets": [
         {
           "format": "time_series",
@@ -312,6 +309,385 @@
       "title": "Current Power",
       "transparent": true,
       "type": "gauge"
+    },
+    {
+      "datasource": "Smartmeter",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "graph": false,
+              "legend": false,
+              "tooltip": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "decimals": 1,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "bill"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 36
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              },
+              {
+                "id": "custom.pointSize",
+                "value": 6
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "smooth"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "hideTimeOverride": true,
+      "id": 23,
+      "interval": null,
+      "maxDataPoints": null,
+      "options": {
+        "graph": {},
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltipOptions": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "7.4.5",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  time,\n  energy\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "live",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  time,\n  bill\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "live",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": "15d",
+      "timeShift": null,
+      "title": "Daily Energy",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "Smartmeter",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 3
+      },
+      "hideTimeOverride": true,
+      "id": 26,
+      "interval": "10s",
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  NOW() AS time,\n  avg(bill)\nFROM monthly_view",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy_1h"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "cagg_hourly",
+          "timeColumn": "bucket",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": "370d",
+      "timeShift": null,
+      "title": "Average Bill",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "Smartmeter",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 3
+      },
+      "hideTimeOverride": true,
+      "id": 25,
+      "interval": "10s",
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_trunc('month', NOW()) AS time,\n  sum(bill) AS bill\nFROM daily_view\nWHERE\n  time > date_trunc('month', NOW())",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy_1h"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "cagg_hourly",
+          "timeColumn": "bucket",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": "32d",
+      "timeShift": null,
+      "title": "Current Bill",
+      "transparent": true,
+      "type": "stat"
     },
     {
       "datasource": "Smartmeter",
@@ -396,10 +772,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
+        "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 0
+        "x": 0,
+        "y": 6
       },
       "id": 6,
       "interval": "5s",
@@ -510,316 +886,6 @@
       "type": "timeseries"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {},
-          "mappings": [
-            {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyEUR"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 3
-      },
-      "hideTimeOverride": true,
-      "id": 26,
-      "interval": "10s",
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.4.5",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  NOW() AS time,\n  avg(bill)\nFROM monthly_view",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "energy_1h"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "cagg_hourly",
-          "timeColumn": "bucket",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": "370d",
-      "timeShift": null,
-      "title": "Average Bill",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {},
-          "decimals": 2,
-          "mappings": [
-            {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyEUR"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 4,
-        "y": 3
-      },
-      "hideTimeOverride": true,
-      "id": 25,
-      "interval": "10s",
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.4.5",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  date_trunc('month', NOW()) AS time,\n  sum(bill) AS bill\nFROM daily_view\nWHERE\n  time > date_trunc('month', NOW())",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "energy_1h"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "cagg_hourly",
-          "timeColumn": "bucket",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": "32d",
-      "timeShift": null,
-      "title": "Current Bill",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": "Smartmeter",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "graph": false,
-              "legend": false,
-              "tooltip": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true
-          },
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "kwatth"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "energy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 6
-      },
-      "hideTimeOverride": true,
-      "id": 2,
-      "interval": null,
-      "maxDataPoints": null,
-      "options": {
-        "graph": {},
-        "legend": {
-          "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
-        },
-        "tooltipOptions": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "7.4.5",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  bucket AS time,\n  energy_1h AS energy\nFROM cagg_hourly\nWHERE\n  $__timeFilter(bucket)\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "energy_1h"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "cagg_hourly_view",
-          "timeColumn": "bucket",
-          "timeColumnType": "timestamptz",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": "24h",
-      "timeShift": null,
-      "title": "Energy",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
       "datasource": "Smartmeter",
       "fieldConfig": {
         "defaults": {
@@ -924,6 +990,7 @@
         "x": 12,
         "y": 12
       },
+      "hideTimeOverride": true,
       "id": 4,
       "interval": "10s",
       "options": {
@@ -1009,7 +1076,6 @@
     },
     {
       "datasource": "Smartmeter",
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1019,7 +1085,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "bars",
+            "drawStyle": "line",
             "fillOpacity": 100,
             "gradientMode": "opacity",
             "hideFrom": {
@@ -1027,7 +1093,7 @@
               "legend": false,
               "tooltip": false
             },
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
@@ -1038,69 +1104,32 @@
           },
           "decimals": 1,
           "mappings": [],
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           },
-          "unit": "kwatth"
+          "unit": "watt"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "bill"
-            },
-            "properties": [
-              {
-                "id": "custom.drawStyle",
-                "value": "line"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 36
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 1
-              },
-              {
-                "id": "custom.pointSize",
-                "value": 6
-              },
-              {
-                "id": "custom.showPoints",
-                "value": "always"
-              },
-              {
-                "id": "unit",
-                "value": "currencyEUR"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.lineInterpolation",
-                "value": "smooth"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "energy"
+              "options": "power"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "blue",
+                  "fixedColor": "purple",
                   "mode": "fixed"
                 }
               }
@@ -1109,28 +1138,24 @@
         ]
       },
       "gridPos": {
-        "h": 10,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 13
+        "y": 14
       },
       "hideTimeOverride": true,
-      "id": 23,
+      "id": 2,
       "interval": null,
       "maxDataPoints": null,
       "options": {
         "graph": {},
         "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
+          "calcs": [],
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltipOptions": {
-          "mode": "multi"
+          "mode": "single"
         }
       },
       "pluginVersion": "7.4.5",
@@ -1140,50 +1165,21 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  energy\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
+          "rawSql": "SELECT\n  bucket_5m AS time,\n  power_5m AS power\nFROM cagg_power\nWHERE\n  $__timeFilter(bucket_5m)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "energy"
+                  "energy_1h"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "live",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  bill\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
-          "refId": "B",
-          "select": [
-            [
-              {
-                "params": [
-                  "energy"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "live",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
+          "table": "cagg_hourly_view",
+          "timeColumn": "bucket",
+          "timeColumnType": "timestamptz",
           "where": [
             {
               "name": "$__timeFilter",
@@ -1193,9 +1189,9 @@
           ]
         }
       ],
-      "timeFrom": "15d",
+      "timeFrom": "12h",
       "timeShift": null,
-      "title": "Daily Energy",
+      "title": "Average Power",
       "transparent": true,
       "type": "timeseries"
     }
@@ -1228,5 +1224,5 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "Zy00S8QGk",
-  "version": 13
+  "version": 18
 }
