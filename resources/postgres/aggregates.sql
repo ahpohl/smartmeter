@@ -18,7 +18,7 @@ FROM live
 GROUP BY bucket_1d, plan_id, sensor_id
 WITH NO DATA;
 
--- daily refresh policy
+-- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_daily',
   start_offset => INTERVAL '3 days',
   end_offset => INTERVAL '1 hour',
@@ -29,7 +29,6 @@ SELECT add_continuous_aggregate_policy('cagg_daily',
 --
 DROP MATERIALIZED VIEW IF EXISTS cagg_power CASCADE;
 
--- hourly aggregate
 CREATE MATERIALIZED VIEW cagg_power
 WITH (timescaledb.continuous, timescaledb.materialized_only=true)
 AS
@@ -40,7 +39,7 @@ FROM live
 GROUP BY bucket_5m           
 WITH NO DATA;
 
--- hourly refresh policy
+-- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_power',
   start_offset => INTERVAL '3 day',
   end_offset => INTERVAL '1 minute',

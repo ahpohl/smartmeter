@@ -14,6 +14,6 @@ CREATE TABLE "archive" (
 
 SELECT create_hypertable('archive', 'bucket_1d');
 
----\copy "archive" FROM 'archive.csv' DELIMITER ',' CSV HEADER
+-- \copy "archive" FROM 'archive.csv' DELIMITER ',' CSV HEADER
 
 GRANT SELECT ON "archive" TO grafana;
