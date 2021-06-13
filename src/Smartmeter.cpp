@@ -175,7 +175,7 @@ bool Smartmeter::Publish(void)
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
-    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/state", 0, false)))
+    if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
