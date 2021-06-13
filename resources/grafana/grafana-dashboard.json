@@ -417,7 +417,7 @@
         "x": 12,
         "y": 0
       },
-      "hideTimeOverride": true,
+      "hideTimeOverride": false,
       "id": 23,
       "interval": null,
       "maxDataPoints": null,
@@ -496,7 +496,7 @@
           ]
         }
       ],
-      "timeFrom": "15d",
+      "timeFrom": "12d",
       "timeShift": null,
       "title": "Daily Energy",
       "transparent": true,
@@ -772,7 +772,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 6
@@ -990,7 +990,7 @@
         "x": 12,
         "y": 12
       },
-      "hideTimeOverride": true,
+      "hideTimeOverride": false,
       "id": 4,
       "interval": "10s",
       "options": {
@@ -1138,12 +1138,12 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 15
       },
-      "hideTimeOverride": true,
+      "hideTimeOverride": false,
       "id": 2,
       "interval": null,
       "maxDataPoints": null,
@@ -1224,5 +1224,5 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "Zy00S8QGk",
-  "version": 18
+  "version": 24
 }
