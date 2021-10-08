@@ -23,6 +23,7 @@ SELECT
   price,
   rate
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
+---WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2021-10-06 02:00:00+02'
 GROUP BY bucket_1d, energy_1d, total, price, rate
 ORDER BY time;
 
