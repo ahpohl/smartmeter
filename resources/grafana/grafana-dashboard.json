@@ -8,20 +8,30 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "description": "Show data from a smart energy meter",
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "gnetId": 12519,
   "graphTooltip": 0,
   "id": 9,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -29,11 +39,13 @@
           },
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -57,9 +69,7 @@
       },
       "hideTimeOverride": true,
       "id": 15,
-      "interval": null,
       "links": [],
-      "maxDataPoints": null,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -75,7 +85,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "format": "time_series",
@@ -107,14 +117,15 @@
         }
       ],
       "timeFrom": "5s",
-      "timeShift": null,
       "title": "Total Energy",
       "transparent": true,
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -123,11 +134,13 @@
           },
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -155,9 +168,7 @@
       },
       "hideTimeOverride": true,
       "id": 24,
-      "interval": null,
       "links": [],
-      "maxDataPoints": null,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -173,7 +184,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "format": "time_series",
@@ -205,14 +216,15 @@
         }
       ],
       "timeFrom": "24h",
-      "timeShift": null,
       "title": "Energy Today",
       "transparent": true,
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -220,11 +232,13 @@
           },
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "max": 4500,
@@ -258,7 +272,6 @@
       },
       "hideTimeOverride": true,
       "id": 22,
-      "interval": null,
       "links": [],
       "options": {
         "orientation": "horizontal",
@@ -273,7 +286,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "format": "time_series",
@@ -305,13 +318,15 @@
         }
       ],
       "timeFrom": "5s",
-      "timeShift": null,
       "title": "Current Power",
       "transparent": true,
       "type": "gauge"
     },
     {
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -328,7 +343,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineWidth": 2,
@@ -337,7 +353,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "decimals": 1,
           "mappings": [],
@@ -419,8 +442,30 @@
       },
       "hideTimeOverride": false,
       "id": 23,
-      "interval": null,
-      "maxDataPoints": null,
+      "libraryPanel": {
+        "description": "",
+        "meta": {
+          "connectedDashboards": 1,
+          "created": "2021-10-07T17:43:51+02:00",
+          "createdBy": {
+            "avatarUrl": "/grafana/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          },
+          "folderName": "General",
+          "folderUid": "",
+          "updated": "2021-10-07T17:43:51+02:00",
+          "updatedBy": {
+            "avatarUrl": "/grafana/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          }
+        },
+        "name": "Daily Energy",
+        "type": "timeseries",
+        "uid": "sqCzo0v7k",
+        "version": 1
+      },
       "options": {
         "graph": {},
         "legend": {
@@ -432,7 +477,7 @@
           "displayMode": "table",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "multi"
         }
       },
@@ -497,14 +542,15 @@
         }
       ],
       "timeFrom": "12d",
-      "timeShift": null,
       "title": "Daily Energy",
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -512,11 +558,13 @@
           },
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -558,7 +606,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "format": "time_series",
@@ -590,14 +638,15 @@
         }
       ],
       "timeFrom": "370d",
-      "timeShift": null,
       "title": "Average Bill",
       "transparent": true,
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -606,11 +655,13 @@
           "decimals": 2,
           "mappings": [
             {
-              "id": 0,
-              "op": "=",
-              "text": "N/A",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -652,7 +703,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "format": "time_series",
@@ -684,13 +735,15 @@
         }
       ],
       "timeFrom": "32d",
-      "timeShift": null,
       "title": "Current Bill",
       "transparent": true,
       "type": "stat"
     },
     {
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -706,7 +759,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineStyle": {
@@ -718,7 +772,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -777,6 +838,7 @@
         "x": 0,
         "y": 6
       },
+      "hideTimeOverride": false,
       "id": 6,
       "interval": "5s",
       "options": {
@@ -786,7 +848,7 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "multi"
         }
       },
@@ -879,14 +941,16 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
+      "timeFrom": "15m",
       "title": "Power",
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -902,7 +966,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineWidth": 2,
@@ -911,7 +976,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "min": 0,
@@ -1004,7 +1076,7 @@
           "displayMode": "table",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "multi"
         }
       },
@@ -1069,13 +1141,15 @@
         }
       ],
       "timeFrom": "366d",
-      "timeShift": null,
       "title": "Monthly Energy",
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "datasource": "Smartmeter",
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1091,7 +1165,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineWidth": 2,
@@ -1100,7 +1175,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "decimals": 1,
           "mappings": [],
@@ -1145,8 +1227,6 @@
       },
       "hideTimeOverride": false,
       "id": 2,
-      "interval": null,
-      "maxDataPoints": null,
       "options": {
         "graph": {},
         "legend": {
@@ -1154,7 +1234,7 @@
           "displayMode": "hidden",
           "placement": "bottom"
         },
-        "tooltipOptions": {
+        "tooltip": {
           "mode": "single"
         }
       },
@@ -1189,22 +1269,20 @@
           ]
         }
       ],
-      "timeFrom": "12h",
-      "timeShift": null,
       "title": "Average Power",
       "transparent": true,
       "type": "timeseries"
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 27,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -1224,5 +1302,6 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "Zy00S8QGk",
-  "version": 24
+  "version": 29,
+  "weekStart": ""
 }

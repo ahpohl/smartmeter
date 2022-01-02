@@ -1,1 +1,243 @@
-[{"id":"c1b1674c.236a7","type":"tab","label":"Smartmeter","disabled":false,"info":""},{"id":"350ff032.fdde3","type":"mqtt in","z":"c1b1674c.236a7","name":"","topic":"smartmeter/state","qos":"0","datatype":"auto","broker":"6afada7d.a0881c","nl":false,"rap":false,"x":140,"y":360,"wires":[["43edcfca.df5c08","fbc11bf4.7bca7"]]},{"id":"43edcfca.df5c08","type":"debug","z":"c1b1674c.236a7","name":"Smartmeter","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"payload","targetType":"msg","statusVal":"","statusType":"auto","x":390,"y":280,"wires":[]},{"id":"fbc11bf4.7bca7","type":"json","z":"c1b1674c.236a7","name":"","property":"payload","action":"","pretty":false,"x":370,"y":360,"wires":[["a217e8a9.496508","f524205f.4750e"]]},{"id":"a217e8a9.496508","type":"debug","z":"c1b1674c.236a7","name":"Json","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"payload","targetType":"msg","statusVal":"","statusType":"auto","x":630,"y":280,"wires":[]},{"id":"db6a7a09.274d8","type":"debug","z":"c1b1674c.236a7","name":"Postgres","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","statusVal":"","statusType":"auto","x":920,"y":280,"wires":[]},{"id":"f524205f.4750e","type":"function","z":"c1b1674c.236a7","name":"","func":"msg.payload[0].time = new Date(msg.payload[0].time).toISOString();\nmsg.payload[0].status = \"\\\\x\" + msg.payload[0].status;\nconst values = Object.values(msg.payload[0]);\n\nmsg.query = {\n    text: \"INSERT INTO live (sensor_id, lifetime, energy, power, power_l1, power_l2, power_l3, voltage_l1, voltage_l2, voltage_l3, status, plan_id, time) VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, (SELECT id FROM plan WHERE rate = $11 AND price = $12), $13);\",\n    values: values\n};\n\nreturn msg;","outputs":1,"noerr":0,"initialize":"","finalize":"","x":640,"y":360,"wires":[["db6a7a09.274d8","1b067879.dc6bf"]]},{"id":"1b067879.dc6bf","type":"digitaloak-postgresql-query","z":"c1b1674c.236a7","name":"","server":"dd6d8795.d33bd8","inputs":1,"outputs":0,"x":930,"y":360,"wires":[]},{"id":"97dab55a.d366c8","type":"mqtt in","z":"c1b1674c.236a7","name":"","topic":"smartmeter/status","qos":"1","datatype":"auto","broker":"6afada7d.a0881c","nl":false,"rap":false,"x":130,"y":520,"wires":[["a79520a0.aa8878"]]},{"id":"91275f95.09221","type":"debug","z":"c1b1674c.236a7","name":"Email","active":false,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","statusVal":"","statusType":"auto","x":630,"y":440,"wires":[]},{"id":"644b7f39.d10b88","type":"e-mail","z":"c1b1674c.236a7","server":"mail.ahpohl.com","port":"587","secure":false,"tls":true,"name":"","dname":"","x":630,"y":520,"wires":[]},{"id":"a79520a0.aa8878","type":"function","z":"c1b1674c.236a7","name":"","func":"var payload = msg.payload;\nvar alarm_flag = context.get(\"alarm_flag\");\nif (typeof alarm_flag == \"undefined\")\n{\n  alarm_flag = false;\n}\nmsg.to = \"admin@ahpohl.com\";\nmsg.from = \"noreply@ahpohl.com\";\nmsg.priority = \"high\";\nvar date = new Date();\n\nif (payload == \"online\" && alarm_flag)\n{\n    alarm_flag = false;\n    msg.alarm = 0;\n    context.set(\"alarm_flag\", alarm_flag);\n    msg.topic = \"Smartmeter is online\"\n    msg.payload = \"Online event at \" + date;\n    return msg;\n}\n\nif (payload == \"offline\" && !alarm_flag)\n{\n    alarm_flag = true;\n    msg.alarm = 1;\n    context.set(\"alarm_flag\", alarm_flag);\n    msg.topic = \"Smartmeter is offline\"\n    msg.payload = \"Offline event at \" + date;\n    return msg;\n}","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":380,"y":520,"wires":[["91275f95.09221","644b7f39.d10b88"]]},{"id":"6afada7d.a0881c","type":"mqtt-broker","name":"","broker":"127.0.0.1","port":"1883","clientid":"","usetls":false,"compatmode":false,"keepalive":"60","cleansession":true,"birthTopic":"","birthQos":"0","birthPayload":"","closeTopic":"","closeQos":"0","closePayload":"","willTopic":"","willQos":"0","willPayload":""},{"id":"dd6d8795.d33bd8","type":"digitaloak-postgresql-connection-manager","name":"localhost:5432/smartmeter","host":"localhost","port":"5432","database":"smartmeter","tls":"","use_tls":false,"pool_max_clients":"10","pool_client_max_idle":"10000","client_query_timeout":"","client_statement_timeout":"","client_connection_timeout_millis":"","is_client_enabled":"1"}]
+[
+    {
+        "id": "c1b1674c.236a7",
+        "type": "tab",
+        "label": "Smartmeter",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "350ff032.fdde3",
+        "type": "mqtt in",
+        "z": "c1b1674c.236a7",
+        "name": "",
+        "topic": "smartmeter/state",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "6afada7d.a0881c",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 140,
+        "y": 360,
+        "wires": [
+            [
+                "43edcfca.df5c08",
+                "fbc11bf4.7bca7"
+            ]
+        ]
+    },
+    {
+        "id": "43edcfca.df5c08",
+        "type": "debug",
+        "z": "c1b1674c.236a7",
+        "name": "Smartmeter",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 390,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "fbc11bf4.7bca7",
+        "type": "json",
+        "z": "c1b1674c.236a7",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 370,
+        "y": 360,
+        "wires": [
+            [
+                "a217e8a9.496508",
+                "f524205f.4750e"
+            ]
+        ]
+    },
+    {
+        "id": "a217e8a9.496508",
+        "type": "debug",
+        "z": "c1b1674c.236a7",
+        "name": "Json",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "db6a7a09.274d8",
+        "type": "debug",
+        "z": "c1b1674c.236a7",
+        "name": "Postgres",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "f524205f.4750e",
+        "type": "function",
+        "z": "c1b1674c.236a7",
+        "name": "",
+        "func": "msg.payload[0].time = new Date(msg.payload[0].time).toISOString();\nmsg.payload[0].status = \"\\\\x\" + msg.payload[0].status;\nconst values = Object.values(msg.payload[0]);\n\nmsg.query = {\n    text: \"INSERT INTO live (sensor_id, lifetime, energy, power, power_l1, power_l2, power_l3, voltage_l1, voltage_l2, voltage_l3, status, plan_id, time) VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, (SELECT id FROM plan WHERE rate = $11 AND price = $12), $13);\",\n    values: values\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 360,
+        "wires": [
+            [
+                "db6a7a09.274d8",
+                "1b067879.dc6bf"
+            ]
+        ]
+    },
+    {
+        "id": "1b067879.dc6bf",
+        "type": "digitaloak-postgresql-query",
+        "z": "c1b1674c.236a7",
+        "name": "",
+        "server": "dd6d8795.d33bd8",
+        "inputs": 1,
+        "outputs": 0,
+        "x": 930,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "97dab55a.d366c8",
+        "type": "mqtt in",
+        "z": "c1b1674c.236a7",
+        "name": "",
+        "topic": "smartmeter/status",
+        "qos": "1",
+        "datatype": "auto",
+        "broker": "6afada7d.a0881c",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 130,
+        "y": 520,
+        "wires": [
+            [
+                "a79520a0.aa8878"
+            ]
+        ]
+    },
+    {
+        "id": "91275f95.09221",
+        "type": "debug",
+        "z": "c1b1674c.236a7",
+        "name": "Email",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "644b7f39.d10b88",
+        "type": "e-mail",
+        "z": "c1b1674c.236a7",
+        "server": "mail.ahpohl.com",
+        "port": "587",
+        "secure": false,
+        "tls": true,
+        "name": "",
+        "dname": "",
+        "x": 630,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "a79520a0.aa8878",
+        "type": "function",
+        "z": "c1b1674c.236a7",
+        "name": "",
+        "func": "var payload = msg.payload;\nvar alarm_flag = context.get(\"alarm_flag\");\nif (typeof alarm_flag == \"undefined\")\n{\n  alarm_flag = false;\n}\nmsg.to = \"admin@ahpohl.com\";\nmsg.from = \"noreply@ahpohl.com\";\nmsg.priority = \"high\";\nvar date = new Date();\n\nif (payload == \"online\" && alarm_flag)\n{\n    alarm_flag = false;\n    msg.alarm = 0;\n    context.set(\"alarm_flag\", alarm_flag);\n    msg.topic = \"Smartmeter is online\"\n    msg.payload = \"Online event at \" + date;\n    return msg;\n}\n\nif (payload == \"offline\" && !alarm_flag)\n{\n    alarm_flag = true;\n    msg.alarm = 1;\n    context.set(\"alarm_flag\", alarm_flag);\n    msg.topic = \"Smartmeter is offline\"\n    msg.payload = \"Offline event at \" + date;\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 520,
+        "wires": [
+            [
+                "91275f95.09221",
+                "644b7f39.d10b88"
+            ]
+        ]
+    },
+    {
+        "id": "6afada7d.a0881c",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "dd6d8795.d33bd8",
+        "type": "digitaloak-postgresql-connection-manager",
+        "name": "localhost:5432/smartmeter",
+        "host": "localhost",
+        "port": "5432",
+        "database": "smartmeter",
+        "tls": "",
+        "use_tls": false,
+        "pool_max_clients": "10",
+        "pool_client_max_idle": "10000",
+        "client_query_timeout": "",
+        "client_statement_timeout": "",
+        "client_connection_timeout_millis": "",
+        "is_client_enabled": "1"
+    }
+]
