@@ -1,4 +1,4 @@
-# Read energy utility meter with a simple IR dongle
+# Read electricity meter with a simple IR dongle
 
 The Smartmeter project enables the readout of the IR data signal from my [smart energy meter](resources/ebz/datenblatt_dd3.pdf). To get started, an Arduino with an IR phototransistor can be used. Later I have built my own IR dongle with an USB interface for permanent installation on top of the energy meter.
 

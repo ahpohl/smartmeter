@@ -13,11 +13,12 @@ private:
   void LogCallback(struct mosquitto *mosq, void *obj, int level, const char *str);
   std::string ErrorMessage;
   volatile bool IsConnected;
-  bool Log;
+  unsigned char Log;
 
 public:
-  SmartmeterMqtt(const bool &log);
+  SmartmeterMqtt(void);
   ~SmartmeterMqtt(void);
+  void SetLogLevel(const unsigned char &log_level);
   bool Begin(void);
   bool Connect(const std::string &host, const int &port, const int &keepalive);
   bool SetUserPassAuth(const std::string &user, const std::string &pass);

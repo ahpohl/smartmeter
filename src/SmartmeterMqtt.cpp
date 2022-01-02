@@ -2,8 +2,9 @@
 #include <thread>
 #include <chrono>
 #include "SmartmeterMqtt.h"
+#include "SmartmeterEnums.h"
 
-SmartmeterMqtt::SmartmeterMqtt(const bool &log): Log(log) 
+SmartmeterMqtt::SmartmeterMqtt(void): Log(0) 
 {
   IsConnected = false;
 }
@@ -17,6 +18,11 @@ SmartmeterMqtt::~SmartmeterMqtt(void)
   mosquitto_loop_stop(Mosq, false);
   mosquitto_destroy(Mosq);
   mosquitto_lib_cleanup();
+}
+
+void SmartmeterMqtt::SetLogLevel(const unsigned char &log_level)
+{
+  Log = log_level;
 }
 
 bool SmartmeterMqtt::Begin(void)
@@ -185,7 +191,7 @@ void SmartmeterMqtt::OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj,
 
 void SmartmeterMqtt::LogCallback(struct mosquitto *mosq, void *obj, int level, const char *str)
 {
-  if (Log)
+  if (Log & static_cast<unsigned char>(LogLevelEnum::MQTT))
   {
     std::cout << str << std::endl;
   }

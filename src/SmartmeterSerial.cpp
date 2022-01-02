@@ -5,14 +5,24 @@
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include "SmartmeterSerial.h"
+#include "SmartmeterEnums.h"
 
 const unsigned char SmartmeterSerial::BufferSize = 255;
+
+SmartmeterSerial::SmartmeterSerial(void) : Log(0)
+{
+}
 
 SmartmeterSerial::~SmartmeterSerial(void)
 {
   if (SerialPort > 0) {
     close(SerialPort);
   }
+}
+
+void SmartmeterSerial::SetLogLevel(const unsigned char &log_level)
+{
+  Log = log_level;
 }
 
 bool SmartmeterSerial::Begin(const std::string &device)
@@ -125,6 +135,11 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
     ErrorMessage = "Serial error: Datagram stream not in sync.";
     return false;
   }
+  if (Log & static_cast<unsigned char>(LogLevelEnum::SERIAL))
+  {
+    std::cout << buffer; 
+  }
+  
   return true;
 }
 

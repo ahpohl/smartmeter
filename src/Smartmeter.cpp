@@ -3,16 +3,17 @@
 #include <charconv>
 #include <chrono>
 #include <thread>
+#include <vector>
 #include "Smartmeter.h"
 
 const int Smartmeter::ReceiveBufferSize = 368; 
-const std::set<std::string> Smartmeter::ValidKeys {"mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "plan_basic_rate", "plan_price_kwh", "serial_device"};
+const std::set<std::string> Smartmeter::ValidKeys {"log_level", "mqtt_broker", "mqtt_password", "mqtt_port", "mqtt_topic", "mqtt_user", "mqtt_tls_cafile", "mqtt_tls_capath", "plan_basic_rate", "plan_price_kwh", "serial_device"};
 
-Smartmeter::Smartmeter(const bool &log): Log(log)
+Smartmeter::Smartmeter(void)
 {
   ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize] ();
   Serial = new SmartmeterSerial();
-  Mqtt = new SmartmeterMqtt(Log);
+  Mqtt = new SmartmeterMqtt();
   Cfg = new SmartmeterConfig();
 }
 
@@ -36,14 +37,17 @@ bool Smartmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (Log)
-  {
-    Cfg->ShowConfig();
-  }
   if (!Cfg->ValidateKeys(Smartmeter::ValidKeys))
   {
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
+  }
+  this->SetLogLevel();
+  Serial->SetLogLevel(Log);
+  Mqtt->SetLogLevel(Log);
+  if (Log & static_cast<unsigned char>(LogLevelEnum::CONFIG))
+  {
+    Cfg->ShowConfig();
   }
   if (!(Cfg->KeyExists("plan_price_kwh")))
   {
@@ -172,6 +176,11 @@ bool Smartmeter::Publish(void)
     << "\"device_id\":\"" << Datagram.DeviceId << "\""
     << "}]";
 
+  if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
+  {
+    std::cout << Payload.str() << std::endl;
+  }
+
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
@@ -200,14 +209,49 @@ std::string Smartmeter::GetErrorMessage(void) const
   return ErrorMessage;
 }
 
-std::string Smartmeter::GetReceiveBuffer(void) const
+void Smartmeter::SetLogLevel(void)
 {
-  return ReceiveBuffer;
+  if (Cfg->KeyExists("log_level"))
+  {
+    std::string line = Cfg->GetValue("log_level");
+    std::istringstream iss(line);
+    std::string token;
+    std::vector<std::string> log_level;
+
+    while(std::getline(iss, token, ','))
+    { 
+      log_level.push_back(token);
+    }
+    for (auto it = log_level.cbegin(); it != log_level.cend(); ++it)
+    {
+      if (!(*it).compare("config"))
+      { 
+        Log |= static_cast<unsigned char>(LogLevelEnum::CONFIG);
+      }
+      else if (!(*it).compare("json"))
+      { 
+        Log |= static_cast<unsigned char>(LogLevelEnum::JSON);
+      }
+      else if (!(*it).compare("mosquitto"))
+      { 
+        Log |= static_cast<unsigned char>(LogLevelEnum::MQTT);
+      }
+      else if (!(*it).compare("serial"))
+      { 
+        Log |= static_cast<unsigned char>(LogLevelEnum::SERIAL);
+      }
+    }
+  }
+  else
+  {
+    Log = 0;
+  }
+  //std::cout << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << ((int)Log & 0xFF) << std::endl;  
 }
 
-std::string Smartmeter::GetPayload(void) const
+unsigned char Smartmeter::GetLogLevel(void) const
 {
-  return Payload.str();
+  return Log;
 }
 
 template <typename T_STR, typename T_CHAR>

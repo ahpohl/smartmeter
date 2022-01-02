@@ -3,37 +3,22 @@
 #include "SmartmeterSerial.h"
 #include "SmartmeterMqtt.h"
 #include "SmartmeterConfig.h"
+#include "SmartmeterEnums.h"
 
 class Smartmeter
 {
   static const int ReceiveBufferSize;
   static const std::set<std::string> ValidKeys;
 
-private:
-  SmartmeterSerial *Serial;
-  SmartmeterMqtt *Mqtt;
-  SmartmeterConfig *Cfg;
-  std::stringstream Payload;
-  std::string Config;
-  char *ReceiveBuffer;
-  std::string ErrorMessage;
-  bool Log;
- 
-  template <typename T_STR, typename T_CHAR>
-  T_STR RemoveLeading(T_STR const &str, T_CHAR c) const;
-
-  template <typename T>
-  T StringTo(const std::string &str) const;
-
 public:
-  Smartmeter(const bool &log);
+  Smartmeter(void);
   ~Smartmeter(void);
+  void SetLogLevel(void);
   bool Setup(const std::string &config);
   bool Receive(void);
   bool Publish(void);
   std::string GetErrorMessage(void) const;
-  std::string GetReceiveBuffer(void) const;
-  std::string GetPayload(void) const;
+  unsigned char GetLogLevel(void) const;
   
   struct Datagram
   {
@@ -51,6 +36,22 @@ public:
     unsigned long SensorTime; // time of operation, in seconds
     std::string Status;       // status word, 4 byte hex
   } Datagram;
+
+private:
+  SmartmeterSerial *Serial;
+  SmartmeterMqtt *Mqtt;
+  SmartmeterConfig *Cfg;
+  std::stringstream Payload;
+  std::string Config;
+  char *ReceiveBuffer;
+  std::string ErrorMessage;
+  unsigned char Log;
+
+  template <typename T_STR, typename T_CHAR>
+  T_STR RemoveLeading(T_STR const &str, T_CHAR c) const;
+
+  template <typename T>
+  T StringTo(const std::string &str) const;
 };
 
 #endif
