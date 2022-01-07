@@ -2,6 +2,7 @@
 
 ## v0.3.2 - 2022-01-02
 * set debug level in config file
+* node-red use smartmeter/live topic
 
 ## v0.3.1 - 2021-05-28
 * MQTT TLS support (without client certificates)
