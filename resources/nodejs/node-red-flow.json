@@ -11,7 +11,7 @@
         "type": "mqtt in",
         "z": "c1b1674c.236a7",
         "name": "",
-        "topic": "smartmeter/state",
+        "topic": "smartmeter/live",
         "qos": "0",
         "datatype": "auto",
         "broker": "6afada7d.a0881c",
