@@ -14,5 +14,10 @@ SELECT cron.schedule('smartmeter_daily', '0,15,30,45 * * * *', $$REFRESH
 SELECT cron.schedule('smartmeter_monthly', '1,16,31,46 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY monthly_view$$);
 
+SELECT cron.schedule('smartmeter_yearly', '2,17,32,47 * * * *', $$REFRESH
+  MATERIALIZED VIEW CONCURRENTLY yearly_view$$);
+
 UPDATE cron.job SET database = 'smartmeter' WHERE 
-  jobname = 'smartmeter_daily' OR jobname = 'smartmeter_monthly';
+  jobname = 'smartmeter_daily' OR 
+  jobname = 'smartmeter_monthly' OR
+  jobname = 'smartmeter_yearly';
