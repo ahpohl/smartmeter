@@ -11,10 +11,10 @@ SELECT cron.schedule('purge_log', '13 0 * * *', $$DELETE
 SELECT cron.schedule('smartmeter_daily', '0,15,30,45 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY daily_view$$);
 
-SELECT cron.schedule('smartmeter_monthly', '1,16,31,46 * * * *', $$REFRESH
+SELECT cron.schedule('smartmeter_monthly', '0,15,30,45 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY monthly_view$$);
 
-SELECT cron.schedule('smartmeter_yearly', '2,17,32,47 * * * *', $$REFRESH
+SELECT cron.schedule('smartmeter_yearly', '0,15,30,45 * * * *', $$REFRESH
   MATERIALIZED VIEW CONCURRENTLY yearly_view$$);
 
 UPDATE cron.job SET database = 'smartmeter' WHERE 
