@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 	  if (!meter->Receive())
 	  {
 	    std::cout << meter->GetErrorMessage() << std::endl;
-      return EXIT_FAILURE;
+      continue;
  	  }
     if (!meter->Publish())
     {
