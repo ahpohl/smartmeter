@@ -130,16 +130,15 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
       ++bytes_received;
     }
   }
+  if (Log & static_cast<unsigned char>(LogLevelEnum::SERIAL))
+  {
+    std::cout << buffer;
+  }
   if (*(p-3) != '!')
   {
     ErrorMessage = "Serial error: Datagram stream not in sync.";
     return false;
   }
-  if (Log & static_cast<unsigned char>(LogLevelEnum::SERIAL))
-  {
-    std::cout << buffer; 
-  }
-  
   return true;
 }
 
