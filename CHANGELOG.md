@@ -1,8 +1,9 @@
 # Smartmeter changelog
 
-## v0.3.3 - 2022-01-xx
+## v0.3.3 - 2022-02-25
 * TimescaleDB: replaced \_time\_bucket() with timescaledb\_experimental.time\_bucket\_ng()
 * created yearly\_view
+* daemon does not exit on serial errors
 
 ## v0.3.2 - 2022-01-02
 * set debug level in config file
