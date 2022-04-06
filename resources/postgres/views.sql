@@ -24,7 +24,7 @@ SELECT
   rate
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
 -- insert end time of archive
-WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-02-05 01:00:00+01'
+WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-03-10 01:00:00+01'
 GROUP BY bucket_1d, energy_1d, total, price, rate
 ORDER BY time;
 
@@ -43,7 +43,10 @@ SELECT
   timescaledb_experimental.time_bucket_ng('1 month', time) AS time,
   sum(energy) AS energy,
   sum(bill) AS bill,
-  first(total, time) AS total
+  first(total, time) AS total,
+  avg(energy) AS avg,
+  min(energy) AS min,
+  max(energy) AS max
 FROM daily_view
 GROUP BY timescaledb_experimental.time_bucket_ng('1 month', time)
 ORDER BY time;
