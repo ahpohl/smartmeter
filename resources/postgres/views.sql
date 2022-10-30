@@ -8,7 +8,7 @@ AS
 SELECT
   bucket_1d AS time,
   energy_1d AS energy,
-  energy_1d * price + rate * 12.0 / 365.0 AS bill,
+  energy_1d * price + rate / 365.0 AS bill,
   total,
   price,
   rate
@@ -18,13 +18,13 @@ UNION
 SELECT
   bucket_1d AS time,
   energy_1d AS energy,
-  energy_1d * price + rate * 12.0 / 365.0 AS bill,
+  energy_1d * price + rate / 365.0 AS bill,
   total,
   price,
   rate
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
 -- insert end time of archive
-WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-03-10 01:00:00+01'
+WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2022-10-27 02:00:00+02'
 GROUP BY bucket_1d, energy_1d, total, price, rate
 ORDER BY time;
 
@@ -64,6 +64,7 @@ CREATE MATERIALIZED VIEW yearly_view
 AS
 SELECT
   timescaledb_experimental.time_bucket_ng('1 year', time) AS time,
+  count(*) as days,
   sum(energy) AS energy,
   sum(bill) AS bill,
   first(total, time) AS total
