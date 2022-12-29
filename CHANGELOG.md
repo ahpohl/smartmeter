@@ -1,6 +1,6 @@
 # Smartmeter changelog
 
-## v0.3.4 - 2022-12-29
+## v0.3.5 - 2022-12-29
 * fix mqtt status topic not retained
 * automatically reconnect to broker
 
