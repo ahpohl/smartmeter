@@ -7,6 +7,7 @@
 SmartmeterMqtt::SmartmeterMqtt(void): Log(0) 
 {
   IsConnected = false;
+  NotifyOnlineFlag = false;
 }
 
 SmartmeterMqtt::~SmartmeterMqtt(void)
@@ -122,11 +123,22 @@ bool SmartmeterMqtt::GetConnectStatus(void) const
   return IsConnected;
 }
 
+bool SmartmeterMqtt::GetNotifyOnlineFlag(void) const
+{
+  return NotifyOnlineFlag;
+}
+
+void SmartmeterMqtt::SetNotifyOnlineFlag(const bool &flag)
+{
+  NotifyOnlineFlag = flag;
+}
+
 void SmartmeterMqtt::OnConnectCallback(struct mosquitto *mosq, void *obj, int connack_code)
 {
   if (!connack_code)
   {
     IsConnected = true;
+    NotifyOnlineFlag = true;
   }
   else
   {

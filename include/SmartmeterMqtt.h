@@ -13,6 +13,7 @@ private:
   void LogCallback(struct mosquitto *mosq, void *obj, int level, const char *str);
   std::string ErrorMessage;
   volatile bool IsConnected;
+  volatile bool NotifyOnlineFlag;
   unsigned char Log;
 
 public:
@@ -27,6 +28,8 @@ public:
   bool PublishMessage(const std::string &message, const std::string &topic, const int &qos, const bool &retain);
   std::string GetErrorMessage(void) const;
   bool GetConnectStatus(void) const;
+  bool GetNotifyOnlineFlag(void) const;
+  void SetNotifyOnlineFlag(const bool &flag);
 };
 
 #endif
