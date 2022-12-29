@@ -79,12 +79,6 @@ bool Smartmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  /*if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
-  {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
-  }
-  */
   if ((Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password")))
   {
     if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"), Cfg->GetValue("mqtt_password")))
@@ -101,6 +95,11 @@ bool Smartmeter::Setup(const std::string &config)
       return false;
     }
   }
+  if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
+  {
+    ErrorMessage = Mqtt->GetErrorMessage();
+    return false;
+  }
   if (!(Cfg->KeyExists("mqtt_broker")) || !(Cfg->KeyExists("mqtt_port")) )
   {
     ErrorMessage = Cfg->GetErrorMessage();
@@ -112,15 +111,6 @@ bool Smartmeter::Setup(const std::string &config)
     return false;
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  if (Mqtt->GetConnectStatus())
-  {
-    std::cout << "Smartmeter is online." << std::endl;
-  }
-  if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
-  {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
-  }
 
   return true;
 }
@@ -155,7 +145,10 @@ bool Smartmeter::Receive(void)
 bool Smartmeter::Publish(void)
 {
   unsigned long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+
+  std::ios::fmtflags old_settings = Payload.flags();
   Payload.str(std::string());
+  Payload.setf(std::ios::fixed, std::ios::floatfield);
 
   Payload << "[{"
     << "\"lifetime\":" << Datagram.SensorTime << "," 
@@ -177,33 +170,33 @@ bool Smartmeter::Publish(void)
     << "\"device_id\":\"" << Datagram.DeviceId << "\""
     << "}]";
 
-  if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
+  static bool last_connect_status = false;
+  if ( (!last_connect_status) && (Mqtt->GetConnectStatus()) )
   {
-    std::cout << Payload.str() << std::endl;
+    std::cout << "Solarmeter is online." << std::endl;
+    if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
+    {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
   }
-/*
-  static bool last_connect_status = true;
+
   if (Mqtt->GetConnectStatus())
   {
-*/
     if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
-/*
-    if (!last_connect_status)
-    {
-      if (!(Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true)))
-      {
-        ErrorMessage = Mqtt->GetErrorMessage();
-        return false;
-      }
-      std::cout << "Smartmeter is online." << std::endl;
-    }
   }
   last_connect_status = Mqtt->GetConnectStatus();
- */
+
+  if (Log & static_cast<unsigned char>(LogLevelEnum::JSON))
+  {
+    std::cout << Payload.str() << std::endl;
+  }
+  Payload.flags(old_settings);
+
   return true;
 }
 
