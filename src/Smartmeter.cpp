@@ -79,11 +79,12 @@ bool Smartmeter::Setup(const std::string &config)
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
+  /*if (!Mqtt->SetLastWillTestament("offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
   {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
+  */
   if ((Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password")))
   {
     if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"), Cfg->GetValue("mqtt_password")))
@@ -180,15 +181,17 @@ bool Smartmeter::Publish(void)
   {
     std::cout << Payload.str() << std::endl;
   }
-
+/*
   static bool last_connect_status = true;
   if (Mqtt->GetConnectStatus())
   {
+*/
     if (!(Mqtt->PublishMessage(Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false)))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
+/*
     if (!last_connect_status)
     {
       if (!(Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true)))
@@ -200,7 +203,7 @@ bool Smartmeter::Publish(void)
     }
   }
   last_connect_status = Mqtt->GetConnectStatus();
- 
+ */
   return true;
 }
 

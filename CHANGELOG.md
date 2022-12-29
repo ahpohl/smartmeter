@@ -1,5 +1,9 @@
 # Smartmeter changelog
 
+## v0.3.4 - 2022-12-29
+* fix mqtt status topic not retained
+* automatically reconnect to broker
+
 ## v0.3.3 - 2022-02-25
 * TimescaleDB: replaced \_time\_bucket() with timescaledb\_experimental.time\_bucket\_ng()
 * created yearly\_view
