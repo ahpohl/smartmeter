@@ -173,7 +173,7 @@ bool Smartmeter::Publish(void)
   static bool last_connect_status = false;
   if ( (!last_connect_status) && (Mqtt->GetConnectStatus()) )
   {
-    std::cout << "Solarmeter is online." << std::endl;
+    std::cout << "Smartmeter is online." << std::endl;
     if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status", 1, true))
     {
       ErrorMessage = Mqtt->GetErrorMessage();
