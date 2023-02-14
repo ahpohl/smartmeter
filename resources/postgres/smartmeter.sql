@@ -43,7 +43,7 @@ CREATE TABLE "live" (
 );
 
 SELECT create_hypertable('live', 'time');
-SELECT add_retention_policy('live', INTERVAL '7 days');
+SELECT add_retention_policy('live', INTERVAL '10 days');
 
 INSERT INTO sensors(id, serial, custom_id, device_id) VALUES
 (1, 'EBZ5DD3BZ06ETA_107', '1EBZ0100507409', '1EBZ0100507409');
