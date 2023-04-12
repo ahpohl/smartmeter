@@ -40,7 +40,7 @@ GRANT SELECT ON TABLE daily_view TO grafana;
 CREATE MATERIALIZED VIEW monthly_view
 AS
 SELECT
-  timescaledb_experimental.time_bucket_ng('1 month', time) AS time,
+  time_bucket('1 month', time) AS time,
   sum(energy) AS energy,
   sum(bill) AS bill,
   first(total, time) AS total,
@@ -48,7 +48,7 @@ SELECT
   min(energy) AS min,
   max(energy) AS max
 FROM daily_view
-GROUP BY timescaledb_experimental.time_bucket_ng('1 month', time)
+GROUP BY time_bucket('1 month', time)
 ORDER BY time;
 
 -- index
@@ -63,13 +63,13 @@ GRANT SELECT ON TABLE monthly_view TO grafana;
 CREATE MATERIALIZED VIEW yearly_view
 AS
 SELECT
-  timescaledb_experimental.time_bucket_ng('1 year', time) AS time,
+  time_bucket('1 year', time) AS time,
   count(*) as days,
   sum(energy) AS energy,
   sum(bill) AS bill,
   first(total, time) AS total
 FROM daily_view
-GROUP BY timescaledb_experimental.time_bucket_ng('1 year', time)
+GROUP BY time_bucket('1 year', time)
 ORDER BY time;
 
 -- index
