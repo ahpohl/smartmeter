@@ -2,6 +2,7 @@
 
 ## v0.3.6 - 2023-xx-xx
 * updated retention policies
+* create time\_buckets at local time zone
 
 ## v0.3.5 - 2022-12-29
 * fix mqtt status topic not retained

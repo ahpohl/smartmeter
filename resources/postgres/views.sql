@@ -24,7 +24,7 @@ SELECT
   rate
 FROM cagg_daily JOIN plan ON cagg_daily.plan_id = plan.id
 -- insert end time of archive
-WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2023-02-11 01:00:00+01'
+WHERE bucket_1d > TIMESTAMP WITH TIME ZONE '2023-04-14 02:00:00+02'
 GROUP BY bucket_1d, energy_1d, total, price, rate
 ORDER BY time;
 
@@ -40,7 +40,7 @@ GRANT SELECT ON TABLE daily_view TO grafana;
 CREATE MATERIALIZED VIEW monthly_view
 AS
 SELECT
-  time_bucket('1 month', time) AS time,
+  time_bucket('1 month', time, 'Europe/Berlin') AS bucket_1m,
   sum(energy) AS energy,
   sum(bill) AS bill,
   first(total, time) AS total,
@@ -48,11 +48,11 @@ SELECT
   min(energy) AS min,
   max(energy) AS max
 FROM daily_view
-GROUP BY time_bucket('1 month', time)
-ORDER BY time;
+GROUP BY bucket_1m
+ORDER BY bucket_1m;
 
 -- index
-CREATE UNIQUE INDEX monthly_idx ON monthly_view (time);
+CREATE UNIQUE INDEX monthly_idx ON monthly_view (bucket_1m);
 
 -- grant
 GRANT SELECT ON TABLE monthly_view TO grafana;
@@ -63,17 +63,17 @@ GRANT SELECT ON TABLE monthly_view TO grafana;
 CREATE MATERIALIZED VIEW yearly_view
 AS
 SELECT
-  time_bucket('1 year', time) AS time,
+  time_bucket('1 year', time, 'Europe/Berlin') AS bucket_1y,
   count(*) as days,
   sum(energy) AS energy,
   sum(bill) AS bill,
   first(total, time) AS total
 FROM daily_view
-GROUP BY time_bucket('1 year', time)
-ORDER BY time;
+GROUP BY bucket_1y
+ORDER BY bucket_1y;
 
 -- index
-CREATE UNIQUE INDEX yearly_idx ON yearly_view (time);
+CREATE UNIQUE INDEX yearly_idx ON yearly_view (bucket_1y);
 
 -- grant
 GRANT SELECT ON TABLE yearly_view TO grafana;

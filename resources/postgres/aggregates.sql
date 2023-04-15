@@ -9,7 +9,7 @@ CREATE MATERIALIZED VIEW cagg_daily
 WITH (timescaledb.continuous, timescaledb.materialized_only=true) 
 AS
 SELECT
-  time_bucket('1 day', time) AS bucket_1d,
+  time_bucket('1 day', time, 'Europe/Berlin') AS bucket_1d,
   sensor_id,
   plan_id,
   last(energy, time) - first(energy, time) AS energy_1d,
@@ -33,7 +33,7 @@ CREATE MATERIALIZED VIEW cagg_power
 WITH (timescaledb.continuous, timescaledb.materialized_only=true)
 AS
 SELECT
-  time_bucket('5 minutes', time) as bucket_5m,
+  time_bucket('5 minutes', time, 'Europe/Berlin') as bucket_5m,
   avg(power) as power_5m,
   avg(power_l1) as power_l1_5m,
   avg(power_l2) as power_l2_5m,
