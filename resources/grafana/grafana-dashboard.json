@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -85,9 +88,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -184,9 +191,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -286,9 +297,13 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -323,228 +338,18 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "postgres",
-        "uid": "tOlxI8QGk"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 100,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "graph": false,
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 1,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "kwatth"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "bill"
-            },
-            "properties": [
-              {
-                "id": "custom.drawStyle",
-                "value": "line"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 36
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 1
-              },
-              {
-                "id": "custom.pointSize",
-                "value": 6
-              },
-              {
-                "id": "custom.showPoints",
-                "value": "always"
-              },
-              {
-                "id": "unit",
-                "value": "currencyEUR"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.lineInterpolation",
-                "value": "smooth"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "energy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
       "gridPos": {
         "h": 12,
         "w": 12,
         "x": 12,
         "y": 0
       },
-      "hideTimeOverride": false,
       "id": 23,
       "libraryPanel": {
-        "description": "",
-        "meta": {
-          "connectedDashboards": 1,
-          "created": "2021-10-07T17:43:51+02:00",
-          "createdBy": {
-            "avatarUrl": "/grafana/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          },
-          "folderName": "General",
-          "folderUid": "",
-          "updated": "2021-10-07T17:43:51+02:00",
-          "updatedBy": {
-            "avatarUrl": "/grafana/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          }
-        },
         "name": "Daily Energy",
-        "type": "timeseries",
-        "uid": "sqCzo0v7k",
-        "version": 1
+        "uid": "sqCzo0v7k"
       },
-      "options": {
-        "graph": {},
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "pluginVersion": "7.4.5",
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  energy\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "energy"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "live",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  bill\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
-          "refId": "B",
-          "select": [
-            [
-              {
-                "params": [
-                  "energy"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "live",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": "12d",
-      "title": "Daily Energy",
-      "transparent": true,
-      "type": "timeseries"
+      "title": "Daily Energy"
     },
     {
       "datasource": {
@@ -606,9 +411,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -703,9 +512,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -750,6 +563,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -846,15 +661,21 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.4.5",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -883,6 +704,10 @@
           ]
         },
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -912,6 +737,10 @@
           ]
         },
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -957,6 +786,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1074,20 +905,27 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.4.5",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  energy\nFROM monthly_view\nWHERE\n  $__timeFilter(time)\nORDER BY time",
+          "rawSql": "SELECT\n  bucket_1m AS time,\n  energy\nFROM monthly_view\nWHERE\n  $__timeFilter(bucket_1m)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1099,6 +937,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "cagg_hourly",
           "timeColumn": "bucket",
           "timeColumnType": "timestamp",
@@ -1111,12 +966,17 @@
           ]
         },
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  bill\nFROM monthly_view\nWHERE\n  $__timeFilter(time)\nORDER BY time",
+          "rawSql": "SELECT\n  bucket_1m AS time,\n  bill\nFROM monthly_view\nWHERE\n  $__timeFilter(bucket_1m)\nORDER BY 1",
           "refId": "B",
           "select": [
             [
@@ -1128,6 +988,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "cagg_hourly",
           "timeColumn": "bucket",
           "timeColumnType": "timestamp",
@@ -1156,6 +1033,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1231,16 +1110,22 @@
         "graph": {},
         "legend": {
           "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.4.5",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
@@ -1275,7 +1160,8 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 34,
+  "revision": 1,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -1302,6 +1188,6 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "Zy00S8QGk",
-  "version": 29,
+  "version": 32,
   "weekStart": ""
 }
