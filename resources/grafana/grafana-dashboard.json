@@ -88,18 +88,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "tOlxI8QGk"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  energy\nFROM live\nWHERE\n  $__timeFilter(time)\nORDER BY time DESC LIMIT 1;",
+          "rawSql": " SELECT\n  bucket_1y AS time,\n  energy\nFROM\n  yearly_view\nORDER BY\n  bucket_1y DESC LIMIT 1",
           "refId": "A",
           "select": [
             [
@@ -111,6 +112,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "live",
           "timeColumn": "\"time\"",
           "timeColumnType": "timestamp",
@@ -124,7 +142,7 @@
         }
       ],
       "timeFrom": "5s",
-      "title": "Total Energy",
+      "title": "Energy $year",
       "transparent": true,
       "type": "stat"
     },
@@ -133,7 +151,6 @@
         "type": "postgres",
         "uid": "tOlxI8QGk"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -156,14 +173,10 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 12
               }
             ]
           },
-          "unit": "kwatth"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -174,8 +187,10 @@
         "y": 0
       },
       "hideTimeOverride": true,
-      "id": 24,
+      "id": 25,
+      "interval": "10s",
       "links": [],
+      "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -183,7 +198,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -191,18 +206,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "tOlxI8QGk"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date_trunc('day', NOW()) as time,\n  last(energy, time) - first(energy, time) as energy_today\nFROM live\nWHERE\n  time > date_trunc('day', NOW())",
+          "rawSql": "SELECT\n  now() as time,\n  energy_percent\nFROM get_electricity_trend()",
           "refId": "A",
           "select": [
             [
@@ -214,6 +230,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "cagg_hourly",
           "timeColumn": "bucket",
           "timeColumnType": "timestamp",
@@ -226,8 +259,8 @@
           ]
         }
       ],
-      "timeFrom": "24h",
-      "title": "Energy Today",
+      "timeFrom": "32d",
+      "title": "Energy $year Trend",
       "transparent": true,
       "type": "stat"
     },
@@ -297,7 +330,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "9.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
@@ -339,7 +372,7 @@
     },
     {
       "gridPos": {
-        "h": 12,
+        "h": 10,
         "w": 12,
         "x": 12,
         "y": 0
@@ -356,6 +389,7 @@
         "type": "postgres",
         "uid": "tOlxI8QGk"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -392,10 +426,8 @@
         "y": 3
       },
       "hideTimeOverride": true,
-      "id": 26,
-      "interval": "10s",
+      "id": 24,
       "links": [],
-      "maxDataPoints": 100,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -403,7 +435,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -411,18 +443,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "tOlxI8QGk"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  NOW() AS time,\n  avg(bill)\nFROM monthly_view",
+          "rawSql": "SELECT\n  bucket_1y AS time,\n  bill\nFROM\n  yearly_view\nORDER BY\n  bucket_1y DESC LIMIT 1",
           "refId": "A",
           "select": [
             [
@@ -434,6 +467,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "cagg_hourly",
           "timeColumn": "bucket",
           "timeColumnType": "timestamp",
@@ -446,8 +496,8 @@
           ]
         }
       ],
-      "timeFrom": "370d",
-      "title": "Average Bill",
+      "timeFrom": "24h",
+      "title": "Bill $year",
       "transparent": true,
       "type": "stat"
     },
@@ -461,7 +511,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 2,
           "mappings": [
             {
               "options": {
@@ -482,7 +531,7 @@
               }
             ]
           },
-          "unit": "currencyEUR"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -493,7 +542,7 @@
         "y": 3
       },
       "hideTimeOverride": true,
-      "id": 25,
+      "id": 26,
       "interval": "10s",
       "links": [],
       "maxDataPoints": 100,
@@ -512,18 +561,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "tOlxI8QGk"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date_trunc('month', NOW()) AS time,\n  sum(bill) AS bill\nFROM daily_view\nWHERE\n  time > date_trunc('month', NOW())",
+          "rawSql": "SELECT\n  now() as time,\n  bill_percent\nFROM get_electricity_trend()",
           "refId": "A",
           "select": [
             [
@@ -535,6 +585,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "cagg_hourly",
           "timeColumn": "bucket",
           "timeColumnType": "timestamp",
@@ -547,8 +614,8 @@
           ]
         }
       ],
-      "timeFrom": "32d",
-      "title": "Current Bill",
+      "timeFrom": "370d",
+      "title": "Bill $year Trend",
       "transparent": true,
       "type": "stat"
     },
@@ -648,7 +715,7 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 6
@@ -891,7 +958,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 10
       },
       "hideTimeOverride": false,
       "id": 4,
@@ -1099,10 +1166,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "hideTimeOverride": false,
       "id": 2,
@@ -1165,7 +1232,32 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "2023",
+          "value": "2023"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "tOlxI8QGk"
+        },
+        "definition": "SELECT extract(year FROM bucket_1y) AS year FROM yearly_view ORDER BY bucket_1y DESC LIMIT 1;",
+        "description": "select current year",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "year",
+        "options": [],
+        "query": "SELECT extract(year FROM bucket_1y) AS year FROM yearly_view ORDER BY bucket_1y DESC LIMIT 1;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-24h",
@@ -1188,6 +1280,6 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "Zy00S8QGk",
-  "version": 32,
+  "version": 44,
   "weekStart": ""
 }
