@@ -1,8 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <cstring>
 #include <charconv>
 #include <chrono>
 #include <thread>
+#include <set>
 #include <vector>
 #include "Smartmeter.h"
 
@@ -245,7 +247,6 @@ void Smartmeter::SetLogLevel(void)
 	{
 		Log = false;
 	}
-	//std::cout << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << ((int)Log & 0xFF) << std::endl;
 }
 
 unsigned char Smartmeter::GetLogLevel(void) const

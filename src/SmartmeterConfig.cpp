@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <cstring>
+#include <map>
+#include <set>
 #include "SmartmeterConfig.h"
 
 bool SmartmeterConfig::Begin(const std::string &file)

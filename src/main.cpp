@@ -85,15 +85,20 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	static int timeout = 0;
+
 	while (shutdown == false)
 	{
-		if (!meter->Receive())
-		{
-			std::cout << meter->GetErrorMessage() << std::endl;
+		if (!meter->Receive()) {
+			if (timeout < 5) {
+				std::cout << meter->GetErrorMessage() << std::endl;
+				++timeout;
+			}
 			continue;
+		} else {
+			timeout = 0;
 		}
-		if (!meter->Publish())
-		{
+		if (!meter->Publish()) {
 			std::cout << meter->GetErrorMessage() << std::endl;
 		}
 	}
