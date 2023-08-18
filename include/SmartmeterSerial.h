@@ -3,21 +3,21 @@
 
 class SmartmeterSerial
 {
-static const unsigned char BufferSize;
-
-private:
-  int SerialPort;
-  std::string ErrorMessage;
-  char GetByte(void);
-  unsigned char Log;
+	static const unsigned char BufferSize;
 
 public:
-  SmartmeterSerial(void);
-  ~SmartmeterSerial(void);
-  void SetLogLevel(const unsigned char &log_level);
-  bool Begin(const std::string &device);
-  bool ReadBytes(char *buffer, const int &length);
-  std::string GetErrorMessage(void);
+	SmartmeterSerial(void);
+	~SmartmeterSerial(void);
+	void SetDebug(const bool &debug);
+	bool Begin(const std::string &device);
+	bool ReadBytes(char *buffer, const int &length);
+	std::string GetErrorMessage(void);
+
+private:
+	int SerialPort;
+	std::string ErrorMessage;
+	char GetByte(void);
+	bool Log;
 };
 
 #endif

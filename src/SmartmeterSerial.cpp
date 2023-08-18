@@ -5,144 +5,143 @@
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include "SmartmeterSerial.h"
-#include "SmartmeterEnums.h"
 
 const unsigned char SmartmeterSerial::BufferSize = 255;
 
-SmartmeterSerial::SmartmeterSerial(void) : Log(0)
+SmartmeterSerial::SmartmeterSerial(void) : SerialPort(0), Log(false)
 {
 }
 
 SmartmeterSerial::~SmartmeterSerial(void)
 {
-  if (SerialPort > 0) {
-    close(SerialPort);
-  }
+	if (SerialPort > 0) {
+		close(SerialPort);
+	}
 }
 
-void SmartmeterSerial::SetLogLevel(const unsigned char &log_level)
+void SmartmeterSerial::SetDebug(const bool &debug)
 {
-  Log = log_level;
+	Log = debug;
 }
 
 bool SmartmeterSerial::Begin(const std::string &device)
 {
-  if (device.empty()) {
-    ErrorMessage = "Serial error: Device argument empty.";
-    return false;
-  }
-  if ((SerialPort = open(device.c_str(), (O_RDONLY | O_NOCTTY))) < 0)
-  {
-    ErrorMessage = std::string("Opening serial device failed: ") 
-      + strerror(errno) + " (" + std::to_string(errno) + ")";
-    return false;
-  }
-  if(!isatty(SerialPort))
-  {
-    ErrorMessage = std::string("Serial error: Device ") + device + " is not a tty.";
-    return false;
-  }
-  if (flock(SerialPort, LOCK_EX | LOCK_NB) < 0)
-  {
-    ErrorMessage = std::string("Locking serial device failed: ")
-      + strerror(errno) + " (" + std::to_string(errno) + ")";
-    return false;
-  }
-  if (ioctl(SerialPort, TIOCEXCL) < 0)
-  {
-    ErrorMessage = std::string("Setting exclusive access faild: ") 
-      + strerror(errno) + " (" + std::to_string(errno) + ")";
-    return false;
-  }
+	if (device.empty()) {
+		ErrorMessage = "Serial error: Device argument empty.";
+		return false;
+	}
+	if ((SerialPort = open(device.c_str(), (O_RDONLY | O_NOCTTY))) < 0)
+	{
+		ErrorMessage = std::string("Opening serial device failed: ")
+    		  + strerror(errno) + " (" + std::to_string(errno) + ")";
+		return false;
+	}
+	if(!isatty(SerialPort))
+	{
+		ErrorMessage = std::string("Serial error: Device ") + device + " is not a tty.";
+		return false;
+	}
+	if (flock(SerialPort, LOCK_EX | LOCK_NB) < 0)
+	{
+		ErrorMessage = std::string("Locking serial device failed: ")
+    		  + strerror(errno) + " (" + std::to_string(errno) + ")";
+		return false;
+	}
+	if (ioctl(SerialPort, TIOCEXCL) < 0)
+	{
+		ErrorMessage = std::string("Setting exclusive access faild: ")
+    		  + strerror(errno) + " (" + std::to_string(errno) + ")";
+		return false;
+	}
 
-  struct termios serial_port_settings;
+	struct termios serial_port_settings;
 
-  memset(&serial_port_settings, 0, sizeof(serial_port_settings));
-  if (tcgetattr(SerialPort, &serial_port_settings))
-  {
-    ErrorMessage = std::string("Getting serial port attributes failed: ")
-      + strerror(errno) + " (" + std::to_string(errno) + ")";
-    return false;
-  }
+	memset(&serial_port_settings, 0, sizeof(serial_port_settings));
+	if (tcgetattr(SerialPort, &serial_port_settings))
+	{
+		ErrorMessage = std::string("Getting serial port attributes failed: ")
+    		  + strerror(errno) + " (" + std::to_string(errno) + ")";
+		return false;
+	}
 
-  cfmakeraw(&serial_port_settings);
+	cfmakeraw(&serial_port_settings);
 
-  // configure serial port
-  // speed: 9600 baud, data bits: 7, stop bits: 1, parity: even
-  cfsetispeed(&serial_port_settings, B9600);
-  cfsetospeed(&serial_port_settings, B9600);
-  serial_port_settings.c_cflag |= (CLOCAL | CREAD);
-  serial_port_settings.c_cflag &= ~CSIZE;
-  serial_port_settings.c_cflag |= (CS7 | PARENB);
-  
-  // vmin: read() returns when x byte(s) are available
-  // vtime: wait for up to x * 0.1 second between characters
-  serial_port_settings.c_cc[VMIN] = SmartmeterSerial::BufferSize;
-  serial_port_settings.c_cc[VTIME] = 5;
+	// configure serial port
+	// speed: 9600 baud, data bits: 7, stop bits: 1, parity: even
+	cfsetispeed(&serial_port_settings, B9600);
+	cfsetospeed(&serial_port_settings, B9600);
+	serial_port_settings.c_cflag |= (CLOCAL | CREAD);
+	serial_port_settings.c_cflag &= ~CSIZE;
+	serial_port_settings.c_cflag |= (CS7 | PARENB);
 
-  if (tcsetattr(SerialPort, TCSANOW, &serial_port_settings))
-  {
-    ErrorMessage = std::string("Setting serial port attributes failed: ") 
-      + strerror(errno) + " (" + std::to_string(errno) + ")";
-    return false;
-  }
-  tcflush(SerialPort, TCIOFLUSH);
+	// vmin: read() returns when x byte(s) are available
+	// vtime: wait for up to x * 0.1 second between characters
+	serial_port_settings.c_cc[VMIN] = SmartmeterSerial::BufferSize;
+	serial_port_settings.c_cc[VTIME] = 5;
 
-  return true;
+	if (tcsetattr(SerialPort, TCSANOW, &serial_port_settings))
+	{
+		ErrorMessage = std::string("Setting serial port attributes failed: ")
+    		  + strerror(errno) + " (" + std::to_string(errno) + ")";
+		return false;
+	}
+	tcflush(SerialPort, TCIOFLUSH);
+
+	return true;
 }
 
 char SmartmeterSerial::GetByte(void)
 {
-  static char buffer[SmartmeterSerial::BufferSize] = {0};
-  static char *p = buffer;
-  static int count = 0;   
+	static char buffer[SmartmeterSerial::BufferSize] = {0};
+	static char *p = buffer;
+	static int count = 0;
 
-  if ((p - buffer) >= count)
-  {
-    if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
-    {
-      ErrorMessage = std::string("Reading serial device failed: ")
-        + strerror(errno) + " (" + std::to_string(errno) + ")";
-      return false;
-    }
-    p = buffer;
-  }
-  return *p++;
+	if ((p - buffer) >= count)
+	{
+		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
+		{
+			ErrorMessage = std::string("Reading serial device failed: ")
+        		+ strerror(errno) + " (" + std::to_string(errno) + ")";
+			return false;
+		}
+		p = buffer;
+	}
+	return *p++;
 }
 
 bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 {
-  int bytes_received = 0;
-  char *p = buffer;
-  bool message_begin = false;
-  
-  tcflush(SerialPort, TCIOFLUSH);
-  
-  while (bytes_received < length)
-  {
-    if ((*p = GetByte()) == '/')
-    {
-      message_begin = true;
-    }
-    if (message_begin)
-    {
-      ++p;
-      ++bytes_received;
-    }
-  }
-  if (Log & static_cast<unsigned char>(LogLevelEnum::SERIAL))
-  {
-    std::cout << buffer;
-  }
-  if (*(p-3) != '!')
-  {
-    ErrorMessage = "Serial error: Datagram stream not in sync.";
-    return false;
-  }
-  return true;
+	int bytes_received = 0;
+	char *p = buffer;
+	bool message_begin = false;
+
+	tcflush(SerialPort, TCIOFLUSH);
+
+	while (bytes_received < length)
+	{
+		if ((*p = GetByte()) == '/')
+		{
+			message_begin = true;
+		}
+		if (message_begin)
+		{
+			++p;
+			++bytes_received;
+		}
+	}
+	if (Log)
+	{
+		std::cout << buffer;
+	}
+	if (*(p-3) != '!')
+	{
+		ErrorMessage = "Serial error: Datagram stream not in sync.";
+		return false;
+	}
+	return true;
 }
 
 std::string SmartmeterSerial::GetErrorMessage(void)
 {
-  return ErrorMessage;
+	return ErrorMessage;
 }
