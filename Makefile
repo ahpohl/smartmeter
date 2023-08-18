@@ -18,6 +18,11 @@ export BUILD_INFO := $(COMMIT)$(BUILD_INFO_COMMITS)$(BUILD_INFO_DIRTY)
 # define the C compiler to use
 CPP = g++
 
+# define cross compiler for aarch64 target
+ifeq ($(CROSS_COMPILE),aarch64-unknown-linux-gnu)
+CPP := aarch64-unknown-linux-gnu-g++
+endif
+
 # define any compile-time flags
 CPPFLAGS = -Wall -g -std=c++17 -pthread
 
