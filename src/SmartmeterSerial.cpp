@@ -4,6 +4,7 @@
 #include <termios.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
+#include <thread>
 #include "SmartmeterSerial.h"
 
 const unsigned char SmartmeterSerial::BufferSize = 255;
@@ -136,6 +137,7 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 	if (*(p-3) != '!')
 	{
 		ErrorMessage = "Serial error: Datagram stream not in sync.";
+		tcflush(SerialPort, TCIOFLUSH);
 		return false;
 	}
 	return true;
