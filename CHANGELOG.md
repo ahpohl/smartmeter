@@ -1,8 +1,11 @@
 # Smartmeter changelog
 
-## v0.3.6 - 2023-xx-xx
+## v0.3.6 - 2023-08-25
 * updated retention policies
 * create time\_buckets at local time zone
+* remove log enum from serial and mqtt classes
+* add eclipse project and cross compile option
+* dashboard shows last year comparision
 
 ## v0.3.5 - 2022-12-29
 * fix mqtt status topic not retained
