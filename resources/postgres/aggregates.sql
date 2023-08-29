@@ -20,8 +20,8 @@ WITH NO DATA;
 
 -- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_daily',
-  start_offset => INTERVAL '3 days',
-  end_offset => INTERVAL '1 hour',
+  start_offset => INTERVAL '30 days',
+  end_offset => INTERVAL '1 day',
   schedule_interval => '1 day');
 
 --
@@ -44,12 +44,12 @@ WITH NO DATA;
 
 -- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_power',
-  start_offset => INTERVAL '3 hours',
-  end_offset => INTERVAL '1 minute',
+  start_offset => INTERVAL '1 day',
+  end_offset => INTERVAL '5 minutes',
   schedule_interval => '5 minutes');
 
 -- retention policy
-SELECT add_retention_policy('cagg_power', INTERVAL '3 days');
+SELECT add_retention_policy('cagg_power', INTERVAL '1 year');
 
 -- grant
 GRANT SELECT ON TABLE cagg_power TO grafana;
