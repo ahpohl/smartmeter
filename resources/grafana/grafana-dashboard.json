@@ -18,6 +18,32 @@
           "type": "dashboard"
         },
         "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "fetzerch-sunandmoon-datasource",
+          "uid": "PubsQkIVz"
+        },
+        "enable": true,
+        "filter": {
+          "exclude": false,
+          "ids": [
+            2
+          ]
+        },
+        "hide": true,
+        "iconColor": "red",
+        "name": "Sunrise and Sunset",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "target": [
+            "sunrise",
+            "sunset"
+          ],
+          "type": "dashboard"
+        }
       }
     ]
   },
@@ -88,7 +114,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.0.3",
       "targets": [
         {
           "datasource": {
@@ -206,7 +232,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.0.3",
       "targets": [
         {
           "datasource": {
@@ -330,7 +356,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.0.3",
       "targets": [
         {
           "datasource": {
@@ -371,18 +397,217 @@
       "type": "gauge"
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "tOlxI8QGk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "graph": false,
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "bill"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 36
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              },
+              {
+                "id": "custom.pointSize",
+                "value": 6
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "smooth"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "energy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
-        "h": 10,
+        "h": 11,
         "w": 12,
         "x": 12,
         "y": 0
       },
+      "hideTimeOverride": true,
       "id": 23,
-      "libraryPanel": {
-        "name": "Daily Energy",
-        "uid": "sqCzo0v7k"
+      "options": {
+        "graph": {},
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "title": "Daily Energy"
+      "pluginVersion": "7.4.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  time,\n  energy\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "live",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "tOlxI8QGk"
+          },
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  time,\n  bill\nFROM daily_view\nWHERE\n  $__timeFilter(time)\nORDER BY 1;",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "energy"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "live",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": "now/M",
+      "timeShift": "0M/M",
+      "title": "Energy Month",
+      "transparent": true,
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -443,7 +668,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.0.3",
       "targets": [
         {
           "datasource": {
@@ -561,7 +786,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.0.3",
       "targets": [
         {
           "datasource": {
@@ -675,44 +900,7 @@
           },
           "unit": "watt"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "A"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Phase L1"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "B"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Phase L2"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "C"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Phase L3"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -729,7 +917,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -743,11 +931,12 @@
             "type": "postgres",
             "uid": "tOlxI8QGk"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  AVG(power_l1) OVER(ORDER BY time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW)\nFROM live\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
+          "rawSql": "SELECT\n  time,\n  AVG(power_l1) OVER(ORDER BY time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS \"Phase L1\",\n  AVG(power_l2) OVER(ORDER BY time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS \"Phase L2\",\n  AVG(power_l3) OVER(ORDER BY time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS \"Phase L3\"\nFROM live\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -759,72 +948,23 @@
               }
             ]
           ],
-          "table": "live",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "tOlxI8QGk"
-          },
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  AVG(power_l2) OVER(ORDER BY time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW)\nFROM live\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
-          "refId": "B",
-          "select": [
-            [
+          "sql": {
+            "columns": [
               {
-                "params": [
-                  "energy"
-                ],
-                "type": "column"
+                "parameters": [],
+                "type": "function"
               }
-            ]
-          ],
-          "table": "live",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "tOlxI8QGk"
-          },
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  time,\n  AVG(power_l3) OVER(ORDER BY time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW)\nFROM live\nWHERE\n  $__timeFilter(time)\nORDER BY 1",
-          "refId": "C",
-          "select": [
-            [
+            ],
+            "groupBy": [
               {
-                "params": [
-                  "energy"
-                ],
-                "type": "column"
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
               }
-            ]
-          ],
+            ],
+            "limit": 50
+          },
           "table": "live",
           "timeColumn": "\"time\"",
           "timeColumnType": "timestamp",
@@ -838,7 +978,7 @@
         }
       ],
       "timeFrom": "15m",
-      "title": "Power",
+      "title": "AC Power",
       "transparent": true,
       "type": "timeseries"
     },
@@ -958,9 +1098,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 11
       },
-      "hideTimeOverride": false,
+      "hideTimeOverride": true,
       "id": 4,
       "interval": "10s",
       "options": {
@@ -973,7 +1113,7 @@
           ],
           "displayMode": "table",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "multi",
@@ -1084,8 +1224,9 @@
           ]
         }
       ],
-      "timeFrom": "366d",
-      "title": "Monthly Energy",
+      "timeFrom": "now/y",
+      "timeShift": "0y/y",
+      "title": "Energy Year",
       "transparent": true,
       "type": "timeseries"
     },
@@ -1166,12 +1307,12 @@
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 14
       },
-      "hideTimeOverride": false,
+      "hideTimeOverride": true,
       "id": 2,
       "options": {
         "graph": {},
@@ -1221,7 +1362,9 @@
           ]
         }
       ],
-      "title": "Average Power",
+      "timeFrom": "now/d",
+      "timeShift": "0d/d",
+      "title": "Power Day",
       "transparent": true,
       "type": "timeseries"
     }
@@ -1260,8 +1403,8 @@
     ]
   },
   "time": {
-    "from": "now-24h",
-    "to": "now"
+    "from": "now/d",
+    "to": "now/d"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -1280,6 +1423,6 @@
   "timezone": "",
   "title": "Smartmeter",
   "uid": "Zy00S8QGk",
-  "version": 44,
+  "version": 54,
   "weekStart": ""
 }
