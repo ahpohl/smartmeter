@@ -33,6 +33,7 @@ CREATE UNIQUE INDEX daily_idx ON daily_view (time);
 
 -- grant
 GRANT SELECT ON TABLE daily_view TO grafana;
+GRANT SELECT ON TABLE daily_view TO nodejs;
 
 --
 -- create monthly view
@@ -56,6 +57,7 @@ CREATE UNIQUE INDEX monthly_idx ON monthly_view (bucket_1m);
 
 -- grant
 GRANT SELECT ON TABLE monthly_view TO grafana;
+GRANT SELECT ON TABLE monthly_view TO nodejs;
 
 --
 -- create yearly view
@@ -77,3 +79,4 @@ CREATE UNIQUE INDEX yearly_idx ON yearly_view (bucket_1y);
 
 -- grant
 GRANT SELECT ON TABLE yearly_view TO grafana;
+GRANT SELECT ON TABLE yearly_view TO nodejs;

@@ -20,7 +20,7 @@ WITH NO DATA;
 
 -- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_daily',
-  start_offset => INTERVAL '30 days',
+  start_offset => INTERVAL '7 days',
   end_offset => INTERVAL '1 day',
   schedule_interval => '1 day');
 
