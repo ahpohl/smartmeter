@@ -23,7 +23,8 @@ begin
     sum(bill) as bill
 	from daily_view
 	where 
-    time between date_trunc('year', now() - interval '1' year) and now() - interval '1' year;
+    time between date_trunc('year', now() - interval '1' year) and
+      now() - interval '1' year - interval '1 day';
 
 	-- calculate current year energy
 	insert into temp_trend (time, energy, bill)

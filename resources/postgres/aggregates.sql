@@ -44,7 +44,7 @@ WITH NO DATA;
 
 -- refresh policy
 SELECT add_continuous_aggregate_policy('cagg_power',
-  start_offset => INTERVAL '1 day',
+  start_offset => INTERVAL '3 hours',
   end_offset => INTERVAL '5 minutes',
   schedule_interval => '5 minutes');
 
