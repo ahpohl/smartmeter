@@ -99,11 +99,11 @@ char SmartmeterSerial::GetByte(void)
 
 	if ((p - buffer) >= count)
 	{
+		memset(buffer, '\0', SmartmeterSerial::BufferSize);
 		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
 		{
 			ErrorMessage = std::string("Reading serial device failed: ")
         		+ strerror(errno) + " (" + std::to_string(errno) + ")";
-			return false;
 		}
 		p = buffer;
 	}
@@ -113,6 +113,7 @@ char SmartmeterSerial::GetByte(void)
 bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 {
 	int bytes_received = 0;
+	int timeout = 0;
 	char *p = buffer;
 	bool message_begin = false;
 
@@ -120,6 +121,11 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 
 	while (bytes_received < length)
 	{
+		if (timeout > (2 * length))
+		{
+			ErrorMessage = "Serial error: data not received. Timeout.";
+			return false;
+		}
 		if ((*p = GetByte()) == '/')
 		{
 			message_begin = true;
@@ -129,6 +135,7 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 			++p;
 			++bytes_received;
 		}
+		++timeout;
 	}
 	if (Log)
 	{
@@ -136,8 +143,7 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 	}
 	if (*(p-3) != '!')
 	{
-		ErrorMessage = "Serial error: Datagram stream not in sync.";
-		tcflush(SerialPort, TCIOFLUSH);
+		ErrorMessage = "Serial error: datagram stream not in sync.";
 		return false;
 	}
 	return true;
