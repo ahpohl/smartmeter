@@ -92,7 +92,7 @@ bool SmartmeterSerial::Begin(const std::string &device)
 	return true;
 }
 
-char SmartmeterSerial::GetByte(void)
+bool SmartmeterSerial::GetByte(char c)
 {
 	static char buffer[SmartmeterSerial::BufferSize] = {0};
 	static char *p = buffer;
@@ -101,13 +101,23 @@ char SmartmeterSerial::GetByte(void)
 	if ((p - buffer) >= count)
 	{
 		memset(buffer, '\0', SmartmeterSerial::BufferSize);
-		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) <= 0)
+		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
 		{
+		     ErrorMessage = std::string("Reading serial device failed: ")
+		    		 + strerror(errno) + " (" + std::to_string(errno) + ")";
+		     return false;
+		}
+		else if (count == 0)
+		{
+			ErrorMessage = "Serial error: serial buffer empty.";
 			std::this_thread::sleep_for(std::chrono::seconds(1));
+			return false;
 		}
 		p = buffer;
 	}
-	return *p++;
+	c = *p++;
+
+	return true;
 }
 
 bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
@@ -118,7 +128,11 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 
 	while (bytes_received < length)
 	{
-		if ((*p = GetByte()) == '/')
+		if (!GetByte(*p))
+		{
+			return false;
+		}
+		if (*p == '/')
 		{
 			message_begin = true;
 		}
