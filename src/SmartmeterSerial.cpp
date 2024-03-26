@@ -5,6 +5,7 @@
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <thread>
+#include <chrono>
 #include "SmartmeterSerial.h"
 
 const unsigned char SmartmeterSerial::BufferSize = 255;
@@ -100,10 +101,9 @@ char SmartmeterSerial::GetByte(void)
 	if ((p - buffer) >= count)
 	{
 		memset(buffer, '\0', SmartmeterSerial::BufferSize);
-		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
+		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) <= 0)
 		{
-			ErrorMessage = std::string("Reading serial device failed: ")
-        		+ strerror(errno) + " (" + std::to_string(errno) + ")";
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 		p = buffer;
 	}
@@ -113,19 +113,11 @@ char SmartmeterSerial::GetByte(void)
 bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 {
 	int bytes_received = 0;
-	int timeout = 0;
 	char *p = buffer;
 	bool message_begin = false;
 
-	tcflush(SerialPort, TCIOFLUSH);
-
 	while (bytes_received < length)
 	{
-		if (timeout > (2 * length))
-		{
-			ErrorMessage = "Serial error: data not received. Timeout.";
-			return false;
-		}
 		if ((*p = GetByte()) == '/')
 		{
 			message_begin = true;
@@ -135,7 +127,6 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 			++p;
 			++bytes_received;
 		}
-		++timeout;
 	}
 	if (Log)
 	{
