@@ -1,5 +1,9 @@
 # Smartmeter changelog
 
+## v0.3.7 - 2024-03-27
+* add trend based on a model
+* improve serial communication
+
 ## v0.3.6 - 2023-08-25
 * updated retention policies
 * create time\_buckets at local time zone
