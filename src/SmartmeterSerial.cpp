@@ -116,14 +116,17 @@ bool SmartmeterSerial::ReadBytes(char *packet, const int &length)
 			}
 			else if (bytes_received == 0)
 			{
-				ErrorMessage = "Serial error: serial buffer empty.";
+				ErrorMessage = "Serial error: idle timeout.";
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 				return false;
 			}
 			else
 			{
 				b = buffer;
-				std::cout << "bytes_received (" << bytes_received << ")" << std::endl;
+				if (Log)
+				{
+					std::cout << "bytes_received (" << bytes_received << ")" << std::endl;
+				}
 			}
 		}
 		memcpy(p, b, 1);
