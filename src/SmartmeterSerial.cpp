@@ -62,7 +62,7 @@ bool SmartmeterSerial::Begin(const std::string &device)
 	if (tcgetattr(SerialPort, &serial_port_settings))
 	{
 		ErrorMessage = std::string("Getting serial port attributes failed: ")
-    		  + strerror(errno) + " (" + std::to_string(errno) + ")";
+				+ strerror(errno) + " (" + std::to_string(errno) + ")";
 		return false;
 	}
 
@@ -92,46 +92,41 @@ bool SmartmeterSerial::Begin(const std::string &device)
 	return true;
 }
 
-bool SmartmeterSerial::GetByte(char c)
+bool SmartmeterSerial::ReadBytes(char *packet, const int &length)
 {
-	static char buffer[SmartmeterSerial::BufferSize] = {0};
-	static char *p = buffer;
-	static int count = 0;
-
-	if ((p - buffer) >= count)
-	{
-		memset(buffer, '\0', SmartmeterSerial::BufferSize);
-		if ((count = read(SerialPort, buffer, SmartmeterSerial::BufferSize)) < 0)
-		{
-		     ErrorMessage = std::string("Reading serial device failed: ")
-		    		 + strerror(errno) + " (" + std::to_string(errno) + ")";
-		     return false;
-		}
-		else if (count == 0)
-		{
-			ErrorMessage = "Serial error: serial buffer empty.";
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-			return false;
-		}
-		p = buffer;
-	}
-	c = *p++;
-
-	return true;
-}
-
-bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
-{
+	char buffer[SmartmeterSerial::BufferSize] = {0};
+	char *b = buffer;
 	int bytes_received = 0;
-	char *p = buffer;
+
+	int bytes_processed = 0;
+	char *p = packet;
 	bool message_begin = false;
 
-	while (bytes_received < length)
+	while (bytes_processed < length)
 	{
-		if (!GetByte(*p))
+		if ((b - buffer) >= bytes_received)
 		{
-			return false;
+			memset(buffer, '\0', SmartmeterSerial::BufferSize);
+			bytes_received = read(SerialPort, buffer, SmartmeterSerial::BufferSize);
+			if (bytes_received < 0)
+			{
+				ErrorMessage = std::string("Reading serial device failed: ")
+					+ strerror(errno) + " (" + std::to_string(errno) + ")";
+			    return false;
+			}
+			else if (bytes_received == 0)
+			{
+				ErrorMessage = "Serial error: serial buffer empty.";
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				return false;
+			}
+			else
+			{
+				b = buffer;
+			}
 		}
+		memcpy(p, b, 1);
+		++b;
 		if (*p == '/')
 		{
 			message_begin = true;
@@ -139,18 +134,19 @@ bool SmartmeterSerial::ReadBytes(char *buffer, const int &length)
 		if (message_begin)
 		{
 			++p;
-			++bytes_received;
+			++bytes_processed;
 		}
-	}
-	if (Log)
-	{
-		std::cout << buffer;
 	}
 	if (*(p-3) != '!')
 	{
-		ErrorMessage = "Serial error: datagram stream not in sync.";
+		ErrorMessage = "Serial error: packet stream not in sync.";
 		return false;
 	}
+	if (Log)
+	{
+		std::cout << packet;
+	}
+
 	return true;
 }
 

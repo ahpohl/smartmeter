@@ -16,7 +16,6 @@ public:
 private:
 	int SerialPort;
 	std::string ErrorMessage;
-	bool GetByte(char c);
 	bool Log;
 };
 
