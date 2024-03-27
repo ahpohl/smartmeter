@@ -8,7 +8,7 @@
 #include <chrono>
 #include "SmartmeterSerial.h"
 
-const unsigned char SmartmeterSerial::BufferSize = 255;
+const unsigned char SmartmeterSerial::BufferSize = 64;
 
 SmartmeterSerial::SmartmeterSerial(void) : SerialPort(0), Log(false)
 {
@@ -123,6 +123,7 @@ bool SmartmeterSerial::ReadBytes(char *packet, const int &length)
 			else
 			{
 				b = buffer;
+				std::cout << "bytes_received (" << bytes_received << ")" << std::endl;
 			}
 		}
 		memcpy(p, b, 1);
