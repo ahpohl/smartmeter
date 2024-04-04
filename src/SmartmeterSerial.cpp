@@ -21,6 +21,13 @@ SmartmeterSerial::~SmartmeterSerial(void)
 	}
 }
 
+void SmartmeterSerial::Close(void)
+{
+	if (SerialPort > 0) {
+		close(SerialPort);
+	}
+}
+
 void SmartmeterSerial::SetDebug(const bool &debug)
 {
 	Log = debug;

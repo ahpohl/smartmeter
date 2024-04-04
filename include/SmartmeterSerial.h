@@ -10,6 +10,7 @@ public:
 	~SmartmeterSerial(void);
 	void SetDebug(const bool &debug);
 	bool Begin(const std::string &device);
+	void Close(void);
 	bool ReadBytes(char *buffer, const int &length);
 	std::string GetErrorMessage(void);
 

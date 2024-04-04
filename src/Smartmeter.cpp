@@ -127,6 +127,11 @@ bool Smartmeter::Receive(void)
 	if (!Serial->ReadBytes(ReceiveBuffer, Smartmeter::ReceiveBufferSize))
 	{
 		ErrorMessage = Serial->GetErrorMessage();
+		Serial->Close();
+		if( !Serial->Begin(Cfg->GetValue("serial_device")) )
+		{
+			ErrorMessage = Serial->GetErrorMessage();
+		}
 		return false;
 	}
 
