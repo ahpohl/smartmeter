@@ -128,6 +128,7 @@ bool Smartmeter::Receive(void)
 	{
 		ErrorMessage = Serial->GetErrorMessage();
 		Serial->Close();
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		if( !Serial->Begin(Cfg->GetValue("serial_device")) )
 		{
 			ErrorMessage = Serial->GetErrorMessage();

@@ -4,8 +4,6 @@
 #include <termios.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
-#include <thread>
-#include <chrono>
 #include "SmartmeterSerial.h"
 
 const unsigned char SmartmeterSerial::BufferSize = 64;
@@ -124,7 +122,6 @@ bool SmartmeterSerial::ReadBytes(char *packet, const int &length)
 			else if (bytes_received == 0)
 			{
 				ErrorMessage = "Serial error: idle timeout.";
-				std::this_thread::sleep_for(std::chrono::seconds(1));
 				return false;
 			}
 			else
