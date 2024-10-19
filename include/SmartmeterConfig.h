@@ -4,20 +4,19 @@
 #include <set>
 #include <sstream>
 
-class SmartmeterConfig
-{
+class SmartmeterConfig {
 public:
-	bool Begin(const std::string &file);
-	void ShowConfig(void) const;
-	std::string GetErrorMessage(void) const;
+  bool Begin(const std::string &file);
+  void ShowConfig(void) const;
+  std::string GetErrorMessage(void) const;
 
-	bool KeyExists(const std::string &key);
-	bool ValidateKeys(std::set<std::string> valid_keys);
-	std::string GetValue(const std::string &key) const;
+  bool KeyExists(const std::string &key);
+  bool ValidateKeys(std::set<std::string> valid_keys);
+  std::string GetValue(const std::string &key) const;
 
 private:
-	std::map<std::string, std::string> KeyValuePair;
-	std::string ErrorMessage;
+  std::map<std::string, std::string> KeyValuePair;
+  std::string ErrorMessage;
 };
 
 #endif
