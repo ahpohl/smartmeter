@@ -1,8 +1,8 @@
 #ifndef Smartmeter_h
 #define Smartmeter_h
-#include "SmartmeterSerial.h"
-#include "SmartmeterMqtt.h"
 #include "SmartmeterConfig.h"
+#include "SmartmeterMqtt.h"
+#include "SmartmeterSerial.h"
 
 class Smartmeter {
   static const int ReceiveBufferSize;
@@ -19,11 +19,13 @@ public:
   unsigned char GetLogLevel(void) const;
 
   struct Datagram {
-    std::string SerialNum;    // serial number and software version
-    std::string CustomId;     // custom id specific to user
-    std::string DeviceId;     // device id DIN 43863-5
-    std::string Energy;       // energy counter [kWh], resolution 10 µW*h, format %f6.8
-    std::string Power;        // power output (3-phases), resolution 0.01 W, format %f5.2
+    std::string SerialNum; // serial number and software version
+    std::string CustomId;  // custom id specific to user
+    std::string DeviceId;  // device id DIN 43863-5
+    std::string
+        Energy; // energy counter [kWh], resolution 10 µW*h, format %f6.8
+    std::string
+        Power; // power output (3-phases), resolution 0.01 W, format %f5.2
     std::string PowerL1;      // power phase L1
     std::string PowerL2;      // power phase L2
     std::string PowerL3;      // power phase L3
@@ -44,14 +46,16 @@ private:
   std::string ErrorMessage;
   unsigned char Log;
 
-  template<typename T_STR, typename T_CHAR>
+  template <typename T_STR, typename T_CHAR>
   T_STR RemoveLeading(T_STR const &str, T_CHAR c) const;
 
-  template<typename T>
-  T StringTo(const std::string &str) const;
+  template <typename T> T StringTo(const std::string &str) const;
 
   enum class LogLevel : unsigned char {
-    CONFIG = 0x01, JSON = 0x02, MQTT = 0x04, SERIAL = 0x08
+    CONFIG = 0x01,
+    JSON = 0x02,
+    MQTT = 0x04,
+    SERIAL = 0x08
   };
 };
 

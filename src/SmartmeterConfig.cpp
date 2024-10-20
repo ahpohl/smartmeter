@@ -1,10 +1,10 @@
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "SmartmeterConfig.h"
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <map>
 #include <set>
-#include "SmartmeterConfig.h"
+#include <string>
 
 bool SmartmeterConfig::Begin(const std::string &file) {
   if (file.empty()) {
@@ -13,9 +13,8 @@ bool SmartmeterConfig::Begin(const std::string &file) {
   }
   std::ifstream ifs(file);
   if (!ifs) {
-    ErrorMessage = std::string("Opening config file failed: ")
-            + strerror(errno)
-            + " (" + std::to_string(errno) + ")";
+    ErrorMessage = std::string("Opening config file failed: ") +
+                   strerror(errno) + " (" + std::to_string(errno) + ")";
     return false;
   }
   std::string line;
@@ -40,7 +39,7 @@ bool SmartmeterConfig::Begin(const std::string &file) {
       val.erase(pos);
     }
     KeyValuePair.insert(
-            std::map<std::string, std::string>::value_type(key, val));
+        std::map<std::string, std::string>::value_type(key, val));
   }
   ifs.close();
 
@@ -59,8 +58,8 @@ void SmartmeterConfig::ShowConfig(void) const {
 
 bool SmartmeterConfig::KeyExists(const std::string &key) {
   if (KeyValuePair.find(key) == KeyValuePair.cend()) {
-    ErrorMessage = std::string("Smartmeter config: Key \"") + key
-            + "\" not found.";
+    ErrorMessage =
+        std::string("Smartmeter config: Key \"") + key + "\" not found.";
     return false;
   }
   return true;
@@ -73,13 +72,13 @@ std::string SmartmeterConfig::GetValue(const std::string &key) const {
 bool SmartmeterConfig::ValidateKeys(std::set<std::string> valid_keys) {
   for (auto it = KeyValuePair.cbegin(); it != KeyValuePair.cend(); ++it) {
     if ((valid_keys.find(it->first) == valid_keys.cend())) {
-      ErrorMessage = std::string("Smartmeter config: Invalid key \"")
-              + it->first + "\"";
+      ErrorMessage =
+          std::string("Smartmeter config: Invalid key \"") + it->first + "\"";
       return false;
     }
     if ((it->second).empty()) {
-      ErrorMessage = std::string("Smartmeter config: Key \"") + it->first
-              + "\" has no value.";
+      ErrorMessage = std::string("Smartmeter config: Key \"") + it->first +
+                     "\" has no value.";
       return false;
     }
   }

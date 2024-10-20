@@ -1,26 +1,18 @@
-#include <iostream>
-#include <iomanip>
-#include <cstring>
+#include "Smartmeter.h"
 #include <charconv>
 #include <chrono>
-#include <thread>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
 #include <set>
+#include <thread>
 #include <vector>
-#include "Smartmeter.h"
 
 const int Smartmeter::ReceiveBufferSize = 368;
-const std::set<std::string> Smartmeter::ValidKeys {
-        "log_level",
-        "mqtt_broker",
-        "mqtt_password",
-        "mqtt_port",
-        "mqtt_topic",
-        "mqtt_user",
-        "mqtt_tls_cafile",
-        "mqtt_tls_capath",
-        "plan_basic_rate",
-        "plan_price_kwh",
-        "serial_device" };
+const std::set<std::string> Smartmeter::ValidKeys{
+    "log_level",       "mqtt_broker",    "mqtt_password",   "mqtt_port",
+    "mqtt_topic",      "mqtt_user",      "mqtt_tls_cafile", "mqtt_tls_capath",
+    "plan_basic_rate", "plan_price_kwh", "serial_device"};
 
 Smartmeter::Smartmeter(void) {
   ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize]();
@@ -31,9 +23,7 @@ Smartmeter::Smartmeter(void) {
 
 Smartmeter::~Smartmeter(void) {
   if (Mqtt->GetConnectStatus()) {
-    Mqtt->PublishMessage("offline",
-                         Cfg->GetValue("mqtt_topic") + "/status",
-                         1,
+    Mqtt->PublishMessage("offline", Cfg->GetValue("mqtt_topic") + "/status", 1,
                          true);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
@@ -108,10 +98,8 @@ bool Smartmeter::Setup(const std::string &config) {
       return false;
     }
   }
-  if (!Mqtt->SetLastWillTestament("offline",
-                                  Cfg->GetValue("mqtt_topic") + "/status",
-                                  1,
-                                  true)) {
+  if (!Mqtt->SetLastWillTestament(
+          "offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true)) {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
@@ -120,7 +108,7 @@ bool Smartmeter::Setup(const std::string &config) {
     return false;
   }
   if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"),
-          StringTo<double>(Cfg->GetValue("mqtt_port")), 60)) {
+                     StringTo<double>(Cfg->GetValue("mqtt_port")), 60)) {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
@@ -162,7 +150,8 @@ bool Smartmeter::Receive(void) {
 bool Smartmeter::Publish(void) {
   unsigned long long now =
       std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+          std::chrono::high_resolution_clock::now().time_since_epoch())
+          .count();
 
   std::ios::fmtflags old_settings = Payload.flags();
   Payload.str(std::string());
@@ -177,19 +166,18 @@ bool Smartmeter::Publish(void) {
           << "\"voltage_l1\":" << RemoveLeading(Datagram.VoltageL1, '0') << ","
           << "\"voltage_l2\":" << RemoveLeading(Datagram.VoltageL2, '0') << ","
           << "\"voltage_l3\":" << RemoveLeading(Datagram.VoltageL3, '0') << ","
-          << "\"status\":\"" << Datagram.Status << "\"" << "," << "\"rate\":"
-          << Cfg->GetValue("plan_basic_rate") << "," << "\"price\":"
-          << Cfg->GetValue("plan_price_kwh") << "," << "\"time\":" << now
-          << "},{" << "\"serial\":\"" << Datagram.SerialNum << "\","
+          << "\"status\":\"" << Datagram.Status << "\"" << ","
+          << "\"rate\":" << Cfg->GetValue("plan_basic_rate") << ","
+          << "\"price\":" << Cfg->GetValue("plan_price_kwh") << ","
+          << "\"time\":" << now << "},{" << "\"serial\":\""
+          << Datagram.SerialNum << "\","
           << "\"custom_id\":\"" << Datagram.CustomId << "\","
           << "\"device_id\":\"" << Datagram.DeviceId << "\"" << "}]";
 
   if (Mqtt->GetNotifyOnlineFlag()) {
     std::cout << "Smartmeter is online." << std::endl;
-    if (!Mqtt->PublishMessage("online",
-                              Cfg->GetValue("mqtt_topic") + "/status",
-                              1,
-                              true)) {
+    if (!Mqtt->PublishMessage("online", Cfg->GetValue("mqtt_topic") + "/status",
+                              1, true)) {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
@@ -197,10 +185,8 @@ bool Smartmeter::Publish(void) {
   }
 
   if (Mqtt->GetConnectStatus()) {
-    if (!(Mqtt->PublishMessage(Payload.str(),
-                               Cfg->GetValue("mqtt_topic") + "/live",
-                               0,
-                               false))) {
+    if (!(Mqtt->PublishMessage(
+            Payload.str(), Cfg->GetValue("mqtt_topic") + "/live", 0, false))) {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
@@ -214,9 +200,7 @@ bool Smartmeter::Publish(void) {
   return true;
 }
 
-std::string Smartmeter::GetErrorMessage(void) const {
-  return ErrorMessage;
-}
+std::string Smartmeter::GetErrorMessage(void) const { return ErrorMessage; }
 
 void Smartmeter::SetLogLevel(void) {
   if (Cfg->KeyExists("log_level")) {
@@ -244,11 +228,9 @@ void Smartmeter::SetLogLevel(void) {
   }
 }
 
-unsigned char Smartmeter::GetLogLevel(void) const {
-  return Log;
-}
+unsigned char Smartmeter::GetLogLevel(void) const { return Log; }
 
-template<typename T_STR, typename T_CHAR>
+template <typename T_STR, typename T_CHAR>
 T_STR Smartmeter::RemoveLeading(T_STR const &str, T_CHAR c) const {
   auto end = str.cend();
   for (auto i = str.cbegin(); i != end; ++i) {
@@ -259,8 +241,7 @@ T_STR Smartmeter::RemoveLeading(T_STR const &str, T_CHAR c) const {
   return T_STR();
 }
 
-template<typename T>
-T Smartmeter::StringTo(const std::string &str) const {
+template <typename T> T Smartmeter::StringTo(const std::string &str) const {
   T value;
   std::istringstream iss(str);
   iss >> value;
