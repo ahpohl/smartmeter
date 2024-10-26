@@ -1,6 +1,7 @@
 #ifndef SmartmeterMqtt_h
 #define SmartmeterMqtt_h
 #include <mosquitto.h>
+#include <string>
 
 class SmartmeterMqtt {
   static void OnConnectCallbackWrapper(struct mosquitto *mosq, void *obj,

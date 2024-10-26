@@ -1,5 +1,6 @@
 #include "SmartmeterSerial.h"
 #include <cstring>
+#include <fcntl.h>
 #include <iostream>
 #include <sys/file.h>
 #include <sys/ioctl.h>
