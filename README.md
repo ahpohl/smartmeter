@@ -1,6 +1,6 @@
 # Overview
 
-The project started when my mechanical [Ferraris energy counter](https://en.wikipedia.org/wiki/Electricity_meter) was replaced with a digital [smart meter](resources/ebz/datenblatt_dd3.pdf) from eBZ. The DD3 model provides an IR signal which can be read once a second with a simple IR receiver. Initially I used just an Arduino with a [photo transistor circuit](https://github.com/ahpohl/smartmeter/wiki/arduino-breadboard) on a breadboard to read the signal. Later I have built an [IR dongle](https://github.com/ahpohl/smartmeter/wiki/ir-dongle-pcb) on a real PCB in a nice case for permanent mounting on top of the smart meter.
+The project started when my mechanical [Ferraris energy counter](https://en.wikipedia.org/wiki/Electricity_meter) was replaced with a digital [smart meter](resources/ebz/datenblatt_dd3.pdf) from eBZ. The DD3 model provides an IR signal which can be read once a second with a simple IR receiver. Initially I used just an Arduino with a [photo transistor circuit](https://github.com/ahpohl/smartmeter/wiki/Arduino-breadboard) on a breadboard to read the signal. Later I have built an [IR dongle](https://github.com/ahpohl/smartmeter/wiki/IR-dongle-pcb) on a real PCB in a nice case for permanent mounting on top of the smart meter.
 
 ![Infrared sensor mounted on top of smart meter](resources/ir-dongle/ir-dongle.png)
 
@@ -50,8 +50,8 @@ A minimal `smartmeter.conf` config file looks like this:
 serial_device /dev/ttyUSB0
 mqtt_topic smartmeter
 mqtt_broker localhost
-plan_basic_rate 175.91
-plan_price_kwh 0.1983
+basic_rate 175.91
+price_kwh 0.1983
 ```
 
 ## Smartmeter output
@@ -60,9 +60,25 @@ There are two versions of the EBz smart meter, the OD-types and the SM-types. Ac
 
 ```
 picocom -b 9600 -d 7 -y e /dev/ttyUSB0
+
+/EBZ5DD3BZ06ETA_107                # '/' start marker, serial number
+
+1-0:0.0.0*255(1EBZ0100507409)      # custom ID
+1-0:96.1.0*255(1EBZ0100507409)     # device ID
+1-0:1.8.0*255(000125.25688570*kWh) # energy meter
+1-0:16.7.0*255(000259.20*W)        # total power
+1-0:36.7.0*255(000075.18*W)        # L1 phase power
+1-0:56.7.0*255(000092.34*W)        # L2 phase power
+1-0:76.7.0*255(000091.68*W)        # L3 phase power
+1-0:32.7.0*255(232.4*V)            # L1 phase voltage
+1-0:52.7.0*255(231.7*V)            # L2 phase voltage
+1-0:72.7.0*255(233.7*V)            # L3 phase voltage
+1-0:96.5.0*255(001C0104)           # status
+0-0:96.8.0*255(00104443)           # sensor lifetime in secs, 0x
+!                                  # '!' end marker
 ```
 
-Example JSON string published by Smartmeter in the `smartmeter/live` topic:
+Example JSON published by Smartmeter in the `smartmeter/live` topic:
 
 ```
 [{
@@ -81,8 +97,8 @@ Example JSON string published by Smartmeter in the `smartmeter/live` topic:
   "time":1729973193908      # timestamp, secs since epoch
 },
 {
-  "serial":
-  "custom_id":
-  "device_id":
+  "serial":"EBZ5DD3BZ06ETA_107",
+  "custom_id":"1EBZ0100507409",
+  "device_id":"1EBZ0100507409"
 }]
 ```

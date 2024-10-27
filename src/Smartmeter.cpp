@@ -10,9 +10,9 @@
 
 const int Smartmeter::ReceiveBufferSize = 368;
 const std::set<std::string> Smartmeter::ValidKeys{
-    "log_level",       "mqtt_broker",    "mqtt_password",   "mqtt_port",
-    "mqtt_topic",      "mqtt_user",      "mqtt_tls_cafile", "mqtt_tls_capath",
-    "plan_basic_rate", "plan_price_kwh", "serial_device"};
+    "log_level",  "mqtt_broker", "mqtt_password", "mqtt_port",
+    "mqtt_topic", "mqtt_user",   "mqtt_cafile",   "mqtt_capath",
+    "basic_rate", "price_kwh",   "serial_device"};
 
 Smartmeter::Smartmeter(void) {
   ReceiveBuffer = new char[Smartmeter::ReceiveBufferSize]();
@@ -51,38 +51,44 @@ bool Smartmeter::Setup(const std::string &config) {
     return false;
   }
   this->SetLogLevel();
-  if (Log & static_cast<unsigned char>(LogLevel::SERIAL)) {
-    Serial->SetDebug(true);
-  }
-  if (Log & static_cast<unsigned char>(LogLevel::MQTT)) {
-    Mqtt->SetDebug(true);
-  }
   if (Log & static_cast<unsigned char>(LogLevel::CONFIG)) {
     Cfg->ShowConfig();
-  }
-  if (!(Cfg->KeyExists("plan_price_kwh"))) {
-    ErrorMessage = Cfg->GetErrorMessage();
-    return false;
-  }
-  if (!(Cfg->KeyExists("plan_basic_rate"))) {
-    ErrorMessage = Cfg->GetErrorMessage();
-    return false;
   }
   if (!(Cfg->KeyExists("serial_device"))) {
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
-  if (!Serial->Begin(Cfg->GetValue("serial_device"))) {
-    ErrorMessage = Serial->GetErrorMessage();
-    return false;
-  }
-  if (!Mqtt->Begin()) {
-    ErrorMessage = Mqtt->GetErrorMessage();
+  if (!(Cfg->KeyExists("mqtt_broker"))) {
+    ErrorMessage = Cfg->GetErrorMessage();
     return false;
   }
   if (!(Cfg->KeyExists("mqtt_topic"))) {
     ErrorMessage = Cfg->GetErrorMessage();
     return false;
+  }
+  if (!(Cfg->KeyExists("price_kwh"))) {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+  if (!(Cfg->KeyExists("basic_rate"))) {
+    ErrorMessage = Cfg->GetErrorMessage();
+    return false;
+  }
+
+  if (!Serial->Begin(Cfg->GetValue("serial_device"))) {
+    ErrorMessage = Serial->GetErrorMessage();
+    return false;
+  }
+  if (Log & static_cast<unsigned char>(LogLevel::SERIAL)) {
+    Serial->SetDebug(true);
+  }
+
+  if (!Mqtt->Begin()) {
+    ErrorMessage = Mqtt->GetErrorMessage();
+    return false;
+  }
+  if (Log & static_cast<unsigned char>(LogLevel::MQTT)) {
+    Mqtt->SetDebug(true);
   }
   if ((Cfg->KeyExists("mqtt_user") && Cfg->KeyExists("mqtt_password"))) {
     if (!Mqtt->SetUserPassAuth(Cfg->GetValue("mqtt_user"),
@@ -91,28 +97,28 @@ bool Smartmeter::Setup(const std::string &config) {
       return false;
     }
   }
-  if (Cfg->KeyExists("mqtt_tls_cafile") || Cfg->KeyExists("mqtt_tls_capath")) {
-    if (!Mqtt->SetTlsConnection(Cfg->GetValue("mqtt_tls_cafile"),
-                                Cfg->GetValue("mqtt_tls_capath"))) {
+  if (Cfg->KeyExists("mqtt_cafile") || Cfg->KeyExists("mqtt_capath")) {
+    if (!Mqtt->SetTlsConnection(Cfg->GetValue("mqtt_cafile"),
+                                Cfg->GetValue("mqtt_capath"))) {
       ErrorMessage = Mqtt->GetErrorMessage();
       return false;
     }
+  }
+  if (Cfg->KeyExists("mqtt_broker") && Cfg->KeyExists("mqtt_port") &&
+      (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"),
+                      StringTo<int>(Cfg->GetValue("mqtt_port")), 60))) {
+    ErrorMessage = Mqtt->GetErrorMessage();
+    return false;
+  } else if (Cfg->KeyExists("mqtt_broker") &&
+             (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"), 1883, 60))) {
+    ErrorMessage = Mqtt->GetErrorMessage();
+    return false;
   }
   if (!Mqtt->SetLastWillTestament(
           "offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true)) {
     ErrorMessage = Mqtt->GetErrorMessage();
     return false;
   }
-  if (!(Cfg->KeyExists("mqtt_broker")) || !(Cfg->KeyExists("mqtt_port"))) {
-    ErrorMessage = Cfg->GetErrorMessage();
-    return false;
-  }
-  if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"),
-                     StringTo<double>(Cfg->GetValue("mqtt_port")), 60)) {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
-  }
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
   return true;
 }
@@ -167,8 +173,8 @@ bool Smartmeter::Publish(void) {
           << "\"voltage_l2\":" << RemoveLeading(Datagram.VoltageL2, '0') << ","
           << "\"voltage_l3\":" << RemoveLeading(Datagram.VoltageL3, '0') << ","
           << "\"status\":\"" << Datagram.Status << "\"" << ","
-          << "\"rate\":" << Cfg->GetValue("plan_basic_rate") << ","
-          << "\"price\":" << Cfg->GetValue("plan_price_kwh") << ","
+          << "\"rate\":" << Cfg->GetValue("basic_rate") << ","
+          << "\"price\":" << Cfg->GetValue("price_kwh") << ","
           << "\"time\":" << now << "},{" << "\"serial\":\""
           << Datagram.SerialNum << "\","
           << "\"custom_id\":\"" << Datagram.CustomId << "\","
@@ -217,7 +223,7 @@ void Smartmeter::SetLogLevel(void) {
         Log |= static_cast<unsigned char>(LogLevel::CONFIG);
       } else if (!(*it).compare("json")) {
         Log |= static_cast<unsigned char>(LogLevel::JSON);
-      } else if (!(*it).compare("mosquitto")) {
+      } else if (!(*it).compare("mqtt")) {
         Log |= static_cast<unsigned char>(LogLevel::MQTT);
       } else if (!(*it).compare("serial")) {
         Log |= static_cast<unsigned char>(LogLevel::SERIAL);
