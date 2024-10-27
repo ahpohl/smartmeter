@@ -2,9 +2,9 @@
 
 The project started when my mechanical [Ferraris energy counter](https://en.wikipedia.org/wiki/Electricity_meter) was replaced with a digital [smart meter](resources/ebz/datenblatt_dd3.pdf) from eBZ. The DD3 model provides an IR signal which can be read once a second with a simple IR receiver. Initially I used just an Arduino with a [photo transistor circuit](https://github.com/ahpohl/smartmeter/wiki/Arduino-breadboard) on a breadboard to read the signal. Later I have built an [IR dongle](https://github.com/ahpohl/smartmeter/wiki/IR-dongle-pcb) on a real PCB in a nice case for permanent mounting on top of the smart meter.
 
-![Infrared sensor mounted on top of smart meter](resources/ir-dongle/ir-dongle.png)
+![Infrared sensor mounted on top of smart meter](resources/ir-dongle/ir_dongle.png)
 
-For the software side, the Smartmeter program reads the raw stream of data from the energy meter and forwards it as a JSON formatted string to a MQTT broker on the network. The data is stored in a TimescaleDB database and visualised on a Grafana dashboard. The installation of the software stack including the setup and maintainance of the database is described on separate [wiki pages]((https://github.com/ahpohl/smartmeter/wiki).
+For the software side, the Smartmeter program reads the raw stream of data from the energy meter and forwards it as a JSON formatted string to a MQTT broker on the network. The data is stored in a TimescaleDB database and visualised on a Grafana dashboard. The installation of the software stack including the setup and maintainance of the database is described on separate [wiki pages](https://github.com/ahpohl/smartmeter/wiki).
 
 ## Build instructions
 
