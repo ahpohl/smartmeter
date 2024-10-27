@@ -1,9 +1,10 @@
 # Smartmeter changelog
 
-## v0.3.8 - 2024-10-xx
+## v0.3.8 - 2024-10-27
 * add docker compose support
 * update readme
 * fix compile errors
+* make mqtt port optional
 
 ## v0.3.7 - 2024-03-27
 * add trend based on a model
