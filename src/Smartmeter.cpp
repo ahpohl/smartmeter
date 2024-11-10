@@ -104,15 +104,17 @@ bool Smartmeter::Setup(const std::string &config) {
       return false;
     }
   }
-  if (Cfg->KeyExists("mqtt_broker") && Cfg->KeyExists("mqtt_port") &&
-      (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"),
-                      StringTo<int>(Cfg->GetValue("mqtt_port")), 60))) {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
-  } else if (Cfg->KeyExists("mqtt_broker") &&
-             (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"), 1883, 60))) {
-    ErrorMessage = Mqtt->GetErrorMessage();
-    return false;
+  if (Cfg->KeyExists("mqtt_port")) {
+    if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"),
+                       StringTo<int>(Cfg->GetValue("mqtt_port")), 60)) {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
+  } else {
+    if (!Mqtt->Connect(Cfg->GetValue("mqtt_broker"), 1883, 60)) {
+      ErrorMessage = Mqtt->GetErrorMessage();
+      return false;
+    }
   }
   if (!Mqtt->SetLastWillTestament(
           "offline", Cfg->GetValue("mqtt_topic") + "/status", 1, true)) {

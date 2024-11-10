@@ -1,5 +1,8 @@
 # Smartmeter changelog
 
+## v0.3.9 - 2024-11-10
+* fix mqtt port config error
+
 ## v0.3.8 - 2024-10-27
 * add docker compose support
 * update readme
